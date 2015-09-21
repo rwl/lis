@@ -3,6 +3,8 @@ AM_CPPFLAGS = -I$(top_builddir) -I$(top_srcdir)/include
 AM_FFLAGS = -I$(top_builddir) -I$(top_srcdir)/include
 AM_LDFLAGS = $(AMDEFS)
 
+EXEEXT = .js
+
 EXTRA_DIST = defs test.sh testmat.mtx testmat2.mtx
 
 testdir = ${prefix}/share/examples/lis
