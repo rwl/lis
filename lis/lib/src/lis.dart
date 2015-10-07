@@ -60,12 +60,16 @@ class Vector<S> {
 
   final int _p_vec;
 
-  factory Vector(_LIS lis) {
+  factory Vector(_LIS lis, [int size]) {
     int pp_vec = lis.heapInt();
     int err = lis.callFunc('lis_vector_create', [COMM_WORLD, pp_vec]);
     lis._CHKERR(err);
     var p_vec = lis.derefInt(pp_vec);
-    return new Vector._(lis, p_vec);
+    var v = new Vector._(lis, p_vec);
+    if (size != null) {
+      v.size = size;
+    }
+    return v;
   }
 
   Vector._(this._lis, this._p_vec);
@@ -138,6 +142,7 @@ class Vector<S> {
     int err = _lis.callFunc('lis_vector_set_values2',
         [LIS_INS_VALUE, start, count, p_value, _p_vec]);
     _lis._CHKERR(err);
+    _lis.free(p_value);
   }
 
   void print() {
@@ -152,9 +157,13 @@ class Vector<S> {
     _lis._CHKERR(err);
   }
 
-  void copy(Vector<S> vdst) {
+  Vector<S> copy([Vector<S> vdst]) {
+    if (vdst == null) {
+      vdst = duplicate();
+    }
     int err = _lis.callFunc('lis_vector_copy', [_p_vec, vdst._p_vec]);
     _lis._CHKERR(err);
+    return vdst;
   }
 
   /// Calculate the sum of the vectors `y = ax + y`.
@@ -164,14 +173,16 @@ class Vector<S> {
   }
 
   /// Calculate the sum of the vectors `y = x + ay`.
-  void xpay(Vector<S> vx, [S alpha = 0.0]) {
+  void xpay(Vector<S> vx, [S alpha = 1.0]) {
     int err = _lis.callFunc('lis_vector_xpay', [vx._p_vec, alpha, _p_vec]);
     _lis._CHKERR(err);
   }
 
   /// Calculate the sum of the vectors `z = ax + y`.
-  Vector<S> axpyz(Vector<S> vx, [S alpha = 0.0]) {
-    var vz = new Vector(_lis);
+  Vector<S> axpyz(Vector<S> vx, [S alpha = 1.0, Vector<S> vz]) {
+    if (vz == null) {
+      vz = duplicate();
+    }
     int err = _lis.callFunc(
         'lis_vector_axpyz', [alpha, vx._p_vec, _p_vec, vz._p_vec]);
     _lis._CHKERR(err);
@@ -227,30 +238,30 @@ class Vector<S> {
     return _lis.derefDouble(p_value);
   }
 
-  double nrm1(Vector<S> vx) {
+  double nrm1() {
     int p_value = _lis.heapDouble();
-    int err = _lis.callFunc('lis_vector_nrm1', [vx._p_vec, _p_vec, p_value]);
+    int err = _lis.callFunc('lis_vector_nrm1', [_p_vec, p_value]);
     _lis._CHKERR(err);
     return _lis.derefDouble(p_value);
   }
 
-  double nrm2(Vector<S> vx) {
+  double nrm2() {
     int p_value = _lis.heapDouble();
-    int err = _lis.callFunc('lis_vector_nrm2', [vx._p_vec, _p_vec, p_value]);
+    int err = _lis.callFunc('lis_vector_nrm2', [_p_vec, p_value]);
     _lis._CHKERR(err);
     return _lis.derefDouble(p_value);
   }
 
-  double nrmi(Vector<S> vx) {
+  double nrmi() {
     int p_value = _lis.heapDouble();
-    int err = _lis.callFunc('lis_vector_nrmi', [vx._p_vec, _p_vec, p_value]);
+    int err = _lis.callFunc('lis_vector_nrmi', [_p_vec, p_value]);
     _lis._CHKERR(err);
     return _lis.derefDouble(p_value);
   }
 
-  S sum(Vector<S> vx) {
+  S sum() {
     int p_value = _lis.heapScalar();
-    int err = _lis.callFunc('lis_vector_sum', [vx._p_vec, _p_vec, p_value]);
+    int err = _lis.callFunc('lis_vector_sum', [_p_vec, p_value]);
     _lis._CHKERR(err);
     return _lis.derefScalar(p_value);
   }
@@ -263,7 +274,7 @@ class Matrix<S> {
 
   factory Matrix._(LIS lis) {
     int pp_mat = lis.heapInt();
-    int err = lis.callFunc('lis_vector_create', [_COMM_WORLD, pp_mat]);
+    int err = lis.callFunc('lis_vector_create', [COMM_WORLD, pp_mat]);
     lis._CHKERR(err);
     int p_mat = _lis.derefInt(pp_mat);
     return new Matrix<S>(p_mat);
