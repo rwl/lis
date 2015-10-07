@@ -4,12 +4,7 @@ import 'dart:math';
 import 'dart:typed_data';
 import 'package:test/test.dart';
 import 'package:lis/lis.dart';
-
-final Random _r = new Random();
-
-int rint([int max = 8]) => _r.nextInt(max) + 2;
-
-double rand() => _r.nextDouble();
+import 'random.dart';
 
 Float64List rarry() {
   int n = rint();

@@ -272,15 +272,15 @@ class Matrix<S> {
   final int _p_mat;
   Matrix._(this._lis, this._p_mat);
 
-  factory Matrix._(LIS lis) {
+  factory Matrix(LIS lis) {
     int pp_mat = lis.heapInt();
-    int err = lis.callFunc('lis_vector_create', [COMM_WORLD, pp_mat]);
+    int err = lis.callFunc('lis_matrix_create', [COMM_WORLD, pp_mat]);
     lis._CHKERR(err);
-    int p_mat = _lis.derefInt(pp_mat);
-    return new Matrix<S>(p_mat);
+    int p_mat = lis.derefInt(pp_mat);
+    return new Matrix<S>._(lis, p_mat);
   }
 
-  void destory() {
+  void destroy() {
     int err = _lis.callFunc('lis_matrix_destroy', [_p_mat]);
     _lis._CHKERR(err);
   }
@@ -323,7 +323,7 @@ class Matrix<S> {
   }
 
   void set type(MatrixType t) {
-    int err = _lis.callFunc('lis_matrix_set_type', [_p_mat, t._value]);
+    int err = _lis.callFunc('lis_matrix_set_type', [_p_mat, t._index]);
     _lis._CHKERR(err);
   }
 
@@ -381,6 +381,63 @@ class Matrix<S> {
 
   // LIS_INT lis_matrix_set_blocksize(LIS_MATRIX A, LIS_INT bnr, LIS_INT bnc, LIS_INT row[], LIS_INT col[]);
   // LIS_INT lis_matrix_unset(LIS_MATRIX A);
+}
+
+class MatrixType {
+  static const ASSEMBLING = const MatrixType._('ASSEMBLING', 0);
+
+  /// Compressed Sparse Row
+  static const CSR = const MatrixType._('CSR', 1);
+
+  /// Compressed Sparse Column
+  static const CSC = const MatrixType._('CSC', 2);
+
+  /// Modified Compressed Sparse Row
+  static const MSR = const MatrixType._('MSR', 3);
+
+  /// Diagonal
+  static const DIA = const MatrixType._('DIA', 4);
+
+  /// Ellpack-Itpack Generalized Diagonal
+  static const ELL = const MatrixType._('ELL', 5);
+
+  /// Jagged Diagonal
+  static const JAD = const MatrixType._('JAD', 6);
+
+  /// Block Sparse Row
+  static const BSR = const MatrixType._('BSR', 7);
+
+  /// Block Sparse Column
+  static const BSC = const MatrixType._('BSC', 8);
+
+  /// Variable Block Row
+  static const VBR = const MatrixType._('VBR', 9);
+
+  /// Coordinate
+  static const COO = const MatrixType._('COO', 10);
+  static const DENSE = const MatrixType._('DENSE', 11);
+
+  static final List<MatrixType> values = [
+    ASSEMBLING,
+    CSR,
+    CSC,
+    MSR,
+    DIA,
+    ELL,
+    JAD,
+    BSR,
+    BSC,
+    VBR,
+    COO,
+    DENSE
+  ];
+
+  final String _name;
+  final int _index;
+
+  const MatrixType._(this._name, this._index);
+
+  String toString() => 'MatrixType.$_name';
 }
 
 class Solver<S> {
