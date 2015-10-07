@@ -4,7 +4,9 @@ import 'dart:typed_data';
 import 'dart:js' as js;
 import 'package:emscripten/emscripten.dart';
 
-int _COMM_WORLD = 1;
+const int LIS_INS_VALUE = 0;
+
+const int COMM_WORLD = 0x1;
 
 abstract class _LIS<S> extends Module {
   _LIS(
@@ -13,7 +15,7 @@ abstract class _LIS<S> extends Module {
       List<String> options: const []})
       : super(moduleName: moduleName, context: context) {
     int argc = heapInt(options.length + 1);
-    options.insert(0, 'lis');
+    options = ['lis']..addAll(options);
     int p_args = heapStrings(options);
     int argv = heapInt(p_args);
     int err = callFunc('lis_initialize', [argc, argv]);
@@ -42,6 +44,10 @@ abstract class _LIS<S> extends Module {
 
 class LIS extends _LIS {
   LIS([List<String> options = const []]);
+
+  heapScalar([val]) => heapDouble(val);
+
+  derefScalar(int ptr, [bool free = true]) => derefDouble(ptr, free);
 }
 
 class Vector<S> {
@@ -51,7 +57,7 @@ class Vector<S> {
 
   factory Vector(_LIS lis) {
     int pp_vec = lis.heapInt();
-    int err = lis.callFunc('lis_vector_create', [_COMM_WORLD, pp_vec]);
+    int err = lis.callFunc('lis_vector_create', [COMM_WORLD, pp_vec]);
     lis._CHKERR(err);
     var p_vec = lis.derefInt(pp_vec);
     return new Vector._(lis, p_vec);

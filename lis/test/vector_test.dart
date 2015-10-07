@@ -29,4 +29,17 @@ testVector() {
     v.size = size;
     expect(v.size, equals(size));
   });
+  test('duplicate', () {
+    int size = rint();
+    v.size = size;
+    var v2 = v.duplicate();
+    expect(v2, isNotNull);
+    expect(v2.size, equals(size));
+  });
+  test('[]', () {
+    v.size = rint();
+    var val = rand();
+    v[0] = val;
+    expect(v[0], equals(val));
+  });
 }
