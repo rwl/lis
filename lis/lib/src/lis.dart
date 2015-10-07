@@ -24,7 +24,7 @@ abstract class _LIS<S> extends Module {
 
   int heapScalars(List<S> list);
 
-  List<S> derefScalars(int ptr);
+  List<S> derefScalars(int ptr, int n, [bool free = true]);
 
   int heapScalar([S value]);
 
@@ -44,6 +44,11 @@ abstract class _LIS<S> extends Module {
 
 class LIS extends _LIS {
   LIS([List<String> options = const []]);
+
+  int heapScalars(List list) => heapDoubles(list);
+
+  List derefScalars(int ptr, int n, [bool free = true]) =>
+      derefDoubles(ptr, n, free);
 
   heapScalar([val]) => heapDouble(val);
 
@@ -99,27 +104,37 @@ class Vector<S> {
     return _lis.derefScalar(p_value);
   }
 
-  List<S> values(int start, int count) {
-    int p_value = heapScalars();
-    int err =
-        _lis.callFunc('lis_vector_get_values', [_p_vec, start, count, p_value]);
-    _lis._CHKERR(err);
-  }
-
   void operator []=(int i, S value) {
     int err = _lis.callFunc(
         'lis_vector_set_value', [LIS_INS_VALUE, i, value, _p_vec]);
   }
 
-  void setValues(List<int> index, List<S> value) {
+  List<S> values([int start = 0, int count]) {
+    if (count == null) {
+      count = size;
+    }
+    var vals = new Float64List(count);
+    int p_value = _lis.heapScalars(vals);
+    int err =
+        _lis.callFunc('lis_vector_get_values', [_p_vec, start, count, p_value]);
+    _lis._CHKERR(err);
+    return _lis.derefScalars(p_value, count);
+  }
+
+  void setValues(Int32List index, List<S> value) {
     int count = index.length;
+    int p_index = _lis.heapInts(index);
+    int p_value = _lis.heapScalars(value);
     int err = _lis.callFunc('lis_vector_set_values',
         [LIS_INS_VALUE, count, p_index, p_value, _p_vec]);
     _lis._CHKERR(err);
+    _lis.free(p_index);
+    _lis.free(p_value);
   }
 
   void setAll(int start, Iterable<S> value) {
     int count = value.length;
+    int p_value = _lis.heapScalars(value);
     int err = _lis.callFunc('lis_vector_set_values2',
         [LIS_INS_VALUE, start, count, p_value, _p_vec]);
     _lis._CHKERR(err);

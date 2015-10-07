@@ -1,5 +1,8 @@
+import 'package:test/test.dart';
 import 'vector_test.dart';
 
 main() {
-  testVector();
+  group('lis', () {
+    testVector();
+  });
 }
