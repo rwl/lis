@@ -60,7 +60,7 @@ testMatrix() {
     });
     test('type', () {
       MatrixType.values.forEach((t) {
-        if (t == MatrixType.ASSEMBLING) {
+        if (t == null) {
           return;
         }
         var m2 = new Matrix(lis);

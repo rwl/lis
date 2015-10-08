@@ -295,8 +295,6 @@ class Dense<S> {
 }
 
 class MatrixType {
-  static const ASSEMBLING = const MatrixType._('ASSEMBLING', 0);
-
   /// Compressed Sparse Row
   static const CSR = const MatrixType._('CSR', 1);
 
@@ -329,7 +327,7 @@ class MatrixType {
   static const DENSE = const MatrixType._('DENSE', 11);
 
   static final List<MatrixType> values = [
-    ASSEMBLING,
+    null,
     CSR,
     CSC,
     MSR,
