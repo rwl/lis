@@ -7,6 +7,7 @@ import 'package:emscripten/emscripten.dart';
 part 'vector.dart';
 part 'matrix.dart';
 part 'solver.dart';
+part 'esolver.dart';
 
 const int LIS_INS_VALUE = 0;
 

@@ -88,7 +88,7 @@ main(List<String> args) {
 //    CHKERR(err);
   }
 
-  var solver = new Solver(lis);
+  var solver = new LinearSolver(lis);
 //  CHKERR(err);
   solver.set_option("-print mem");
   solver.set_optionC();

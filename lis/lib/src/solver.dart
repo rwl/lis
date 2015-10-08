@@ -1,20 +1,20 @@
 part of lis.internal;
 
-class Solver<S> {
+class LinearSolver<S> {
   final _LIS _lis;
   final int _p_solve;
 
-  factory Solver(_LIS lis) {
+  factory LinearSolver(_LIS lis) {
     int pp_solver = lis.heapInt();
     int err = lis.callFunc('lis_solver_create', [pp_solver]);
     lis._CHKERR(err);
     int p_solve = lis.derefInt(pp_solver);
-    return new Solver._(lis, p_solve);
+    return new LinearSolver._(lis, p_solve);
   }
 
-  Solver._(this._lis, this._p_solve);
+  LinearSolver._(this._lis, this._p_solve);
 
-  void destory() {
+  void destroy() {
     int err = _lis.callFunc('lis_solver_destroy', [_p_solve]);
     _lis._CHKERR(err);
   }
@@ -68,11 +68,11 @@ class Solver<S> {
     return _lis.derefDouble(p_norm);
   }
 
-  SolverType solver() {
+  LinearSolverType solver() {
     int p_nsol = _lis.heapInt();
     int err = _lis.callFunc('lis_solver_get_solver', [_p_solve, p_nsol]);
     _lis._CHKERR(err);
-    return SolverType.values[_lis.derefInt(p_nsol)];
+    return LinearSolverType.values[_lis.derefInt(p_nsol)];
   }
 
   PreconType precon() {
@@ -141,32 +141,32 @@ class Time {
   Time._(this.time, this.itime, this.ptime, this.p_c_time, this.p_i_time);
 }
 
-class SolverType {
-  static const CG = const SolverType._('CG', 1);
-  static const BICG = const SolverType._('BiCG', 2);
-  static const CGS = const SolverType._('CGS', 3);
-  static const BICGSTAB = const SolverType._('BiCGSTAB', 4);
-  static const BICGSTABL = const SolverType._('BICGSTAB(l)', 5);
-  static const GPBICG = const SolverType._('GPBICG', 6);
-  static const TFQMR = const SolverType._('TFQMR', 7);
-  static const ORTHOMIN = const SolverType._('Orthomin', 8);
-  static const GMRES = const SolverType._('GMRES', 9);
-  static const JACOBI = const SolverType._('Jacobi', 10);
-  static const GS = const SolverType._('Gauss-Seidel', 11);
-  static const SOR = const SolverType._('SOR', 12);
-  static const BICGSAFE = const SolverType._('BiCGSafe', 13);
-  static const CR = const SolverType._('CR', 14);
-  static const BICR = const SolverType._('BiCR', 15);
-  static const CRS = const SolverType._('CRS', 16);
-  static const BICRSTAB = const SolverType._('BiCRSTAB', 17);
-  static const GPBICR = const SolverType._('GPBiCR', 18);
-  static const BICRSAFE = const SolverType._('BiCRSafe', 19);
-  static const FGMRES = const SolverType._('FGMRES', 20);
-  static const IDRS = const SolverType._('IDR(s)', 21);
-  static const MINRES = const SolverType._('CG', 22);
-  static const IDR1 = const SolverType._('IDR(1)', 23);
+class LinearSolverType {
+  static const CG = const LinearSolverType._('CG', 1);
+  static const BICG = const LinearSolverType._('BiCG', 2);
+  static const CGS = const LinearSolverType._('CGS', 3);
+  static const BICGSTAB = const LinearSolverType._('BiCGSTAB', 4);
+  static const BICGSTABL = const LinearSolverType._('BICGSTAB(l)', 5);
+  static const GPBICG = const LinearSolverType._('GPBICG', 6);
+  static const TFQMR = const LinearSolverType._('TFQMR', 7);
+  static const ORTHOMIN = const LinearSolverType._('Orthomin', 8);
+  static const GMRES = const LinearSolverType._('GMRES', 9);
+  static const JACOBI = const LinearSolverType._('Jacobi', 10);
+  static const GS = const LinearSolverType._('Gauss-Seidel', 11);
+  static const SOR = const LinearSolverType._('SOR', 12);
+  static const BICGSAFE = const LinearSolverType._('BiCGSafe', 13);
+  static const CR = const LinearSolverType._('CR', 14);
+  static const BICR = const LinearSolverType._('BiCR', 15);
+  static const CRS = const LinearSolverType._('CRS', 16);
+  static const BICRSTAB = const LinearSolverType._('BiCRSTAB', 17);
+  static const GPBICR = const LinearSolverType._('GPBiCR', 18);
+  static const BICRSAFE = const LinearSolverType._('BiCRSafe', 19);
+  static const FGMRES = const LinearSolverType._('FGMRES', 20);
+  static const IDRS = const LinearSolverType._('IDR(s)', 21);
+  static const MINRES = const LinearSolverType._('CG', 22);
+  static const IDR1 = const LinearSolverType._('IDR(1)', 23);
 
-  static const List<SolverType> values = const [
+  static const List<LinearSolverType> values = const [
     null,
     CG,
     BICG,
@@ -196,7 +196,7 @@ class SolverType {
   final String name;
   final int nsol;
 
-  const SolverType._(this.name, this.nsol);
+  const LinearSolverType._(this.name, this.nsol);
 }
 
 class PreconType {
