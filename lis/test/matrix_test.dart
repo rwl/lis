@@ -150,7 +150,7 @@ testMatrix() {
     });
     test('csr', () {
       var n = 4, nnz = 8;
-      var csr = new CSR(lis, n, nnz);
+      var csr = new CSR(n, nnz);
 
       csr.ptr[0] = 0;
       csr.ptr[1] = 1;
@@ -175,6 +175,115 @@ testMatrix() {
       csr.value[7] = 44.0;
 
       var A = new Matrix.csr(lis, csr);
+      expect(A.diagonal().values(), equals([11.0, 22.0, 33.0, 44.0]));
+    });
+    test('csc', () {
+      var n = 4, nnz = 8;
+      var csc = new CSC(n, nnz);
+
+      csc.ptr[0] = 0;
+      csc.ptr[1] = 3;
+      csc.ptr[2] = 5;
+      csc.ptr[3] = 7;
+      csc.ptr[4] = 8;
+      csc.index[0] = 0;
+      csc.index[1] = 1;
+      csc.index[2] = 3;
+      csc.index[3] = 1;
+      csc.index[4] = 2;
+      csc.index[5] = 2;
+      csc.index[6] = 3;
+      csc.index[7] = 3;
+      csc.value[0] = 11.0;
+      csc.value[1] = 21.0;
+      csc.value[2] = 41.0;
+      csc.value[3] = 22.0;
+      csc.value[4] = 32.0;
+      csc.value[5] = 33.0;
+      csc.value[6] = 43.0;
+      csc.value[7] = 44.0;
+
+      var A = new Matrix.csc(lis, csc);
+      expect(A.diagonal().values(), equals([11.0, 22.0, 33.0, 44.0]));
+    });
+    test('dia', () {
+      var n = 4, nnd = 3;
+      var dia = new Dia(n, nnd);
+
+      dia.index[0] = -3;
+      dia.index[1] = -1;
+      dia.index[2] = 0;
+      dia.value[0] = 0.0;
+      dia.value[1] = 0.0;
+      dia.value[2] = 0.0;
+      dia.value[3] = 41.0;
+      dia.value[4] = 0.0;
+      dia.value[5] = 21.0;
+      dia.value[6] = 32.0;
+      dia.value[7] = 43.0;
+      dia.value[8] = 11.0;
+      dia.value[9] = 22.0;
+      dia.value[10] = 33.0;
+      dia.value[11] = 44.0;
+
+      var A = new Matrix.dia(lis, dia);
+      expect(A.diagonal().values(), equals([11.0, 22.0, 33.0, 44.0]));
+    });
+    test('coo', () {
+      int n = 4, nnz = 8;
+      var coo = new Coo(n, nnz);
+
+      coo.row[0] = 0;
+      coo.row[1] = 1;
+      coo.row[2] = 3;
+      coo.row[3] = 1;
+      coo.row[4] = 2;
+      coo.row[5] = 2;
+      coo.row[6] = 3;
+      coo.row[7] = 3;
+      coo.col[0] = 0;
+      coo.col[1] = 0;
+      coo.col[2] = 0;
+      coo.col[3] = 1;
+      coo.col[4] = 1;
+      coo.col[5] = 2;
+      coo.col[6] = 2;
+      coo.col[7] = 3;
+      coo.value[0] = 11.0;
+      coo.value[1] = 21.0;
+      coo.value[2] = 41.0;
+      coo.value[3] = 22.0;
+      coo.value[4] = 32.0;
+      coo.value[5] = 33.0;
+      coo.value[6] = 43.0;
+      coo.value[7] = 44.0;
+
+      var A = new Matrix.coo(lis, coo);
+      expect(A.diagonal().values(), equals([11.0, 22.0, 33.0, 44.0]));
+    });
+
+    test('dense', () {
+      var n = 4;
+      var dense = new Dense(n);
+
+      dense.value[0] = 11.0;
+      dense.value[1] = 21.0;
+      dense.value[2] = 0.0;
+      dense.value[3] = 41.0;
+      dense.value[4] = 0.0;
+      dense.value[5] = 22.0;
+      dense.value[6] = 32.0;
+      dense.value[7] = 0.0;
+      dense.value[8] = 0.0;
+      dense.value[9] = 0.0;
+      dense.value[10] = 33.0;
+      dense.value[11] = 43.0;
+      dense.value[12] = 0.0;
+      dense.value[13] = 0.0;
+      dense.value[14] = 0.0;
+      dense.value[15] = 44.0;
+
+      var A = new Matrix.dense(lis, dense);
       expect(A.diagonal().values(), equals([11.0, 22.0, 33.0, 44.0]));
     });
   });

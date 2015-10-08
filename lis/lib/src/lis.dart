@@ -273,7 +273,7 @@ class Matrix<S> {
   final int _p_mat;
   Matrix._(this._lis, this._p_mat);
 
-  factory Matrix(LIS lis) {
+  factory Matrix(_LIS lis) {
     int pp_mat = lis.heapInt();
     int err = lis.callFunc('lis_matrix_create', [COMM_WORLD, pp_mat]);
     lis._CHKERR(err);
@@ -281,14 +281,57 @@ class Matrix<S> {
     return new Matrix<S>._(lis, p_mat);
   }
 
-  factory Matrix.csr(LIS lis, CSR csr) {
+  factory Matrix.csr(_LIS lis, CSR csr) {
     var p_ptr = lis.heapInts(csr.ptr);
     var p_index = lis.heapInts(csr.index);
-    var p_value = lis.heapDoubles(csr.value);
-    var m = new Matrix(lis);
-    m.size = csr.n;
+    var p_value = lis.heapScalars(csr.value);
+    var m = new Matrix(lis)..size = csr.n;
     int err = lis.callFunc(
         'lis_matrix_set_csr', [csr.nnz, p_ptr, p_index, p_value, m._p_mat]);
+    lis._CHKERR(err);
+    m.assemble();
+    return m;
+  }
+
+  factory Matrix.csc(_LIS lis, CSC csc) {
+    var p_ptr = lis.heapInts(csc.ptr);
+    var p_index = lis.heapInts(csc.index);
+    var p_value = lis.heapScalars(csc.value);
+    var m = new Matrix(lis)..size = csc.n;
+    int err = lis.callFunc(
+        'lis_matrix_set_csc', [csc.nnz, p_ptr, p_index, p_value, m._p_mat]);
+    lis._CHKERR(err);
+    m.assemble();
+    return m;
+  }
+
+  factory Matrix.dia(_LIS lis, Dia dia) {
+    var p_index = lis.heapInts(dia.index);
+    var p_value = lis.heapScalars(dia.value);
+    var m = new Matrix(lis)..size = dia.n;
+    int err = lis.callFunc(
+        'lis_matrix_set_dia', [dia.nnd, p_index, p_value, m._p_mat]);
+    lis._CHKERR(err);
+    m.assemble();
+    return m;
+  }
+
+  factory Matrix.coo(_LIS lis, Coo coo) {
+    var p_row = lis.heapInts(coo.row);
+    var p_col = lis.heapInts(coo.col);
+    var p_value = lis.heapScalars(coo.value);
+    var m = new Matrix(lis)..size = coo.n;
+    int err = lis.callFunc(
+        'lis_matrix_set_coo', [coo.nnz, p_row, p_col, p_value, m._p_mat]);
+    lis._CHKERR(err);
+    m.assemble();
+    return m;
+  }
+
+  factory Matrix.dense(_LIS lis, Dense dense) {
+    var p_value = lis.heapScalars(dense.value);
+    var m = new Matrix(lis)..size = dense.n;
+    int err = lis.callFunc('lis_matrix_set_dns', [p_value, m._p_mat]);
     lis._CHKERR(err);
     m.assemble();
     return m;
@@ -407,7 +450,11 @@ class Matrix<S> {
   }
 
   // LIS_INT lis_matrix_set_blocksize(LIS_MATRIX A, LIS_INT bnr, LIS_INT bnc, LIS_INT row[], LIS_INT col[]);
-  // LIS_INT lis_matrix_unset(LIS_MATRIX A);
+
+  void unset() {
+    int err = _lis.callFunc('lis_matrix_unset', [_p_mat]);
+    _lis._CHKERR(err);
+  }
 }
 
 class CSR<S> {
@@ -416,19 +463,79 @@ class CSR<S> {
   final Int32List ptr;
   final Int32List index;
   final List<S> value;
-  factory CSR(_LIS lis, int n, nnz) {
-    int p_ptr = lis.heapInt();
-    int p_index = lis.heapInt();
-    int p_value = lis.heapInt();
-    int err = lis.callFunc(
-        'lis_matrix_malloc_csr', [n, nnz, p_ptr, p_index, p_value]);
-    lis._CHKERR(err);
-    var ptr = lis.derefInts(p_ptr, n + 1);
-    var index = lis.derefInts(p_index, nnz);
-    var value = lis.derefDoubles(p_value, nnz);
+
+  factory CSR(int n, nnz) {
+    var ptr = new Int32List(n + 1);
+    var index = new Int32List(nnz);
+    var value = new Float64List(nnz);
     return new CSR.from(n, nnz, ptr, index, value);
   }
+
   CSR.from(this.n, this.nnz, this.ptr, this.index, this.value);
+}
+
+class CSC<S> {
+  final int n;
+  final int nnz;
+  final Int32List ptr;
+  final Int32List index;
+  final List<S> value;
+
+  factory CSC(int n, nnz) {
+    var ptr = new Int32List(n + 1);
+    var index = new Int32List(nnz);
+    var value = new Float64List(nnz);
+    return new CSC.from(n, nnz, ptr, index, value);
+  }
+
+  CSC.from(this.n, this.nnz, this.ptr, this.index, this.value);
+}
+
+class Dia<S> {
+  final int n;
+  final int nnd;
+  final Int32List index;
+  final Float64List value;
+
+  factory Dia(int n, int nnd) {
+    var index = new Int32List(nnd); // TODO: n *nnd
+    var value = new Float64List(n * nnd);
+    return new Dia.from(n, nnd, index, value);
+  }
+
+  Dia.from(this.n, this.nnd, this.index, this.value);
+}
+
+class Coo<S> {
+  final int n;
+  final int nnz;
+  final Int32List row, col;
+  final List<S> value;
+
+  factory Coo(int n, int nnz) {
+    var row = new Int32List(nnz);
+    var col = new Int32List(nnz);
+    var value = new Float64List(nnz);
+    return new Coo.from(n, nnz, row, col, value);
+  }
+
+  Coo.from(this.n, this.nnz, this.row, this.col, this.value);
+}
+
+class Dense<S> {
+  final int n;
+  final int np;
+  final List<S> value;
+
+  factory Dense(int n, [int np]) {
+    if (np == null) {
+      np = n;
+    }
+    var value = new Float64List(n * np);
+    return new Dense.from(n, np, value);
+  }
+
+  Dense.from(this.n, this.np, this.value);
 }
 
 class MatrixType {
