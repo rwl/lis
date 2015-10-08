@@ -19,6 +19,14 @@ class Vector<S> {
 
   Vector._(this._lis, this._p_vec);
 
+  factory Vector.fromMatrix(_LIS lis, Matrix<S> A) {
+    int pp_vout = lis.heapInt();
+    var err = lis.callFunc('lis_vector_duplicate', [A._p_mat, pp_vout]);
+    lis._CHKERR(err);
+    var p_vout = lis.derefInt(pp_vout);
+    return new Vector._(lis, p_vout);
+  }
+
   void destroy() {
     int err = _lis.callFunc('lis_vector_destroy', [_p_vec]);
     _lis._CHKERR(err);
@@ -34,6 +42,7 @@ class Vector<S> {
     int p_global_n = _lis.heapInt();
     int err =
         _lis.callFunc('lis_vector_get_size', [_p_vec, p_local_n, p_global_n]);
+    _lis._CHKERR(err);
     _lis.free(p_local_n);
     return _lis.derefInt(p_global_n);
   }
@@ -56,6 +65,7 @@ class Vector<S> {
   void operator []=(int i, S value) {
     int err = _lis.callFunc(
         'lis_vector_set_value', [LIS_INS_VALUE, i, value, _p_vec]);
+    _lis._CHKERR(err);
   }
 
   List<S> values([int start = 0, int count]) {

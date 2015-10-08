@@ -84,6 +84,7 @@ class Matrix<S> {
   Matrix<S> duplicate() {
     int pp_Aout = _lis.heapInt();
     int err = _lis.callFunc('lis_matrix_duplicate', [_p_mat, pp_Aout]);
+    _lis._CHKERR(err);
     int p_Aout = _lis.derefInt(pp_Aout);
     return new Matrix._(_lis, p_Aout);
   }
@@ -98,6 +99,7 @@ class Matrix<S> {
     int p_global_n = _lis.heapInt();
     int err =
         _lis.callFunc('lis_matrix_get_size', [_p_mat, p_local_n, p_global_n]);
+    _lis._CHKERR(err);
     _lis.free(p_local_n);
     return _lis.derefInt(p_global_n);
   }
@@ -117,6 +119,7 @@ class Matrix<S> {
   MatrixType get type {
     int p_type = _lis.heapInt();
     int err = _lis.callFunc('lis_matrix_get_type', [_p_mat, p_type]);
+    _lis._CHKERR(err);
     int t = _lis.derefInt(p_type);
     return MatrixType.values[t];
   }
@@ -178,6 +181,7 @@ class Matrix<S> {
       Aout.size = size;
     }
     int err = _lis.callFunc('lis_matrix_copy', [_p_mat, Aout._p_mat]);
+    _lis._CHKERR(err);
     return Aout;
   }
 
@@ -186,6 +190,26 @@ class Matrix<S> {
   void unset() {
     int err = _lis.callFunc('lis_matrix_unset', [_p_mat]);
     _lis._CHKERR(err);
+  }
+
+  Vector<S> mult(Vector<S> vx, [Vector<S> vy]) {
+    if (vy == null) {
+      vy = vx.duplicate();
+    }
+    int err = _lis.callFunc('lis_matvec', [_p_mat, vx._p_vec, vy._p_vec]);
+    _lis._CHKERR(err);
+    return vy;
+  }
+
+  Vector<S> operator *(Vector<S> vx) => mult(vx);
+
+  Vector<S> multT(Vector<S> vx, [Vector<S> vy]) {
+    if (vy == null) {
+      vy = vx.duplicate();
+    }
+    int err = _lis.callFunc('lis_matvect', [_p_mat, vx._p_vec, vy._p_vec]);
+    _lis._CHKERR(err);
+    return vy;
   }
 }
 
