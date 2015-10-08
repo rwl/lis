@@ -147,6 +147,13 @@ class EigenSolver<S> {
     _lis._CHKERR(err);
     return EigenSolverType.values[_lis.derefInt(p_nesol)];
   }
+
+  String output() {
+    int p_path = _lis._heapPath();
+    int err = _lis.callFunc('lis_esolver_output_rhistory', [_p_solve, p_path]);
+    _lis._CHKERR(err);
+    return _lis._readFile(p_path);
+  }
 }
 
 class EigenPair {

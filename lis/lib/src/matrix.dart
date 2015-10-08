@@ -69,6 +69,23 @@ class Matrix<S> {
     return m;
   }
 
+  factory Matrix.input(_LIS lis, String data) {
+    var A = new Matrix(lis);
+    int p_path = lis._writeFile(data);
+    int err = lis.callFunc('lis_input_matrix', [A._p_mat, p_path]);
+    lis._CHKERR(err);
+    lis._removeFile(p_path);
+    return A;
+  }
+
+  String output() {
+    int p_path = _lis._heapPath();
+    int err =
+        _lis.callFunc('lis_output_matrix', [_p_mat, Format.MM.index, p_path]);
+    _lis._CHKERR(err);
+    return _lis._readFile(p_path);
+  }
+
   void destroy() {
     int err = _lis.callFunc('lis_matrix_destroy', [_p_mat]);
     _lis._CHKERR(err);

@@ -27,6 +27,22 @@ class Vector<S> {
     return new Vector._(lis, p_vout);
   }
 
+  factory Vector.input(_LIS lis, String data) {
+    var v = new Vector(lis);
+    int p_path = lis._writeFile(data);
+    int err = lis.callFunc('lis_input_vector', [v._p_vec, p_path]);
+    lis._CHKERR(err);
+    lis._removeFile(p_path);
+    return v;
+  }
+
+  String output([Format fmt = Format.PLAIN]) {
+    int p_path = _lis._heapPath();
+    int err = _lis.callFunc('lis_output_vector', [_p_vec, fmt.index, p_path]);
+    _lis._CHKERR(err);
+    return _lis._readFile(p_path);
+  }
+
   void destroy() {
     int err = _lis.callFunc('lis_vector_destroy', [_p_vec]);
     _lis._CHKERR(err);
@@ -122,19 +138,28 @@ class Vector<S> {
   }
 
   /// Calculate the sum of the vectors `y = ax + y`.
-  void axpy(Vector<S> vx, [S alpha = 1.0]) {
+  void axpy(Vector<S> vx, [S alpha]) {
+    if (alpha == null) {
+      alpha = _lis._scalarOne();
+    }
     int err = _lis.callFunc('lis_vector_axpy', [alpha, vx._p_vec, _p_vec]);
     _lis._CHKERR(err);
   }
 
   /// Calculate the sum of the vectors `y = x + ay`.
-  void xpay(Vector<S> vx, [S alpha = 1.0]) {
+  void xpay(Vector<S> vx, [S alpha]) {
+    if (alpha == null) {
+      alpha = _lis._scalarOne();
+    }
     int err = _lis.callFunc('lis_vector_xpay', [vx._p_vec, alpha, _p_vec]);
     _lis._CHKERR(err);
   }
 
   /// Calculate the sum of the vectors `z = ax + y`.
-  Vector<S> axpyz(Vector<S> vx, [S alpha = 1.0, Vector<S> vz]) {
+  Vector<S> axpyz(Vector<S> vx, [S alpha, Vector<S> vz]) {
+    if (alpha == null) {
+      alpha = _lis._scalarOne();
+    }
     if (vz == null) {
       vz = duplicate();
     }

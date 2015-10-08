@@ -129,6 +129,12 @@ class LinearSolver<S> {
   //LIS_INT lis_solver_get_solvername(LIS_INT solver, char *solvername);
   //LIS_INT lis_solver_get_preconname(LIS_INT precon_type, char *preconname);
 
+  String output() {
+    int p_path = _lis._heapPath();
+    int err = _lis.callFunc('lis_solver_output_rhistory', [_p_solve, p_path]);
+    _lis._CHKERR(err);
+    return _lis._readFile(p_path);
+  }
 }
 
 class Iter {
