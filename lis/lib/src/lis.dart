@@ -281,6 +281,19 @@ class Matrix<S> {
     return new Matrix<S>._(lis, p_mat);
   }
 
+  factory Matrix.csr(LIS lis, CSR csr) {
+    var p_ptr = lis.heapInts(csr.ptr);
+    var p_index = lis.heapInts(csr.index);
+    var p_value = lis.heapDoubles(csr.value);
+    var m = new Matrix(lis);
+    m.size = csr.n;
+    int err = lis.callFunc(
+        'lis_matrix_set_csr', [csr.nnz, p_ptr, p_index, p_value, m._p_mat]);
+    lis._CHKERR(err);
+    m.assemble();
+    return m;
+  }
+
   void destroy() {
     int err = _lis.callFunc('lis_matrix_destroy', [_p_mat]);
     _lis._CHKERR(err);
@@ -291,9 +304,7 @@ class Matrix<S> {
     _lis._CHKERR(err);
   }
 
-  bool assembled() {
-    return _lis.callFunc('lis_matrix_is_assembled', [_p_mat]) != 0;
-  }
+  bool assembled() => _lis.callFunc('lis_matrix_is_assembled', [_p_mat]) != 0;
 
   Matrix<S> duplicate() {
     int pp_Aout = _lis.heapInt();
@@ -397,6 +408,27 @@ class Matrix<S> {
 
   // LIS_INT lis_matrix_set_blocksize(LIS_MATRIX A, LIS_INT bnr, LIS_INT bnc, LIS_INT row[], LIS_INT col[]);
   // LIS_INT lis_matrix_unset(LIS_MATRIX A);
+}
+
+class CSR<S> {
+  final int n;
+  final int nnz;
+  final Int32List ptr;
+  final Int32List index;
+  final List<S> value;
+  factory CSR(_LIS lis, int n, nnz) {
+    int p_ptr = lis.heapInt();
+    int p_index = lis.heapInt();
+    int p_value = lis.heapInt();
+    int err = lis.callFunc(
+        'lis_matrix_malloc_csr', [n, nnz, p_ptr, p_index, p_value]);
+    lis._CHKERR(err);
+    var ptr = lis.derefInts(p_ptr, n + 1);
+    var index = lis.derefInts(p_index, nnz);
+    var value = lis.derefDoubles(p_value, nnz);
+    return new CSR.from(n, nnz, ptr, index, value);
+  }
+  CSR.from(this.n, this.nnz, this.ptr, this.index, this.value);
 }
 
 class MatrixType {

@@ -148,5 +148,34 @@ testMatrix() {
       expect(m2.type, equals(m.type));
       expect(m2.diagonal().values(), equals(m.diagonal().values()));
     });
+    test('csr', () {
+      var n = 4, nnz = 8;
+      var csr = new CSR(lis, n, nnz);
+
+      csr.ptr[0] = 0;
+      csr.ptr[1] = 1;
+      csr.ptr[2] = 3;
+      csr.ptr[3] = 5;
+      csr.ptr[4] = 8;
+      csr.index[0] = 0;
+      csr.index[1] = 0;
+      csr.index[2] = 1;
+      csr.index[3] = 1;
+      csr.index[4] = 2;
+      csr.index[5] = 0;
+      csr.index[6] = 2;
+      csr.index[7] = 3;
+      csr.value[0] = 11.0;
+      csr.value[1] = 21.0;
+      csr.value[2] = 22.0;
+      csr.value[3] = 32.0;
+      csr.value[4] = 33.0;
+      csr.value[5] = 41.0;
+      csr.value[6] = 43.0;
+      csr.value[7] = 44.0;
+
+      var A = new Matrix.csr(lis, csr);
+      expect(A.diagonal().values(), equals([11.0, 22.0, 33.0, 44.0]));
+    });
   });
 }
