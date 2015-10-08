@@ -1,5 +1,6 @@
 library lis.wrap;
 
+import 'dart:math';
 import 'dart:typed_data';
 import 'dart:js' as js;
 import 'package:emscripten/emscripten.dart';
@@ -341,23 +342,37 @@ class Matrix<S> {
   }
 
   void setValues(List<S> values) {
-    int n = values.length;
+    int n = size; //sqrt(values.length).toInt();
+    if (values.length != n * n) {
+      throw new ArgumentError.value(values);
+    }
     int p_values = _lis.heapScalars(values);
     int err = _lis.callFunc(
         'lis_matrix_set_values', [LIS_INS_VALUE, n, p_values, _p_mat]);
     _lis._CHKERR(err);
+    _lis.free(p_values);
   }
 
   /// Either [nnz_row] or [nnz] must be provided.
   void malloc({int nnz_row, Int32List nnz}) {
-    int p_nnz = _lis.heapInts(nnz);
+    int p_nnz = 0;
+    if (nnz_row == null && nnz == null) {
+      throw new ArgumentError("Either `nnz_row` or `nnz` must be provided");
+    }
+    if (nnz != null) {
+      p_nnz = _lis.heapInts(nnz);
+    }
     int err = _lis.callFunc('lis_matrix_malloc', [_p_mat, nnz_row, p_nnz]);
     _lis._CHKERR(err);
+    if (nnz != null) {
+      _lis.free(p_nnz);
+    }
   }
 
   Vector<S> diagonal([Vector<S> d]) {
     if (d == null) {
-      d = new Vector(_lis);
+      d = new Vector(_lis); // TODO: duplicate_vector?
+      d.size = size;
     }
     int err = _lis.callFunc('lis_matrix_get_diagonal', [_p_mat, d._p_vec]);
     _lis._CHKERR(err);
@@ -374,6 +389,7 @@ class Matrix<S> {
   Matrix<S> copy([Matrix<S> Aout]) {
     if (Aout == null) {
       Aout = new Matrix(_lis);
+      Aout.size = size;
     }
     int err = _lis.callFunc('lis_matrix_copy', [_p_mat, Aout._p_mat]);
     return Aout;
