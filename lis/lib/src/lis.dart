@@ -51,7 +51,6 @@ abstract class _LIS<S> extends Module {
 
   void _removeFile(int p_path) {
     _fs.unlink(stringify(p_path));
-    free(p_path);
   }
 
   int _heapPath() {
@@ -63,7 +62,6 @@ abstract class _LIS<S> extends Module {
     var path = stringify(p_path);
     var data = _fs.readFile(path);
     _fs.unlink(path);
-    free(p_path);
     return data;
   }
 

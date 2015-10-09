@@ -3,7 +3,7 @@ library lis.test1;
 import 'package:lis/lis.dart';
 import '../testmat.dart';
 
-main(List<String> args) {
+main([List<String> args]) {
   var lis = new LIS(args);
 
   bool flat = true;
@@ -15,7 +15,7 @@ main(List<String> args) {
 
   var A0 = A.duplicate();
   A0.type = MatrixType.CSR;
-  A0.convert(A);
+  A.convert(A0);
   A.destroy();
   A = A0;
 

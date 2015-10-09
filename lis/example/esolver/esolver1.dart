@@ -3,7 +3,7 @@ library lis.test1;
 import 'package:lis/lis.dart';
 import '../testmat.dart';
 
-main(List<String> args) {
+main([List<String> args]) {
   var lis = new LIS(args);
 
   // create matrix and vectors
