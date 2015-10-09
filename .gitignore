@@ -14,3 +14,15 @@ include/lis_config.h
 include/lisf.h
 include/stamp-h1
 libtool
+
+# emscripten output
+a.out
+a.out.js
+a.out.js.map
+config/*
+src/.libs
+src/*/.libs
+test/*.js
+
+.cproject
+.project
