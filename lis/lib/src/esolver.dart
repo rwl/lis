@@ -31,12 +31,12 @@ class EigenSolver<S> {
     _lis._CHKERR(err);
   }
 
-  EigenPair solve(Matrix A, Vector x) {
+  S solve(Matrix A, Vector x) {
     int p_evalue = _lis.heapScalar();
     int err =
         _lis.callFunc('lis_esolve', [A._p_mat, x._p_vec, p_evalue, _p_solve]);
     _lis._CHKERR(err);
-    return new EigenPair._(_lis.derefScalar(p_evalue), x);
+    return _lis.derefScalar(p_evalue);
   }
 
   int iter() {
@@ -46,7 +46,7 @@ class EigenSolver<S> {
     return _lis.derefInt(p_iter);
   }
 
-  Iter iterx() {
+  Iter iterex() {
     int p_iter = _lis.heapInt();
     int p_iter_double = _lis.heapInt();
     int p_iter_quad = _lis.heapInt();
@@ -64,7 +64,7 @@ class EigenSolver<S> {
     return _lis.derefDouble(p_time);
   }
 
-  Time timex() {
+  Time timeex() {
     int p_time = _lis.heapDouble();
     int p_itime = _lis.heapDouble();
     int p_ptime = _lis.heapDouble();
@@ -154,12 +154,6 @@ class EigenSolver<S> {
     _lis._CHKERR(err);
     return _lis._readFile(p_path);
   }
-}
-
-class EigenPair {
-  final value;
-  final Vector vector;
-  EigenPair._(this.value, this.vector);
 }
 
 class EigenSolverType {

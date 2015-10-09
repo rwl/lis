@@ -26,7 +26,7 @@ class LinearSolver<S> {
     return _lis.derefInt(p_iter);
   }
 
-  Iter iterx() {
+  Iter iterex() {
     int p_iter = _lis.heapInt();
     int p_iter_double = _lis.heapInt();
     int p_iter_quad = _lis.heapInt();
@@ -44,7 +44,7 @@ class LinearSolver<S> {
     return _lis.derefDouble(p_time);
   }
 
-  Time timex() {
+  Time timeex() {
     int p_time = _lis.heapDouble();
     int p_itime = _lis.heapDouble();
     int p_ptime = _lis.heapDouble();

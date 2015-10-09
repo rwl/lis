@@ -43,17 +43,6 @@ abstract class _LIS<S> extends Module {
 
   finalize() => callFunc('lis_finalize');
 
-  LinearProblem input(String data) {
-    var A = new Matrix(this);
-    var b = new Vector(this);
-    var x = new Vector(this);
-    int p_path = _writeFile(data);
-    int err = callFunc('lis_input', [A._p_mat, b._p_vec, x._p_vec, p_path]);
-    _CHKERR(err);
-    _removeFile(p_path);
-    return new LinearProblem._(this, A, b, x);
-  }
-
   int _writeFile(String data) {
     var path = _pathname();
     _fs.writeFile(path, data);
@@ -105,6 +94,18 @@ class LinearProblem {
   final _LIS _lis;
   final Matrix A;
   final Vector b, x;
+
+  factory LinearProblem(_LIS lis, String data) {
+    var A = new Matrix(lis);
+    var b = new Vector(lis);
+    var x = new Vector(lis);
+    int p_path = lis._writeFile(data);
+    int err = lis.callFunc('lis_input', [A._p_mat, b._p_vec, x._p_vec, p_path]);
+    lis._CHKERR(err);
+    lis._removeFile(p_path);
+    return new LinearProblem._(lis, A, b, x);
+  }
+
   LinearProblem._(this._lis, this.A, this.b, this.x);
 
   String output() {
