@@ -14,5 +14,3 @@ include/lis_config.h
 include/lisf.h
 include/stamp-h1
 libtool
-
-!/lis/Makefile

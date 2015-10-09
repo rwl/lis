@@ -10,4 +10,4 @@ pubspec.lock
 .project
 .settings/
 
-*lib/lis.js
+!./Makefile

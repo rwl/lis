@@ -120,7 +120,8 @@ EXP_FUNC = -s EXPORTED_FUNCTIONS="['_malloc',\
 \
 '_lis_finalize']" 
 
-EMFLAGS = $(EXP_NAME) $(EXP_FUNC) --pre-js pre.js --post-js ./packages/emscripten/post.js
+EMFLAGS = $(EXP_NAME) $(EXP_FUNC) --pre-js pre.js --post-js \
+./packages/emscripten/post.js
 
 all: module
 
