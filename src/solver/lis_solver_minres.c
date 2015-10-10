@@ -124,12 +124,13 @@ LIS_INT lis_minres(LIS_SOLVER solver)
   LIS_VECTOR b,x;
   LIS_VECTOR v1,v2,v3,v4,w0,w1,w2;
   LIS_REAL nrm2,tol;
-  LIS_SCALAR alpha,beta2,beta3;
+  LIS_SCALAR alpha,beta2;
+  LIS_REAL beta3;
   LIS_SCALAR gamma1,gamma2,gamma3;
   LIS_SCALAR delta,eta;
   LIS_SCALAR sigma1,sigma2,sigma3;
   LIS_SCALAR rho1,rho2,rho3;
-  LIS_SCALAR r0_euc,r_euc; 
+  LIS_REAL r0_euc,r_euc;
   LIS_INT iter,maxiter,output;
   double time,ptime;
 
@@ -204,7 +205,7 @@ LIS_INT lis_minres(LIS_SOLVER solver)
       lis_vector_axpy(gamma3 * eta,w2,x);
 
       /* convergence check */
-      r_euc *= fabs(sigma3);
+      r_euc *= sabs(sigma3);
       nrm2 = r_euc / r0_euc;
       
       if( output )

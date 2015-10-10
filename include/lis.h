@@ -355,8 +355,12 @@ typedef double complex LIS_SCALAR;
 #define sqrt(x) csqrt(x)
 #define tan(x) ctan(x)
 #define tanh(x) ctanh(x)
+#define sabs(x) cabs(x)
+#define CFMT "%f%c%fi"
+#define cfmt(c) creal(c), ((cimag(c) >= 0.0f) ? '+' : '\0'), cimag(c)
 #else
 typedef double LIS_SCALAR;
+#define sabs(x) fabs(x)
 #endif
 #endif
 typedef LIS_DOUBLE_DOUBLE LIS_QUAD;

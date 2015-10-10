@@ -606,7 +606,7 @@ LIS_INT lis_matrix_scale(LIS_MATRIX A, LIS_VECTOR B, LIS_VECTOR D, LIS_INT actio
 		#endif
 		for(i=0; i<np; i++)
 		{
-			d[i] = 1.0 / sqrt(fabs(d[i]));
+			d[i] = 1.0 / sqrt(sabs(d[i]));
 		}
 
 		switch( A->matrix_type )

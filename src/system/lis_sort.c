@@ -397,7 +397,7 @@ void lis_sort_jad(LIS_INT is, LIS_INT ie, LIS_INT maxnzr, LIS_INT *i1, LIS_INT *
 	}
 	lis_free2(2,iw,iw2);
 }
-
+/*
 void lis_sort_di(LIS_INT is, LIS_INT ie, LIS_SCALAR *d1, LIS_INT *i1)
 {
 	LIS_INT i,j;
@@ -485,5 +485,5 @@ void lis_sort_dd(LIS_INT is, LIS_INT ie, LIS_SCALAR *d1, LIS_VECTOR *d2)
 	}
 	lis_sort_dd(is,j ,d1,d2);
 	lis_sort_dd(i ,ie,d1,d2);
-}
+}*/
 

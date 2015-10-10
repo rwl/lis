@@ -213,10 +213,11 @@ LIS_INT lis_eai(LIS_ESOLVER esolver)
 	}
 
       /* h(j+1,j) = ||w||_2 */
-      lis_vector_nrm2(w, &h[j+1+j*ss]);
+      lis_vector_nrm2(w, &nrm2);
+      h[j+1+j*ss] = nrm2;
 
       /* convergence check */
-      if (fabs(h[j+1+j*ss])<tol) break;
+      if (sabs(h[j+1+j*ss])<tol) break;
 
       /* v(j+1) = w / h(i+1,j) */
       lis_vector_scale(1/h[j+1+j*ss],w);
@@ -243,7 +244,7 @@ LIS_INT lis_eai(LIS_ESOLVER esolver)
       while (i<ss-1) 
 	{
 	  i = i + 1;
-	  if (fabs(h[i+(i-1)*ss])<tol)
+	  if (sabs(h[i+(i-1)*ss])<tol)
 	    {
 #ifdef _LONGLONG
 	      printf("Arnoldi: mode number              = %lld\n",i-1);
@@ -253,7 +254,11 @@ LIS_INT lis_eai(LIS_ESOLVER esolver)
 #ifdef _LONG__DOUBLE
 	      printf("Arnoldi: eigenvalue               = %Le\n",h[i-1+(i-1)*ss]);
 #else
+#if defined(_COMPLEX)
+	      printf("Arnoldi: eigenvalue               = "CFMT"\n",cfmt(h[i-1+(i-1)*ss]));
+#else
 	      printf("Arnoldi: eigenvalue               = %e\n",h[i-1+(i-1)*ss]);
+#endif
 #endif
 	      esolver->evalue[i-1] = h[i-1+(i-1)*ss];
 	    }

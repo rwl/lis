@@ -800,7 +800,7 @@ LIS_INT lis_precon_create_iluc_csr(LIS_SOLVER solver, LIS_PRECON precon)
 			}
 		}
 
-		toldd       = fabs(D->value[k])*tol;
+		toldd       = sabs(D->value[k])*tol;
 		D->value[k] = 1.0/D->value[k];
 		t           = D->value[k];
 		if( cz<cw )
@@ -830,18 +830,18 @@ LIS_INT lis_precon_create_iluc_csr(LIS_SOLVER solver, LIS_PRECON precon)
 		for(j=0;j<cz;j++)
 		{
 			jj = iz[j];
-			if( fabs(z[jj])>toldd )
+			if( sabs(z[jj])>toldd )
 			{
 				iz[nnz++] = jj;
 			}
 			else
 			{
-				z[k] = z[k] + fabs(z[jj]);
+				z[k] = z[k] + sabs(z[jj]);
 				zc[jj] = 0;
 			}
 		}
 		len = _min(lfil,nnz);
-		for(j=0;j<nnz;j++) tmp[j] = fabs(z[j]);
+		for(j=0;j<nnz;j++) tmp[j] = sabs(z[j]);
 		lis_sort_di(0,nnz-1,tmp,iz);
 		lis_sort_i(0,len-1,iz);
 		U->nnz[k] = len;
@@ -864,7 +864,7 @@ LIS_INT lis_precon_create_iluc_csr(LIS_SOLVER solver, LIS_PRECON precon)
 		for(j=0;j<cw;j++)
 		{
 			jj = iw[j];
-			if( fabs(w[jj])>toldd )
+			if( sabs(w[jj])>toldd )
 			{
 				iw[nnz++] = jj;
 			}
@@ -874,7 +874,7 @@ LIS_INT lis_precon_create_iluc_csr(LIS_SOLVER solver, LIS_PRECON precon)
 			}
 		}
 		len = _min(lfil,nnz);
-		for(j=0;j<nnz;j++) tmp[j] = fabs(w[j]);
+		for(j=0;j<nnz;j++) tmp[j] = sabs(w[j]);
 		lis_sort_di(0,nnz-1,tmp,iw);
 		lis_sort_i(0,len-1,iw);
 		L->nnz[k] = len;
@@ -1453,18 +1453,18 @@ LIS_INT lis_precon_create_iluc_bsr(LIS_SOLVER solver, LIS_PRECON precon)
 		switch(bnr)
 		{
 		case 1:
-			toldd       = fabs(D->value[k])*tol;
+			toldd       = sabs(D->value[k])*tol;
 			break;
 		case 2:
-			toldd       = fabs(D->value[4*k+0]) + fabs(D->value[4*k+1]);
-			toldd      += fabs(D->value[4*k+2]) + fabs(D->value[4*k+3]);
+			toldd       = sabs(D->value[4*k+0]) + sabs(D->value[4*k+1]);
+			toldd      += sabs(D->value[4*k+2]) + sabs(D->value[4*k+3]);
 /*			toldd       = sqrt(toldd)*tol;*/
 			toldd       = toldd*tol;
 			break;
 		case 3:
-			toldd       = fabs(D->value[9*k+0]) + fabs(D->value[9*k+1]) + fabs(D->value[9*k+2]);
-			toldd      += fabs(D->value[9*k+3]) + fabs(D->value[9*k+4]) + fabs(D->value[9*k+5]);
-			toldd      += fabs(D->value[9*k+6]) + fabs(D->value[9*k+7]) + fabs(D->value[9*k+8]);
+			toldd       = sabs(D->value[9*k+0]) + sabs(D->value[9*k+1]) + sabs(D->value[9*k+2]);
+			toldd      += sabs(D->value[9*k+3]) + sabs(D->value[9*k+4]) + sabs(D->value[9*k+5]);
+			toldd      += sabs(D->value[9*k+6]) + sabs(D->value[9*k+7]) + sabs(D->value[9*k+8]);
 /*			toldd       = sqrt(toldd)*tol;*/
 			toldd       = toldd*tol;
 			break;
@@ -1810,17 +1810,17 @@ LIS_INT lis_precon_create_iluc_bsr(LIS_SOLVER solver, LIS_PRECON precon)
 			switch(bnr)
 			{
 			case 1:
-				t       = fabs(z[jj]);
+				t       = sabs(z[jj]);
 				break;
 			case 2:
-				t       = fabs(z[4*jj+0]) + fabs(z[4*jj+1]);
-				t      += fabs(z[4*jj+2]) + fabs(z[4*jj+3]);
+				t       = sabs(z[4*jj+0]) + sabs(z[4*jj+1]);
+				t      += sabs(z[4*jj+2]) + sabs(z[4*jj+3]);
 /*				t       = sqrt(t);*/
 				break;
 			case 3:
-				t       = fabs(z[9*jj+0]) + fabs(z[9*jj+1]) + fabs(z[9*jj+2]);
-				t      += fabs(z[9*jj+3]) + fabs(z[9*jj+4]) + fabs(z[9*jj+5]);
-				t      += fabs(z[9*jj+6]) + fabs(z[9*jj+7]) + fabs(z[9*jj+8]);
+				t       = sabs(z[9*jj+0]) + sabs(z[9*jj+1]) + sabs(z[9*jj+2]);
+				t      += sabs(z[9*jj+3]) + sabs(z[9*jj+4]) + sabs(z[9*jj+5]);
+				t      += sabs(z[9*jj+6]) + sabs(z[9*jj+7]) + sabs(z[9*jj+8]);
 /*				t       = sqrt(t);*/
 				break;
 			}
@@ -1834,24 +1834,24 @@ LIS_INT lis_precon_create_iluc_bsr(LIS_SOLVER solver, LIS_PRECON precon)
 				switch(bnr)
 				{
 				case 1:
-					z[k] = z[k] + fabs(z[jj]);
+					z[k] = z[k] + sabs(z[jj]);
 					break;
 				case 2:
-					z[4*k+0] += fabs(z[4*jj+0]);
-					z[4*k+1] += fabs(z[4*jj+1]);
-					z[4*k+1] += fabs(z[4*jj+2]);
-					z[4*k+1] += fabs(z[4*jj+3]);
+					z[4*k+0] += sabs(z[4*jj+0]);
+					z[4*k+1] += sabs(z[4*jj+1]);
+					z[4*k+1] += sabs(z[4*jj+2]);
+					z[4*k+1] += sabs(z[4*jj+3]);
 					break;
 				case 3:
-					z[9*k+0] += fabs(z[9*jj+0]);
-					z[9*k+1] += fabs(z[9*jj+1]);
-					z[9*k+2] += fabs(z[9*jj+2]);
-					z[9*k+3] += fabs(z[9*jj+3]);
-					z[9*k+4] += fabs(z[9*jj+4]);
-					z[9*k+5] += fabs(z[9*jj+5]);
-					z[9*k+6] += fabs(z[9*jj+6]);
-					z[9*k+7] += fabs(z[9*jj+7]);
-					z[9*k+8] += fabs(z[9*jj+8]);
+					z[9*k+0] += sabs(z[9*jj+0]);
+					z[9*k+1] += sabs(z[9*jj+1]);
+					z[9*k+2] += sabs(z[9*jj+2]);
+					z[9*k+3] += sabs(z[9*jj+3]);
+					z[9*k+4] += sabs(z[9*jj+4]);
+					z[9*k+5] += sabs(z[9*jj+5]);
+					z[9*k+6] += sabs(z[9*jj+6]);
+					z[9*k+7] += sabs(z[9*jj+7]);
+					z[9*k+8] += sabs(z[9*jj+8]);
 					break;
 				}
 				zc[jj] = 0;
@@ -1895,17 +1895,17 @@ LIS_INT lis_precon_create_iluc_bsr(LIS_SOLVER solver, LIS_PRECON precon)
 			switch(bnr)
 			{
 			case 1:
-				t       = fabs(w[jj]);
+				t       = sabs(w[jj]);
 				break;
 			case 2:
-				t       = fabs(w[4*jj+0]) + fabs(w[4*jj+1]);
-				t      += fabs(w[4*jj+2]) + fabs(w[4*jj+3]);
+				t       = sabs(w[4*jj+0]) + sabs(w[4*jj+1]);
+				t      += sabs(w[4*jj+2]) + sabs(w[4*jj+3]);
 /*				t       = sqrt(t);*/
 				break;
 			case 3:
-				t       = fabs(w[9*jj+0]) + fabs(w[9*jj+1]) + fabs(w[9*jj+2]);
-				t      += fabs(w[9*jj+3]) + fabs(w[9*jj+4]) + fabs(w[9*jj+5]);
-				t      += fabs(w[9*jj+6]) + fabs(w[9*jj+7]) + fabs(w[9*jj+8]);
+				t       = sabs(w[9*jj+0]) + sabs(w[9*jj+1]) + sabs(w[9*jj+2]);
+				t      += sabs(w[9*jj+3]) + sabs(w[9*jj+4]) + sabs(w[9*jj+5]);
+				t      += sabs(w[9*jj+6]) + sabs(w[9*jj+7]) + sabs(w[9*jj+8]);
 /*				t       = sqrt(t);*/
 				break;
 			}

@@ -437,7 +437,7 @@ LIS_INT lis_precon_create_ilut_csr(LIS_SOLVER solver, LIS_PRECON precon)
 		tnorm = 0;
 		for(j=A->ptr[i];j<A->ptr[i+1];j++)
 		{
-			tnorm += fabs(A->value[j]);
+			tnorm += sabs(A->value[j]);
 		}
 		tnorm   = tnorm / (double)(A->ptr[i+1]-A->ptr[i]);
 		tolnorm = tol * tnorm;
@@ -512,7 +512,7 @@ LIS_INT lis_precon_create_ilut_csr(LIS_SOLVER solver, LIS_PRECON precon)
 				jpos = iw[col];
 				lxu = -fact * U->value[jrow][k];
 
-				if( fabs(lxu) < tolnorm && jpos==-1 ) continue;
+				if( sabs(lxu) < tolnorm && jpos==-1 ) continue;
 				if( col >= i )
 				{
 					if( jpos == -1 )
@@ -563,7 +563,7 @@ LIS_INT lis_precon_create_ilut_csr(LIS_SOLVER solver, LIS_PRECON precon)
 		len = _min(lfil,lenl);
 		for(j=0;j<lenl;j++)
 		{
-			wn[j] = fabs(w[j]);
+			wn[j] = sabs(w[j]);
 			iw[j] = j;
 		}
 		lis_sort_di(0,lenl-1,wn,iw);
@@ -586,7 +586,7 @@ LIS_INT lis_precon_create_ilut_csr(LIS_SOLVER solver, LIS_PRECON precon)
 		len = _min(lfil,lenu);
 		for(j=0;j<lenu;j++)
 		{
-			wn[j] = fabs(w[i+j+1]);
+			wn[j] = sabs(w[i+j+1]);
 			iw[j] = i+j+1;
 		}
 		lis_sort_di(0,lenu-1,wn,iw);

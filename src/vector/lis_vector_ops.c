@@ -133,7 +133,7 @@ LIS_INT lis_vector_dot(LIS_VECTOR vx, LIS_VECTOR vy, LIS_SCALAR *value)
 LIS_INT lis_vector_nrm2(LIS_VECTOR vx, LIS_REAL *value)
 {
 	LIS_INT i,n;
-	LIS_SCALAR dot;
+	LIS_REAL dot;
 	LIS_SCALAR *x;
 	LIS_SCALAR tmp;
 	#ifdef _OPENMP
@@ -179,7 +179,7 @@ LIS_INT lis_vector_nrm2(LIS_VECTOR vx, LIS_REAL *value)
 		#endif
 		for(i=0; i<n; i++)
 		{
-			dot += x[i]*x[i];
+			dot += sabs(x[i]*x[i]);
 		}
 	#endif
 	#ifdef USE_MPI
@@ -246,7 +246,7 @@ LIS_INT lis_vector_nrm1(LIS_VECTOR vx, LIS_REAL *value)
 		#endif
 		for(i=0; i<n; i++)
 		{
-			sum += fabs(x[i]);
+			sum += sabs(x[i]);
 		}
 	#endif
 	#ifdef USE_MPI
@@ -317,9 +317,9 @@ LIS_INT lis_vector_nrmi(LIS_VECTOR vx, LIS_REAL *value)
 		#endif
 		for(i=0; i<n; i++)
 		{
-		  if (fabs(x[i]) > tmp)
+		  if (sabs(x[i]) > tmp)
 		    {
-		      tmp = fabs(x[i]);
+		      tmp = sabs(x[i]);
 		    }
 		}
 	#endif

@@ -147,9 +147,9 @@ LIS_INT lis_esi(LIS_ESOLVER esolver)
   LIS_INT emaxiter;
   LIS_REAL tol;
   LIS_INT j,k;
-  LIS_SCALAR dotvr;
+  LIS_SCALAR dotvr,dot;
   LIS_INT iter,giter,output,niesolver;
-  LIS_REAL nrm2,dot,resid;
+  LIS_REAL nrm2,resid;
   LIS_VECTOR *v,r,q;
   LIS_SOLVER solver;
   LIS_PRECON precon;
@@ -361,7 +361,7 @@ LIS_INT lis_esi(LIS_ESOLVER esolver)
 	  /* resid = ||Z - VR||_2 */
 	  lis_vector_axpyz(-dotvr,v[j],r,q);
 	  lis_vector_nrm2(q, &resid);
-	  resid = fabs(resid / dotvr);
+	  resid = sabs(resid / dotvr);
 
 	  lis_vector_scale(1/nrm2,r);
 	  lis_vector_copy(r, v[j]);

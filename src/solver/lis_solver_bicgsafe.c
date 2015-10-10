@@ -149,8 +149,7 @@ LIS_INT lis_bicgsafe(LIS_SOLVER solver)
 	LIS_VECTOR r, rtld, mr, amr, t, mt, p, ap;
 	LIS_VECTOR y, u, au, z;
 	LIS_SCALAR alpha, beta;
-	LIS_REAL rho, rho_old;
-	LIS_SCALAR qsi, eta;
+	LIS_SCALAR qsi, eta, rho, rho_old;
 	LIS_SCALAR tmp, tmpdot[5];
 	LIS_REAL bnrm2, nrm2, tol;
 	LIS_INT iter,maxiter,output,conv;
@@ -1043,8 +1042,7 @@ LIS_INT lis_bicrsafe(LIS_SOLVER solver)
 	LIS_VECTOR r, rtld, artld, mr, amr, p, ap, map;
 	LIS_VECTOR y, my, u, au, z;
 	LIS_SCALAR alpha, beta;
-	LIS_REAL rho, rho_old;
-	LIS_SCALAR qsi, eta;
+	LIS_SCALAR qsi, eta, rho, rho_old;
 	LIS_SCALAR tmp, tmpdot[5];
 	LIS_REAL bnrm2, nrm2, tol;
 	LIS_INT iter,maxiter,output,conv;

@@ -416,7 +416,7 @@ LIS_INT lis_vector_abs(LIS_VECTOR vx)
 	#endif
 	for(i=0; i<n; i++)
 	{
-		x[i] = fabs(x[i]);
+		x[i] = sabs(x[i]);
 	}
 	LIS_DEBUG_FUNC_OUT;
 	return LIS_SUCCESS;

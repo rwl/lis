@@ -165,7 +165,7 @@ LIS_INT lis_epi(LIS_ESOLVER esolver)
       /* resid = ||z - evalue * x||_2 / |evalue| */
       lis_vector_axpyz(-evalue,x,z,q); 
       lis_vector_nrm2(q, &resid); 
-      resid = fabs(resid / evalue);
+      resid = sabs(resid / evalue);
 
       /* x = z */
       lis_vector_copy(z, x);

@@ -209,7 +209,7 @@ LIS_INT lis_erqi(LIS_ESOLVER esolver)
       /* resid = ||z - 1/evalue * x||_2 / |1/evalue| */
       lis_vector_axpyz(-ievalue,x,z,q); 
       lis_vector_nrm2(q, &resid); 
-      resid = fabs(resid/ievalue);
+      resid = sabs(resid/ievalue);
 
       if( output )
 	{

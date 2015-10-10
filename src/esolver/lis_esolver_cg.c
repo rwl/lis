@@ -542,7 +542,7 @@ LIS_INT lis_ecr(LIS_ESOLVER esolver)
 
       /* convergence check */
       lis_vector_nrm2(r,&nrm2);
-      resid = fabs(nrm2 / (evalue));
+      resid = sabs(nrm2 / (evalue));
 
       if( output )
 	{

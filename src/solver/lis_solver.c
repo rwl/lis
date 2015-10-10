@@ -375,7 +375,8 @@ LIS_INT lis_solve_kernel(LIS_MATRIX A, LIS_VECTOR b, LIS_VECTOR x, LIS_SOLVER so
 	LIS_INT precision,is_use_at,storage,block;
 	LIS_INT i,n;
 	double p_c_time, p_i_time,itime;
-	LIS_SCALAR nrm2,tol,tol_w;
+	LIS_SCALAR tol,tol_w;
+	LIS_REAL nrm2;
 	LIS_VECTOR t;
 	LIS_VECTOR bb;
 	LIS_MATRIX AA,B;
@@ -1010,7 +1011,7 @@ LIS_INT lis_solver_get_initial_residual(LIS_SOLVER solver, LIS_PRECON M, LIS_VEC
 		if( output & LIS_PRINT_OUT && A->my_rank==0 ) printf("iteration: %5d  relative residual = %e\n", 0, nrm2); 
 #endif
 	}
-	if( nrm2 <= fabs(solver->params[LIS_PARAMS_RESID-LIS_OPTIONS_LEN]) )
+	if( nrm2 <= sabs(solver->params[LIS_PARAMS_RESID-LIS_OPTIONS_LEN]) )
 	{
 		solver->retcode = LIS_SUCCESS;
 		solver->iter    = 1;

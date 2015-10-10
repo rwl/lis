@@ -138,8 +138,8 @@ LIS_INT lis_gmres(LIS_SOLVER solver)
 	LIS_VECTOR b,x;
 	LIS_VECTOR r,s,z,*v;
 	LIS_SCALAR *h;
-	LIS_SCALAR aa,bb,rr,a2,b2;
-	LIS_REAL t;
+	LIS_SCALAR aa,bb,rr,a2,b2,t;
+	LIS_REAL tnrm2;
 
 	LIS_REAL bnrm2,nrm2,tol;
 	LIS_INT iter,maxiter,n,output;
@@ -229,9 +229,9 @@ LIS_INT lis_gmres(LIS_SOLVER solver)
 			}
 			/* h[i+1,i] = ||w||          */
 			/* v[i+1]   = w / h[i+1,i]   */
-			lis_vector_nrm2(v[i1v],&t);
-			h[i1+iih] = t;
-			lis_vector_scale(1.0/t,v[i1v]);
+			lis_vector_nrm2(v[i1v],&tnrm2);
+			h[i1+iih] = tnrm2;
+			lis_vector_scale(1.0/tnrm2,v[i1v]);
 
 			for(k=1;k<=ii;k++)
 			{
@@ -260,7 +260,7 @@ LIS_INT lis_gmres(LIS_SOLVER solver)
 			h[ii+iih] = aa;
 
 			/* convergence check */
-			nrm2 = fabs(s->value[i1])*bnrm2;
+			nrm2 = sabs(s->value[i1])*bnrm2;
 
 			if( output )
 			{
@@ -1122,8 +1122,8 @@ LIS_INT lis_fgmres(LIS_SOLVER solver)
 	LIS_VECTOR b,x;
 	LIS_VECTOR s,*z,*v;
 	LIS_SCALAR *h;
-	LIS_SCALAR aa,bb,rr,a2,b2;
-	LIS_REAL t;
+	LIS_SCALAR aa,bb,rr,a2,b2,t;
+	LIS_REAL tnrm2;
 
 	LIS_REAL bnrm2,nrm2,tol;
 	LIS_INT iter,maxiter,output;
@@ -1205,9 +1205,9 @@ LIS_INT lis_fgmres(LIS_SOLVER solver)
 			}
 			/* h[i+1,i] = ||w||          */
 			/* v[i+1]   = w / h[i+1,i]   */
-			lis_vector_nrm2(v[i1v],&t);
-			h[i1+iih] = t;
-			lis_vector_scale(1.0/t,v[i1v]);
+			lis_vector_nrm2(v[i1v],&tnrm2);
+			h[i1+iih] = tnrm2;
+			lis_vector_scale(1.0/tnrm2,v[i1v]);
 
 			for(k=1;k<=ii;k++)
 			{
@@ -1236,7 +1236,7 @@ LIS_INT lis_fgmres(LIS_SOLVER solver)
 			h[ii+iih] = aa;
 
 			/* convergence check */
-			nrm2 = fabs(s->value[i1]);
+			nrm2 = sabs(s->value[i1]);
 
 			if( output )
 			{

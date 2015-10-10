@@ -243,7 +243,7 @@ LIS_INT lis_array_abs(LIS_INT n, LIS_SCALAR *x)
 
   for(i=0;i<n;i++)
     {
-      x[i] = abs(x[i]);
+      x[i] = sabs(x[i]);
     }
 
   LIS_DEBUG_FUNC_OUT;
@@ -314,7 +314,7 @@ LIS_INT lis_array_nrm1(LIS_INT n, LIS_SCALAR *x, LIS_REAL *value)
 	t = 0.0;
 	for(i=0;i<n;i++)
 	{
-		t += fabs(x[i]);
+		t += sabs(x[i]);
 	}
 	*value = t;
 
@@ -354,9 +354,9 @@ LIS_INT lis_array_nrmi(LIS_INT n, LIS_SCALAR *x, LIS_REAL *value)
 	t = 0.0;
 	for(i=0;i<n;i++)
 	{
-	  if (t < fabs(x[i]))
+	  if (t < sabs(x[i]))
 	    {
-	      t = fabs(x[i]);
+	      t = sabs(x[i]);
 	    }
 	}
 	*value = t;

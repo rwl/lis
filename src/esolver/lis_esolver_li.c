@@ -154,9 +154,9 @@ LIS_INT lis_eli(LIS_ESOLVER esolver)
   LIS_REAL tol,qrerr;
   LIS_INT i,j,k;
   LIS_INT output, niesolver;
-  LIS_REAL nrm2,dot,resid0; 
+  LIS_REAL nrm2,resid0,betaj;
   LIS_VECTOR *v,r;
-  LIS_SCALAR *t,*tq,*tr,evalue,evalue0;
+  LIS_SCALAR *t,*tq,*tr,evalue,evalue0,dot;
   LIS_SOLVER solver;
   LIS_ESOLVER esolver2;
   char esolvername[128],solvername[128],preconname[128];
@@ -226,10 +226,11 @@ LIS_INT lis_eli(LIS_ESOLVER esolver)
 	}
 
       /* beta(j) = ||r||_2 */
-      lis_vector_nrm2(r, &t[(j-1)*ss+j]);
+      lis_vector_nrm2(r, &betaj);
+      t[(j-1)*ss+j] = betaj;
 
       /* convergence check */
-      if (fabs(t[(j-1)*ss+j])<tol) break;  
+      if (sabs(t[(j-1)*ss+j])<tol) break;
       t[j*ss+j-1] = t[(j-1)*ss+j];
     }
 

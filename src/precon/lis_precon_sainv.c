@@ -217,7 +217,7 @@ LIS_INT lis_precon_create_sainv_csr(LIS_SOLVER solver, LIS_PRECON precon)
 		nrm = 0.0;
 		for(j=A->ptr[i];j<A->ptr[i+1];j++)
 		{
-			nrm = _max(nrm,fabs(A->value[j]));
+			nrm = _max(nrm,sabs(A->value[j]));
 		}
 		nrm = 1.0/nrm;
 
@@ -289,7 +289,7 @@ LIS_INT lis_precon_create_sainv_csr(LIS_SOLVER solver, LIS_PRECON precon)
 				if( jk!=0 )
 				{
 					t = dd*W->value[i][ik];
-					if( fabs(t)*nrm > tol )
+					if( sabs(t)*nrm > tol )
 					{
 						W->value[j][jk-1] -= t;
 					}
@@ -297,7 +297,7 @@ LIS_INT lis_precon_create_sainv_csr(LIS_SOLVER solver, LIS_PRECON precon)
 				else
 				{
 					t = dd*W->value[i][ik];
-					if( fabs(t)*nrm > tol )
+					if( sabs(t)*nrm > tol )
 					{
 						if( W->nnz[j] == W->nnz_ma[j] )
 						{
@@ -334,7 +334,7 @@ LIS_INT lis_precon_create_sainv_csr(LIS_SOLVER solver, LIS_PRECON precon)
 				if( jk!=0 )
 				{
 					t = dd*Z->value[i][ik];
-					if( fabs(t)*nrm > tol )
+					if( sabs(t)*nrm > tol )
 					{
 						Z->value[j][jk-1] -= t;
 					}
@@ -342,7 +342,7 @@ LIS_INT lis_precon_create_sainv_csr(LIS_SOLVER solver, LIS_PRECON precon)
 				else
 				{
 					t = dd*Z->value[i][ik];
-					if( fabs(t)*nrm > tol )
+					if( sabs(t)*nrm > tol )
 					{
 						if( Z->nnz[j] == Z->nnz_ma[j] )
 						{
