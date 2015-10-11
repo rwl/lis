@@ -161,7 +161,11 @@ LIS_INT lis_eaii(LIS_ESOLVER esolver)
 #ifdef _LONG__DOUBLE
   if( output & (A->my_rank==0) ) printf("local shift           : %Le\n", lshift);
 #else
+#if defined(_COMPLEX)
+  if( output & (A->my_rank==0) ) printf("local shift           : "CFMT"\n", cfmt(lshift));
+#else
   if( output & (A->my_rank==0) ) printf("local shift           : %e\n", lshift);
+#endif
 #endif
   if (lshift != 0) lis_matrix_shift_diagonal(A, lshift);
   lis_solver_create(&solver);

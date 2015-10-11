@@ -276,7 +276,11 @@ LIS_INT lis_eai(LIS_ESOLVER esolver)
 #ifdef _LONG__DOUBLE	      
 		  printf("Arnoldi: eigenvalue               = %Le + %Le i\n", (h[i-1+(i-1)*ss]+h[i+i*ss])/2, sqrt(-D)/2);
 #else
+#if defined(_COMPLEX)
+		  printf("Arnoldi: eigenvalue               = %e + %e i\n", creal((h[i-1+(i-1)*ss]+h[i+i*ss])/2), creal(sqrt(-D)/2)); // FIXME: complex
+#else
 		  printf("Arnoldi: eigenvalue               = %e + %e i\n", (h[i-1+(i-1)*ss]+h[i+i*ss])/2, sqrt(-D)/2);
+#endif
 #endif
 #ifdef _LONGLONG	      
 		  printf("Arnoldi: mode number              = %lld\n",i);
@@ -286,7 +290,11 @@ LIS_INT lis_eai(LIS_ESOLVER esolver)
 #ifdef _LONG__DOUBLE	      	      
 		  printf("Arnoldi: eigenvalue               = %Le - %Le i\n", (h[i-1+(i-1)*ss]+h[i+i*ss])/2, sqrt(-D)/2);
 #else
+#if defined(_COMPLEX)
+		  printf("Arnoldi: eigenvalue               = %e - %e i\n", creal((h[i-1+(i-1)*ss]+h[i+i*ss])/2), creal(sqrt(-D)/2));
+#else
 		  printf("Arnoldi: eigenvalue               = %e - %e i\n", (h[i-1+(i-1)*ss]+h[i+i*ss])/2, sqrt(-D)/2);
+#endif
 #endif	      
 		  esolver->evalue[i-1] = (h[i-1+(i-1)*ss]+h[i+i*ss])/2;
 		  esolver->evalue[i]   = (h[i-1+(i-1)*ss]+h[i+i*ss])/2;     
@@ -302,7 +310,11 @@ LIS_INT lis_eai(LIS_ESOLVER esolver)
 #ifdef _LONG__DOUBLE	      	      	      
 		  printf("Arnoldi: eigenvalue               = %Le\n",h[i-1+(i-1)*ss]);
 #else
+#if defined(_COMPLEX)
+		  printf("Arnoldi: eigenvalue               = "CFMT"\n",cfmt(h[i-1+(i-1)*ss]));
+#else
 		  printf("Arnoldi: eigenvalue               = %e\n",h[i-1+(i-1)*ss]);
+#endif
 #endif	      
 		  esolver->evalue[i-1] = h[i-1+(i-1)*ss];
 		}
@@ -318,7 +330,11 @@ LIS_INT lis_eai(LIS_ESOLVER esolver)
 #ifdef _LONG__DOUBLE	      	      	      	      
 	  printf("Arnoldi: eigenvalue               = %Le\n",h[i+i*ss]);
 #else
+#if defined(_COMPLEX)
+	  printf("Arnoldi: eigenvalue               = "CFMT"\n",cfmt(h[i+i*ss]));
+#else
 	  printf("Arnoldi: eigenvalue               = %e\n",h[i+i*ss]);
+#endif
 #endif	      
 	}
 
@@ -375,7 +391,11 @@ LIS_INT lis_eai(LIS_ESOLVER esolver)
 #ifdef _LONG__DOUBLE
 	  if( output ) printf("Arnoldi: eigenvalue           = %Le\n", esolver->evalue[i]);
 #else
+#if defined(_COMPLEX)
+	  if( output ) printf("Arnoldi: eigenvalue           = "CFMT"\n", cfmt(esolver->evalue[i]));
+#else
 	  if( output ) printf("Arnoldi: eigenvalue           = %e\n", esolver->evalue[i]);
+#endif
 #endif
 #ifdef _LONGLONG
 	  if( output ) printf("Arnoldi: number of iterations = %lld\n",esolver2->iter[0]);
@@ -385,7 +405,11 @@ LIS_INT lis_eai(LIS_ESOLVER esolver)
 #ifdef _LONG__DOUBLE
 	  if( output ) printf("Arnoldi: relative residual    = %Le\n\n",esolver2->resid[0]);
 #else
+#if defined(_COMPLEX)
+	  if( output ) printf("Arnoldi: relative residual    = "CFMT"\n\n",cfmt(esolver2->resid[0]));
+#else
 	  if( output ) printf("Arnoldi: relative residual    = %e\n\n",esolver2->resid[0]);
+#endif
 #endif
 	}
     }

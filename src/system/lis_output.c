@@ -265,7 +265,11 @@ LIS_INT lis_output_vector_plain(LIS_VECTOR v, char *path)
 #ifdef _LONG__DOUBLE
 		fprintf(file, "%28.20Le\n", v->value[i]);
 #else
+#if defined(_COMPLEX)
+		fprintf(file, "%28.20e %28.20e\n", creal(v->value[i]), cimag(v->value[i]));
+#else
 		fprintf(file, "%28.20e\n", v->value[i]);
+#endif
 #endif
 	    }
 	}
@@ -422,7 +426,11 @@ LIS_INT lis_output_vector_mm(LIS_VECTOR v, char *path)
 #ifdef _LONG__DOUBLE
 	  fprintf(file, "%d %28.20Le\n", i+is+1, v->value[i]);
 #else
+#if defined(_COMPLEX)
+	  fprintf(file, "%d %28.20e %28.20e\n", i+is+1, creal(v->value[i]), cimag(v->value[i]));
+#else
 	  fprintf(file, "%d %28.20e\n", i+is+1, v->value[i]);
+#endif
 #endif
 #endif
 	     }
@@ -560,7 +568,11 @@ LIS_INT lis_output_vector_lis_ascii(LIS_VECTOR v, char *path)
 #ifdef _LONG__DOUBLE
 		fprintf(file, "%28.20Le ",v->value[i]);
 #else
+#if defined(_COMPLEX)
+		fprintf(file, "%28.20e %28.20e ",creal(v->value[i]),cimag(v->value[i]));
+#else
 		fprintf(file, "%28.20e ",v->value[i]);
+#endif
 #endif
 	    }
 		if( (i+1)%3==0 ) fprintf(file, "\n");
@@ -645,7 +657,11 @@ LIS_INT lis_solver_output_rhistory(LIS_SOLVER solver, char *filename)
 #ifdef _LONG__DOUBLE
 		fprintf(file, "%Le\n", solver->rhistory[i]);
 #else
+#if defined(_COMPLEX)
+		fprintf(file, CFMT"\n", cfmt(solver->rhistory[i]));
+#else
 		fprintf(file, "%e\n", solver->rhistory[i]);
+#endif
 #endif
 	}
 	fclose(file);
@@ -726,7 +742,11 @@ LIS_INT lis_esolver_output_rhistory(LIS_ESOLVER esolver, char *filename)
 #ifdef _LONG__DOUBLE
 		fprintf(file, "%Le\n", esolver->rhistory[i]);
 #else
+#if defined(_COMPLEX)
+		fprintf(file, CFMT"\n", cfmt(esolver->rhistory[i]));
+#else
 		fprintf(file, "%e\n", esolver->rhistory[i]);
+#endif
 #endif
 	}
 	fclose(file);

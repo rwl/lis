@@ -901,7 +901,11 @@ LIS_INT lis_vector_print(LIS_VECTOR x)
 #ifdef _LONG__DOUBLE
 			printf("%6d  %Le\n",ii,x->value[i]);
 #else
+#if defined(_COMPLEX)
+			printf("%6d  "CFMT"\n",ii,cfmt(x->value[i]));
+#else
 			printf("%6d  %e\n",ii,x->value[i]);
+#endif
 #endif
 #endif
 		}
@@ -917,7 +921,11 @@ LIS_INT lis_vector_print(LIS_VECTOR x)
 #ifdef _LONG__DOUBLE
 			printf("%6d  %Le,%Le\n",ii,x->value[i],x->value_lo[i]);
 #else
+#if defined(_COMPLEX)
+			printf("%6d  "CFMT","CFMT"\n",ii,cfmt(x->value[i]),cfmt(x->value_lo[i]));
+#else
 			printf("%6d  %e,%e\n",ii,x->value[i],x->value_lo[i]);
+#endif
 #endif
 #endif
 		}

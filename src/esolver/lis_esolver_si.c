@@ -197,7 +197,11 @@ LIS_INT lis_esi(LIS_ESOLVER esolver)
 #ifdef _LONG__DOUBLE
       if( A->my_rank==0 ) printf("local shift           : %Le\n", lshift);
 #else
+#if defined(_COMPLEX)
+      if( A->my_rank==0 ) printf("local shift           : "CFMT"\n", cfmt(lshift));
+#else
       if( A->my_rank==0 ) printf("local shift           : %e\n", lshift);
+#endif
 #endif
       if (lshift != 0) lis_matrix_shift_diagonal(A, lshift);
       break;
@@ -217,7 +221,11 @@ LIS_INT lis_esi(LIS_ESOLVER esolver)
 #ifdef _LONG__DOUBLE
       if( A->my_rank==0 ) printf("local shift           : %Le\n", lshift);
 #else
+#if defined(_COMPLEX)
+      if( A->my_rank==0 ) printf("local shift           : "CFMT"\n", cfmt(lshift));
+#else
       if( A->my_rank==0 ) printf("local shift           : %e\n", lshift);
+#endif
 #endif
       if (lshift != 0) lis_matrix_shift_diagonal(A, lshift);
       lis_vector_set_all(1.0,q);
@@ -241,7 +249,11 @@ LIS_INT lis_esi(LIS_ESOLVER esolver)
 #ifdef _LONG__DOUBLE
       if( A->my_rank==0 ) printf("local shift           : %Le\n", lshift);
 #else
+#if defined(_COMPLEX)
+      if( A->my_rank==0 ) printf("local shift           : "CFMT"\n", cfmt(lshift));
+#else
       if( A->my_rank==0 ) printf("local shift           : %e\n", lshift);
+#endif
 #endif
       if (lshift != 0) lis_matrix_shift_diagonal(A, lshift);
       break;
@@ -425,7 +437,11 @@ LIS_INT lis_esi(LIS_ESOLVER esolver)
 #ifdef _LONG__DOUBLE
 	  if( output ) printf("Subspace: eigenvalue           = %Le\n", esolver->evalue[j-1]);
 #else
+#if defined(_COMPLEX)
+	  if( output ) printf("Subspace: eigenvalue           = "CFMT"\n", cfmt(esolver->evalue[j-1]));
+#else
 	  if( output ) printf("Subspace: eigenvalue           = %e\n", esolver->evalue[j-1]);
+#endif
 #endif
 #ifdef _LONGLONG
 	  if( output ) printf("Subspace: number of iterations = %lld\n",iter);

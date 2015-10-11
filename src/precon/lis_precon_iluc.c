@@ -1550,18 +1550,33 @@ LIS_INT lis_precon_create_iluc_bsr(LIS_SOLVER solver, LIS_PRECON precon)
 		{
 		case 1:
 			printf("k=%d toldd=%e\n",k,toldd);
+#if defined(_COMPLEX)
+			printf("k=%d "CFMT"\n",k,cfmt(D->value[k]));
+#else
 			printf("k=%d %e\n",k,D->value[k]);
+#endif
 			break;
 		case 2:
 			printf("k=%d toldd=%e\n",k,toldd);
+#if defined(_COMPLEX)
+			printf("k=%d "CFMT" "CFMT"\n",k,cfmt(D->value[4*k+0]),cfmt(D->value[4*k+2]));
+			printf("k=%d "CFMT" "CFMT"\n",k,cfmt(D->value[4*k+1]),cfmt(D->value[4*k+3]));
+#else
 			printf("k=%d %e %e\n",k,D->value[4*k+0],D->value[4*k+2]);
 			printf("k=%d %e %e\n",k,D->value[4*k+1],D->value[4*k+3]);
+#endif
 			break;
 		case 3:
 			printf("k=%d toldd=%e\n",k,toldd);
+#if defined(_COMPLEX)
+			printf("k=%d "CFMT" "CFMT" "CFMT"\n",k,cfmt(D->value[9*k+0]),cfmt(D->value[9*k+3]),cfmt(D->value[9*k+6]));
+			printf("k=%d "CFMT" "CFMT" "CFMT"\n",k,cfmt(D->value[9*k+1]),cfmt(D->value[9*k+4]),cfmt(D->value[9*k+7]));
+			printf("k=%d "CFMT" "CFMT" "CFMT"\n",k,cfmt(D->value[9*k+2]),cfmt(D->value[9*k+5]),cfmt(D->value[9*k+8]));
+#else
 			printf("k=%d %e %e %e\n",k,D->value[9*k+0],D->value[9*k+3],D->value[9*k+6]);
 			printf("k=%d %e %e %e\n",k,D->value[9*k+1],D->value[9*k+4],D->value[9*k+7]);
 			printf("k=%d %e %e %e\n",k,D->value[9*k+2],D->value[9*k+5],D->value[9*k+8]);
+#endif
 			break;
 		}
 #endif

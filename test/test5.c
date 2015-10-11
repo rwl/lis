@@ -129,7 +129,11 @@ LIS_INT main(LIS_INT argc, char* argv[])
 #ifdef _LONGLONG
 	    printf("n = %lld, gamma = %f\n\n",gn,gamma);
 #else
+#if defined(_COMPLEX)
+	    printf("n = %d, gamma = "CFMT"\n\n",gn,cfmt(gamma));
+#else
 	    printf("n = %d, gamma = %f\n\n",gn,gamma);
+#endif
 #endif
 	  }
 		

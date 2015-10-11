@@ -537,7 +537,11 @@ LIS_INT lis_esolve(LIS_MATRIX A, LIS_VECTOR x, LIS_SCALAR *evalue0, LIS_ESOLVER 
 #ifdef _LONG__DOUBLE
 	    if ( output ) printf("convergence condition : ||lx-Ax||_2 <= %6.1Le * ||lx||_2\n", esolver->params[LIS_EPARAMS_RESID - LIS_EOPTIONS_LEN]);
 #else
-	    if ( output ) printf("convergence condition : ||lx-Ax||_2 <= %6.1e * ||lx||_2\n", esolver->params[LIS_EPARAMS_RESID - LIS_EOPTIONS_LEN]); 
+#if defined(_COMPLEX)
+	    if ( output ) printf("convergence condition : ||lx-Ax||_2 <= "CFMT" * ||lx||_2\n", cfmt(esolver->params[LIS_EPARAMS_RESID - LIS_EOPTIONS_LEN]));
+#else
+	    if ( output ) printf("convergence condition : ||lx-Ax||_2 <= %6.1e * ||lx||_2\n", esolver->params[LIS_EPARAMS_RESID - LIS_EOPTIONS_LEN]);
+#endif
 #endif
 	  }
 
@@ -682,6 +686,7 @@ LIS_INT lis_esolver_set_option(char *text, LIS_ESOLVER esolver)
 LIS_INT lis_esolver_set_option2(char* arg1, char *arg2, LIS_ESOLVER esolver)
 {
 	LIS_INT i;
+	LIS_REAL t;
 
 	LIS_DEBUG_FUNC_IN;
 	
@@ -723,7 +728,8 @@ LIS_INT lis_esolver_set_option2(char* arg1, char *arg2, LIS_ESOLVER esolver)
 #ifdef _LONG__DOUBLE
 			      sscanf(arg2, "%Lg", &esolver->params[LIS_ESOLVER_OPTACT[i]-LIS_EOPTIONS_LEN]);
 #else
-			      sscanf(arg2, "%lg", &esolver->params[LIS_ESOLVER_OPTACT[i]-LIS_EOPTIONS_LEN]);
+			      sscanf(arg2, "%lg", &t);
+			      esolver->params[LIS_ESOLVER_OPTACT[i]-LIS_EOPTIONS_LEN] = t;
 #endif
 			    }
 			  break;

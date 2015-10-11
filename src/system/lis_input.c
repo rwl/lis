@@ -343,7 +343,7 @@ LIS_INT lis_input_vector_mm(LIS_VECTOR v, FILE *file)
 	LIS_INT	err;
 	LIS_INT	n,is,ie;
 	LIS_INT	idx;
-	LIS_SCALAR val;
+	LIS_REAL val;
 
 
 	/* check banner */
@@ -448,7 +448,7 @@ LIS_INT lis_input_vector_plain(LIS_VECTOR v, FILE *file)
 	LIS_INT i;
 	LIS_INT	err;
 	LIS_INT	n,is,ie;
-	LIS_SCALAR val;
+	LIS_REAL val;
 
 
 	/* check size */
@@ -653,6 +653,7 @@ LIS_INT lis_fscan_scalar(LIS_INT n, FILE *file, LIS_SCALAR val[])
 {
 	LIS_INT err;
 	LIS_INT i;
+	LIS_REAL t;
 
 	i=0;
 	while( i<n )
@@ -660,7 +661,8 @@ LIS_INT lis_fscan_scalar(LIS_INT n, FILE *file, LIS_SCALAR val[])
 #if defined(_LONG__DOUBLE)
 		err = fscanf(file, "%Lg", &val[i++]);
 #else
-		err = fscanf(file, "%lg", &val[i++]);
+		err = fscanf(file, "%lg", &t);
+		val[i++] = t;
 #endif
 		if( err )
 		  {

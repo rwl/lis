@@ -156,7 +156,7 @@ LIS_INT lis_ecg(LIS_ESOLVER esolver)
 #ifdef _LONG__DOUBLE
   if( A->my_rank==0 ) printf("local shift           : %Le\n", lshift);
 #else
-  if( A->my_rank==0 ) printf("local shift           : %e\n", lshift);
+  if( A->my_rank==0 ) printf("local shift           : "CFMT"\n", cfmt(lshift));
 #endif
   if (lshift != 0) lis_matrix_shift_diagonal(A, lshift);
 
@@ -448,7 +448,11 @@ LIS_INT lis_ecr(LIS_ESOLVER esolver)
 #ifdef _LONG__DOUBLE
   if( A->my_rank==0 ) printf("local shift           : %Le\n", lshift);
 #else
+#if defined(_COMPLEX)
+  if( A->my_rank==0 ) printf("local shift           : "CFMT"\n", cfmt(lshift));
+#else
   if( A->my_rank==0 ) printf("local shift           : %e\n", lshift);
+#endif
 #endif
   if (lshift != 0) lis_matrix_shift_diagonal(A, lshift);
 

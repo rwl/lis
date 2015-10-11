@@ -720,7 +720,11 @@ LIS_INT lis_solve_kernel(LIS_MATRIX A, LIS_VECTOR b, LIS_VECTOR x, LIS_SOLVER so
 #ifdef _LONG__DOUBLE
 		  if( output ) printf("convergence condition : ||b-Ax||_2 <= %6.1Le * ||b-Ax_0||_2\n", tol); 		  
 #else 
-		  if( output ) printf("convergence condition : ||b-Ax||_2 <= %6.1e * ||b-Ax_0||_2\n", tol); 		  
+#if defined(_COMPLEX)
+		  if( output ) printf("convergence condition : ||b-Ax||_2 <= "CFMT" * ||b-Ax_0||_2\n", cfmt(tol));
+#else
+		  if( output ) printf("convergence condition : ||b-Ax||_2 <= %6.1e * ||b-Ax_0||_2\n", tol);
+#endif
 #endif
 		}
 		break;		
@@ -732,7 +736,11 @@ LIS_INT lis_solve_kernel(LIS_MATRIX A, LIS_VECTOR b, LIS_VECTOR x, LIS_SOLVER so
 #ifdef _LONG__DOUBLE
 		  if( output ) printf("convergence condition : ||b-Ax||_2 <= %6.1Le*||b||_2 = %6.1Le\n", tol,nrm2);
 #else
+#if defined(_COMPLEX)
+		  if( output ) printf("convergence condition : ||b-Ax||_2 <= "CFMT"*||b||_2 = %6.1e\n", cfmt(tol),nrm2);
+#else
 		  if( output ) printf("convergence condition : ||b-Ax||_2 <= %6.1e*||b||_2 = %6.1e\n", tol,nrm2);
+#endif
 #endif
 		}
 		break;
@@ -744,7 +752,11 @@ LIS_INT lis_solve_kernel(LIS_MATRIX A, LIS_VECTOR b, LIS_VECTOR x, LIS_SOLVER so
 #ifdef _LONG__DOUBLE
 		  if( output ) printf("convergence condition : ||b-Ax||_1 <= %6.1Le*||b||_1 + %6.1Le = %6.1Le\n", tol_w,tol,nrm2);
 #else
+#if defined(_COMPLEX)
+		  if( output ) printf("convergence condition : ||b-Ax||_1 <= "CFMT"*||b||_1 + "CFMT" = %6.1e\n", cfmt(tol_w),cfmt(tol),nrm2);
+#else
 		  if( output ) printf("convergence condition : ||b-Ax||_1 <= %6.1e*||b||_1 + %6.1e = %6.1e\n", tol_w,tol,nrm2);
+#endif
 #endif
 		}
 		break;
@@ -1075,6 +1087,7 @@ LIS_INT lis_solver_set_option(char *text, LIS_SOLVER solver)
 LIS_INT lis_solver_set_option2(char* arg1, char *arg2, LIS_SOLVER solver)
 {
 	LIS_INT i;
+	LIS_REAL t;
 
 	LIS_DEBUG_FUNC_IN;
 
@@ -1147,7 +1160,8 @@ LIS_INT lis_solver_set_option2(char* arg1, char *arg2, LIS_SOLVER solver)
 #ifdef _LONG__DOUBLE
 					sscanf(arg2, "%Lg", &solver->params[LIS_SOLVER_OPTACT[i]-LIS_OPTIONS_LEN]);
 #else
-					sscanf(arg2, "%lg", &solver->params[LIS_SOLVER_OPTACT[i]-LIS_OPTIONS_LEN]);
+					sscanf(arg2, "%lg", &t);
+					solver->params[LIS_SOLVER_OPTACT[i]-LIS_OPTIONS_LEN] = t;
 #endif
 				}
 				break;

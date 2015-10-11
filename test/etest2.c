@@ -184,7 +184,11 @@ LIS_INT main(LIS_INT argc, char* argv[])
 #ifdef _LONG__DOUBLE
       printf("%s: eigenvalue           = %Le\n", esolvername, evalue0);
 #else
+#if defined(_COMPLEX)
+      printf("%s: eigenvalue           = "CFMT"\n", esolvername, cfmt(evalue0));
+#else
       printf("%s: eigenvalue           = %e\n", esolvername, evalue0);
+#endif
 #endif
 #ifdef _LONGLONG
       printf("%s: number of iterations = %lld\n",esolvername, iter);

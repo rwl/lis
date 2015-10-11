@@ -114,6 +114,7 @@ LIS_INT lis_input_mm_vec(LIS_MATRIX A, LIS_VECTOR b, LIS_VECTOR x, FILE *file, L
 	LIS_INT	gn,n,is,ie;
 	LIS_INT	idx;
 	LIS_SCALAR val;
+	LIS_REAL t;
 	LIS_MM_VECFMT vecfmt;
 
 	LIS_DEBUG_FUNC_IN;
@@ -171,13 +172,14 @@ LIS_INT lis_input_mm_vec(LIS_MATRIX A, LIS_VECTOR b, LIS_VECTOR x, FILE *file, L
 #ifdef _LONG__DOUBLE
 				if( sscanf(buf, "%d %Lg", &idx, &val) != 2 )
 #else
-				if( sscanf(buf, "%d %lg", &idx, &val) != 2 )
+				if( sscanf(buf, "%d %lg", &idx, &t) != 2 )
 #endif
 #endif
 				{
 					LIS_SETERR_FIO;
 					return LIS_ERR_FILE_IO;
 				}
+				val = t;
 			}
 			idx--;
 			if( idx>=is && idx<ie )
@@ -223,13 +225,14 @@ LIS_INT lis_input_mm_vec(LIS_MATRIX A, LIS_VECTOR b, LIS_VECTOR x, FILE *file, L
 #ifdef _LONG__DOUBLE
 				if( sscanf(buf, "%d %Lg", &idx, &val) != 2 )
 #else
-				if( sscanf(buf, "%d %lg", &idx, &val) != 2 )
+				if( sscanf(buf, "%d %lg", &idx, &t) != 2 )
 #endif
 #endif
 				{
 					LIS_SETERR_FIO;
 					return LIS_ERR_FILE_IO;
 				}
+				val = t;
 			}
 			idx--;
 			if( idx>=is && idx<ie )
@@ -354,6 +357,7 @@ LIS_INT lis_input_mm_csr(LIS_MATRIX A, LIS_VECTOR b, LIS_VECTOR x, FILE *file)
 	LIS_INT	*work;
 	LIS_INT	isb,isx,isbin;
 	LIS_SCALAR val;
+	LIS_REAL t;
 	LIS_SCALAR *value;
 	LIS_MM_MATFMT matfmt;
 
@@ -462,7 +466,7 @@ LIS_INT lis_input_mm_csr(LIS_MATRIX A, LIS_VECTOR b, LIS_VECTOR x, FILE *file)
 #ifdef _LONG__DOUBLE
 			if( sscanf(buf, "%d %d %Lg", &ridx, &cidx, &val) != 3 )
 #else
-			if( sscanf(buf, "%d %d %lg", &ridx, &cidx, &val) != 3 )
+			if( sscanf(buf, "%d %d %lg", &ridx, &cidx, &t) != 3 )
 #endif
 #endif
 			{
@@ -470,6 +474,7 @@ LIS_INT lis_input_mm_csr(LIS_MATRIX A, LIS_VECTOR b, LIS_VECTOR x, FILE *file)
 				lis_free2(4,ptr,index,value,work);
 				return LIS_ERR_FILE_IO;
 			}
+			val = t;
 		}
 /*		if( val!=0.0 )*/
 		{
@@ -580,7 +585,7 @@ LIS_INT lis_input_mm_csr(LIS_MATRIX A, LIS_VECTOR b, LIS_VECTOR x, FILE *file)
 #ifdef _LONG__DOUBLE
 			if( sscanf(buf, "%d %d %Lg", &ridx, &cidx, &val) != 3 )
 #else
-			if( sscanf(buf, "%d %d %lg", &ridx, &cidx, &val) != 3 )
+			if( sscanf(buf, "%d %d %lg", &ridx, &cidx, &t) != 3 )
 #endif
 #endif
 			{
@@ -588,6 +593,7 @@ LIS_INT lis_input_mm_csr(LIS_MATRIX A, LIS_VECTOR b, LIS_VECTOR x, FILE *file)
 				lis_free2(4,ptr,index,value,work);
 				return LIS_ERR_FILE_IO;
 			}
+			val = t;
 		}
 		ridx--;
 		cidx--;
