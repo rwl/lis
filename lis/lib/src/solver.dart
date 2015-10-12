@@ -1,10 +1,10 @@
 part of lis.internal;
 
 class LinearSolver<S> {
-  final _LIS _lis;
+  final LIS _lis;
   final int _p_solve;
 
-  factory LinearSolver(_LIS lis) {
+  factory LinearSolver(LIS lis) {
     int pp_solver = lis.heapInt();
     int err = lis.callFunc('lis_solver_create', [pp_solver]);
     lis._CHKERR(err);

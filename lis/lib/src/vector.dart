@@ -1,11 +1,11 @@
 part of lis.internal;
 
 class Vector<S> {
-  final _LIS _lis;
+  final LIS _lis;
 
   final int _p_vec;
 
-  factory Vector(_LIS lis, [int size]) {
+  factory Vector(LIS lis, [int size]) {
     int pp_vec = lis.heapInt();
     int err = lis.callFunc('lis_vector_create', [COMM_WORLD, pp_vec]);
     lis._CHKERR(err);
@@ -19,7 +19,7 @@ class Vector<S> {
 
   Vector._(this._lis, this._p_vec);
 
-  factory Vector.fromMatrix(_LIS lis, Matrix<S> A) {
+  factory Vector.fromMatrix(LIS lis, Matrix<S> A) {
     int pp_vout = lis.heapInt();
     var err = lis.callFunc('lis_vector_duplicate', [A._p_mat, pp_vout]);
     lis._CHKERR(err);
@@ -27,7 +27,7 @@ class Vector<S> {
     return new Vector._(lis, p_vout);
   }
 
-  factory Vector.input(_LIS lis, String data) {
+  factory Vector.input(LIS lis, String data) {
     var v = new Vector(lis);
     int p_path = lis._writeFile(data);
     int err = lis.callFunc('lis_input_vector', [v._p_vec, p_path]);
@@ -140,7 +140,7 @@ class Vector<S> {
   /// Calculate the sum of the vectors `y = ax + y`.
   void axpy(Vector<S> vx, [S alpha]) {
     if (alpha == null) {
-      alpha = _lis._scalarOne();
+      alpha = _lis.scalarOne();
     }
     int err = _lis.callFunc('lis_vector_axpy', [alpha, vx._p_vec, _p_vec]);
     _lis._CHKERR(err);
@@ -149,7 +149,7 @@ class Vector<S> {
   /// Calculate the sum of the vectors `y = x + ay`.
   void xpay(Vector<S> vx, [S alpha]) {
     if (alpha == null) {
-      alpha = _lis._scalarOne();
+      alpha = _lis.scalarOne();
     }
     int err = _lis.callFunc('lis_vector_xpay', [vx._p_vec, alpha, _p_vec]);
     _lis._CHKERR(err);
@@ -158,7 +158,7 @@ class Vector<S> {
   /// Calculate the sum of the vectors `z = ax + y`.
   Vector<S> axpyz(Vector<S> vx, [S alpha, Vector<S> vz]) {
     if (alpha == null) {
-      alpha = _lis._scalarOne();
+      alpha = _lis.scalarOne();
     }
     if (vz == null) {
       vz = duplicate();

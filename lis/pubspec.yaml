@@ -1,6 +1,7 @@
 name: lis
 version: 0.0.1
 dependencies:
+  complex: any
   emscripten:
     path: /home/rwl/dart/emscripten
 dev_dependencies:

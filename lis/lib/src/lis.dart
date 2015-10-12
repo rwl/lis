@@ -14,11 +14,11 @@ const int LIS_INS_VALUE = 0;
 
 const int COMM_WORLD = 0x1;
 
-abstract class _LIS<S> extends Module {
+abstract class LIS<S> extends Module {
   final FS _fs;
 
-  _LIS(
-      {String moduleName: 'Module',
+  LIS(
+      {String moduleName: 'LIS',
       js.JsObject context,
       List<String> options: const []})
       : super(moduleName: moduleName, context: context),
@@ -39,7 +39,7 @@ abstract class _LIS<S> extends Module {
 
   S derefScalar(int ptr, [bool free = true]);
 
-  S _scalarOne();
+  S scalarOne();
 
   finalize() => callFunc('lis_finalize');
 
@@ -75,33 +75,20 @@ abstract class _LIS<S> extends Module {
   }
 }
 
-class LIS extends _LIS {
-  LIS([List<String> options = const []]);
+class LinearProblem<S> {
+  final LIS _lis;
+  final Matrix<S> A;
+  final Vector<S> b, x;
 
-  int heapScalars(List list) => heapDoubles(list);
-
-  List derefScalars(int ptr, int n, [bool free = true]) =>
-      derefDoubles(ptr, n, free);
-
-  heapScalar([val]) => heapDouble(val);
-
-  derefScalar(int ptr, [bool free = true]) => derefDouble(ptr, free);
-}
-
-class LinearProblem {
-  final _LIS _lis;
-  final Matrix A;
-  final Vector b, x;
-
-  factory LinearProblem(_LIS lis, String data) {
-    var A = new Matrix(lis);
-    var b = new Vector(lis);
-    var x = new Vector(lis);
+  factory LinearProblem(LIS lis, String data) {
+    var A = new Matrix<S>(lis);
+    var b = new Vector<S>(lis);
+    var x = new Vector<S>(lis);
     int p_path = lis._writeFile(data);
     int err = lis.callFunc('lis_input', [A._p_mat, b._p_vec, x._p_vec, p_path]);
     lis._CHKERR(err);
     lis._removeFile(p_path);
-    return new LinearProblem._(lis, A, b, x);
+    return new LinearProblem<S>._(lis, A, b, x);
   }
 
   LinearProblem._(this._lis, this.A, this.b, this.x);

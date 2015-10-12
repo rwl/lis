@@ -1,4 +1,4 @@
-import 'package:lis/lis.dart';
+import 'package:lis/dlis.dart';
 
 main() {
   final lis = new LIS();
