@@ -356,7 +356,8 @@ typedef double complex LIS_SCALAR;
 #define tan(x) ctan(x)
 #define tanh(x) ctanh(x)
 #define sabs(x) cabs(x)
-#define CFMT "%f%c%fi"
+#define CFMT "%e%c%ei"
+#define CFMT6 "%6.2f%c%6.2fi"
 #define cfmt(c) creal(c), ((cimag(c) >= 0.0f) ? '+' : '\0'), cimag(c)
 #else
 typedef double LIS_SCALAR;

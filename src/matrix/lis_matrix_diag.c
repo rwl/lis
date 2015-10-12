@@ -1005,7 +1005,7 @@ LIS_INT lis_matrix_diag_print(LIS_MATRIX_DIAG D)
 					printf("%6.2Lf ", D->v_value[k][j*bn+i]);
 #else
 #if defined(_COMPLEX)
-					printf(CFMT" ", cfmt(D->v_value[k][j*bn+i]));
+					printf(CFMT6" ", cfmt(D->v_value[k][j*bn+i]));
 #else
 					printf("%6.2f ", D->v_value[k][j*bn+i]);
 #endif
@@ -1035,7 +1035,7 @@ LIS_INT lis_matrix_diag_print(LIS_MATRIX_DIAG D)
 					printf("%6.2Lf ", D->value[k*nn + j*bn+i]);
 #else
 #if defined(_COMPLEX)
-					printf(CFMT" ", cfmt(D->value[k*nn + j*bn+i]));
+					printf(CFMT6" ", cfmt(D->value[k*nn + j*bn+i]));
 #else
 					printf("%6.2f ", D->value[k*nn + j*bn+i]);
 #endif

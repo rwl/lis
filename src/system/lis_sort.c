@@ -397,9 +397,12 @@ void lis_sort_jad(LIS_INT is, LIS_INT ie, LIS_INT maxnzr, LIS_INT *i1, LIS_INT *
 	}
 	lis_free2(2,iw,iw2);
 }
-/*
+
 void lis_sort_di(LIS_INT is, LIS_INT ie, LIS_SCALAR *d1, LIS_INT *i1)
 {
+#if defined(_COMPLEX)
+	return;
+#else
 	LIS_INT i,j;
 	LIS_INT p,t1;
 	LIS_SCALAR v;
@@ -426,10 +429,14 @@ void lis_sort_di(LIS_INT is, LIS_INT ie, LIS_SCALAR *d1, LIS_INT *i1)
 	}
 	lis_sort_di(is,j ,d1,i1);
 	lis_sort_di(i ,ie,d1,i1);
+#endif
 }
 
 void lis_sort_d(LIS_INT is, LIS_INT ie, LIS_SCALAR *d1)
 {
+#if defined(_COMPLEX)
+	return;
+#else
 	LIS_INT i,j;
 	LIS_INT p;
 	LIS_SCALAR v;
@@ -454,10 +461,14 @@ void lis_sort_d(LIS_INT is, LIS_INT ie, LIS_SCALAR *d1)
 	}
 	lis_sort_d(is,j ,d1);
 	lis_sort_d(i ,ie,d1);
+#endif
 }
 
 void lis_sort_dd(LIS_INT is, LIS_INT ie, LIS_SCALAR *d1, LIS_VECTOR *d2)
 {
+#if defined(_COMPLEX)
+	return;
+#else
 	LIS_INT i,j;
 	LIS_INT p;
 	LIS_SCALAR v;
@@ -485,5 +496,6 @@ void lis_sort_dd(LIS_INT is, LIS_INT ie, LIS_SCALAR *d1, LIS_VECTOR *d2)
 	}
 	lis_sort_dd(is,j ,d1,d2);
 	lis_sort_dd(i ,ie,d1,d2);
-}*/
+#endif
+}
 

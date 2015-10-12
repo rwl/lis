@@ -4,6 +4,7 @@ LISLIB = ../src/.libs/liblis.a
 LIBS = $(LISLIB)
 
 EXP_NAME = -s "EXPORT_NAME='LIS'"
+ZEXP_NAME = -s "EXPORT_NAME='ZLIS'"
 
 EXP_FUNC = -s EXPORTED_FUNCTIONS="['_malloc',\
 '_lis_initialize',\
@@ -120,19 +121,28 @@ EXP_FUNC = -s EXPORTED_FUNCTIONS="['_malloc',\
 \
 '_lis_finalize']" 
 
-EMFLAGS = $(EXP_NAME) $(EXP_FUNC) --pre-js pre.js --post-js \
-./packages/emscripten/post.js
+LIBDIR = lib
+SRCDIR = $(LIBDIR)/src
+EMDIR = packages/emscripten
+
+EMFLAGS = $(EXP_NAME) $(EXP_FUNC) --pre-js $(SRCDIR)/pre.js \
+--post-js $(EMDIR)/post.js
+
+ZEMFLAGS = $(ZEXP_NAME) $(EXP_FUNC) --pre-js $(SRCDIR)/zpre.js \
+--post-js $(EMDIR)/post.js
 
 all: module
 
-module: ./lib/lis.js
+module: $(LIBDIR)/lis.js
 
-./lib/lis.js: $(LIBS) Makefile pre.js post.js
+$(LIBDIR)/lis.js: $(LIBS) Makefile $(SRCDIR)/pre.js $(EMDIR)/post.js
 	$(CC) $(CFLAGS) $(LIBS) $(EMFLAGS) -o $@ 
+
+$(LIBDIR)/zlis.js: $(LIBS) Makefile $(SRCDIR)/zpre.js $(EMDIR)/post.js
+	$(CC) $(CFLAGS) $(LIBS) $(ZEMFLAGS) -o $@ 
 
 $(LISLIB):
 	( cd .. ; $(MAKE) all )
 
 clean:
 	( cd lib ; $(RM) *lis*.js* )
-
