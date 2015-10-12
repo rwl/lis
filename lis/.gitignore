@@ -11,3 +11,6 @@ pubspec.lock
 .settings/
 
 !./Makefile
+
+lib/dlis/**
+lib/zlis/**
