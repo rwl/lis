@@ -1,7 +1,7 @@
 default: all
 
-DEXP_NAME = -s "EXPORT_NAME='DLIS'"
-ZEXP_NAME = -s "EXPORT_NAME='ZLIS'"
+DEXP_NAME = -s "EXPORT_NAME='DLIS'" -s MODULARIZE=1
+ZEXP_NAME = -s "EXPORT_NAME='ZLIS'" -s MODULARIZE=1
 
 EXP_FUNC = -s EXPORTED_FUNCTIONS="['_malloc',\
 '_lis_initialize',\
@@ -121,11 +121,8 @@ LIBDIR = lib
 SRCDIR = $(LIBDIR)/src
 EMDIR = packages/emscripten
 
-EMFLAGS = $(DEXP_NAME) $(EXP_FUNC) --pre-js $(SRCDIR)/dpre.js \
---post-js $(EMDIR)/post.js
-
-ZEMFLAGS = $(ZEXP_NAME) $(EXP_FUNC) --pre-js $(SRCDIR)/zpre.js \
---post-js $(EMDIR)/post.js
+EMFLAGS = $(DEXP_NAME) $(EXP_FUNC) --post-js $(EMDIR)/post.js
+ZEMFLAGS = $(ZEXP_NAME) $(EXP_FUNC) --post-js $(EMDIR)/post.js
 
 DLIBS = $(LIBDIR)/dlis/lib/liblis.a
 ZLIBS = $(LIBDIR)/zlis/lib/liblis.a
@@ -134,10 +131,10 @@ all: module
 
 module: $(LIBDIR)/dlis.js $(LIBDIR)/zlis.js
 
-$(LIBDIR)/dlis.js: $(DLIBS) Makefile $(SRCDIR)/dpre.js $(EMDIR)/post.js
+$(LIBDIR)/dlis.js: $(DLIBS) Makefile $(EMDIR)/post.js
 	$(CC) $(CFLAGS) $(DLIBS) $(EMFLAGS) -o $@
 
-$(LIBDIR)/zlis.js: $(ZLIBS) Makefile $(SRCDIR)/zpre.js $(EMDIR)/post.js
+$(LIBDIR)/zlis.js: $(ZLIBS) Makefile $(EMDIR)/post.js
 	$(CC) $(CFLAGS) $(ZLIBS) $(ZEMFLAGS) -o $@
 
 $(LISLIB):

@@ -1,7 +1,7 @@
 library lis.internal;
 
 import 'dart:typed_data';
-import 'dart:js' as js;
+import 'dart:js' show JsObject;
 import 'package:emscripten/emscripten.dart';
 import 'package:emscripten/experimental.dart';
 
@@ -17,12 +17,12 @@ const int COMM_WORLD = 0x1;
 abstract class LIS<S> extends Module {
   final FS _fs;
 
-  LIS(
-      {String moduleName: 'LIS',
-      js.JsObject context,
-      List<String> options: const []})
-      : super(moduleName: moduleName, context: context),
+  LIS(String funcName, List<String> options, JsObject context)
+      : super(funcName, context),
         _fs = new FS(context: context) {
+    if (options == null) {
+      options = [];
+    }
     int argc = heapInt(options.length + 1);
     options = ['lis']..addAll(options);
     int p_args = heapStrings(options);

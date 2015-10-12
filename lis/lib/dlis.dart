@@ -1,5 +1,6 @@
 library lis;
 
+import 'dart:js' show JsObject;
 import 'dart:typed_data';
 
 import 'src/lis.dart' as internal;
@@ -7,7 +8,8 @@ import 'src/lis.dart' as internal;
 export 'src/lis.dart';
 
 class DLIS extends internal.LIS<double> {
-  DLIS([List<String> options = const []]) : super(options: options);
+  DLIS([List<String> options, JsObject context])
+      : super('DLIS', options, context);
 
   int heapScalars(List<double> list) {
     if (list is! Float64List) {

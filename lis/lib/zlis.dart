@@ -1,5 +1,7 @@
 library lis.complex;
 
+import 'dart:js' show JsObject;
+
 import 'package:complex/complex.dart';
 
 import 'src/lis.dart' as internal;
@@ -7,8 +9,8 @@ import 'src/lis.dart' as internal;
 export 'src/lis.dart' hide LIS;
 
 class ZLIS extends internal.LIS<Complex> {
-  ZLIS([List<String> options = const []])
-      : super(moduleName: 'ZLIS', options: options);
+  ZLIS([List<String> options, JsObject context])
+      : super('ZLIS', options, context);
 
   int heapScalars(List<Complex> list) {
     return null;
