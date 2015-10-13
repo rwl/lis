@@ -1,11 +1,17 @@
 default: all
 
+EMDIR = packages/emscripten
+
+include $(EMDIR)/complex.inc
+
 DEXP_NAME = -s "EXPORT_NAME='DLIS'" -s MODULARIZE=1
 ZEXP_NAME = -s "EXPORT_NAME='ZLIS'" -s MODULARIZE=1
 
-EXP_FUNC = -s EXPORTED_FUNCTIONS="['_malloc',\
+EXP_LIS = \
 '_lis_initialize',\
-\
+'_lis_finalize'
+
+EXP_VECTOR = \
 '_lis_vector_create',\
 '_lis_vector_set_size',\
 '_lis_vector_destroy',\
@@ -37,8 +43,9 @@ EXP_FUNC = -s EXPORTED_FUNCTIONS="['_malloc',\
 '_lis_vector_nrm1',\
 '_lis_vector_nrm2',\
 '_lis_vector_nrmi',\
-'_lis_vector_sum',\
-\
+'_lis_vector_sum'
+
+EXP_MATRIX = \
 '_lis_matrix_create',\
 '_lis_matrix_destroy',\
 '_lis_matrix_assemble',\
@@ -71,8 +78,9 @@ EXP_FUNC = -s EXPORTED_FUNCTIONS="['_malloc',\
 '_lis_matrix_malloc_coo',\
 '_lis_matrix_set_coo',\
 '_lis_matrix_set_dns',\
-'_lis_matrix_malloc_dns',\
-\
+'_lis_matrix_malloc_dns'
+
+EXP_SOLVER = \
 '_lis_solver_create',\
 '_lis_solver_destroy',\
 '_lis_solver_get_iter',\
@@ -86,8 +94,9 @@ EXP_FUNC = -s EXPORTED_FUNCTIONS="['_malloc',\
 '_lis_solver_get_rhistory',\
 '_lis_solver_set_option',\
 '_lis_solver_set_optionC',\
-'_lis_solve',\
-\
+'_lis_solve'
+
+EXP_ESOLVER = \
 '_lis_esolver_create',\
 '_lis_esolver_destroy',\
 '_lis_esolver_set_option',\
@@ -104,8 +113,9 @@ EXP_FUNC = -s EXPORTED_FUNCTIONS="['_malloc',\
 '_lis_esolver_get_evectors',\
 '_lis_esolver_get_residualnorms',\
 '_lis_esolver_get_iters',\
-'_lis_esolver_get_esolver',\
-\
+'_lis_esolver_get_esolver'
+
+EXP_OUTPUT = \
 '_lis_input',\
 '_lis_input_matrix',\
 '_lis_input_vector',\
@@ -113,16 +123,33 @@ EXP_FUNC = -s EXPORTED_FUNCTIONS="['_malloc',\
 '_lis_output_matrix',\
 '_lis_output_vector',\
 '_lis_solver_output_rhistory',\
-'_lis_esolver_output_rhistory',\
-\
-'_lis_finalize']" 
+'_lis_esolver_output_rhistory'
+
+DEXP_FUNC = -s EXPORTED_FUNCTIONS="['_malloc',\
+$(EXP_LIS),\
+$(EXP_VECTOR),\
+$(EXP_MATRIX),\
+$(EXP_SOLVER),\
+$(EXP_ESOLVER),\
+$(EXP_OUTPUT)]" 
+
+ZEXP_FUNC = -s EXPORTED_FUNCTIONS="['_malloc',\
+$(EXP_LIS),\
+$(EXP_VECTOR),\
+$(EXP_MATRIX),\
+$(EXP_SOLVER),\
+$(EXP_ESOLVER),\
+$(EXP_OUTPUT),\
+$(EXP_COMPLEX)]"
 
 LIBDIR = lib
 SRCDIR = $(LIBDIR)/src
-EMDIR = packages/emscripten
 
-EMFLAGS = $(DEXP_NAME) $(EXP_FUNC) --post-js $(EMDIR)/post.js
-ZEMFLAGS = $(ZEXP_NAME) $(EXP_FUNC) --post-js $(EMDIR)/post.js
+EMPOST = $(EMDIR)/post.js
+ZEXT = $(EMDIR)/complex.c
+
+EMFLAGS = $(DEXP_NAME) $(DEXP_FUNC) --post-js $(EMPOST)
+ZEMFLAGS = $(ZEXP_NAME) $(ZEXP_FUNC) --post-js $(EMPOST)
 
 DLIBS = $(LIBDIR)/dlis/lib/liblis.a
 ZLIBS = $(LIBDIR)/zlis/lib/liblis.a
@@ -131,11 +158,11 @@ all: module
 
 module: $(LIBDIR)/dlis.js $(LIBDIR)/zlis.js
 
-$(LIBDIR)/dlis.js: $(DLIBS) Makefile $(EMDIR)/post.js
+$(LIBDIR)/dlis.js: $(DLIBS) Makefile $(EMPOST)
 	$(CC) $(CFLAGS) $(DLIBS) $(EMFLAGS) -o $@
 
-$(LIBDIR)/zlis.js: $(ZLIBS) Makefile $(EMDIR)/post.js
-	$(CC) $(CFLAGS) $(ZLIBS) $(ZEMFLAGS) -o $@
+$(LIBDIR)/zlis.js: $(ZLIBS) Makefile $(ZEXT) $(EMPOST)
+	$(CC) $(CFLAGS) $(ZLIBS) $(ZEXT) $(ZEMFLAGS) -o $@
 
 $(LISLIB):
 	( cd .. ; $(MAKE) all )
