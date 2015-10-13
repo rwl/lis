@@ -1,6 +1,8 @@
 library lis.test1;
 
+import 'package:lis/lis.dart';
 import 'package:lis/dlis.dart';
+
 import '../testmat.dart';
 
 main([List<String> args]) {

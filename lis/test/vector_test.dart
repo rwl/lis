@@ -3,31 +3,19 @@ library lis.test.vector;
 import 'dart:math';
 import 'dart:typed_data';
 import 'package:test/test.dart';
+import 'package:complex/complex.dart';
 import 'package:lis/lis.dart';
 import 'random.dart' hide rand;
 
-vectorTest(LIS makeLIS(), makeScalar()) {
+vectorTest(LIS lis, rscal()) {
   List rarry() {
     int n = rint();
     var list = new List(n);
     for (var i = 0; i < n; i++) {
-      list[i] = makeScalar();
+      list[i] = rscal();
     }
     return list;
   }
-
-  LIS lis;
-  Vector v;
-
-  setUp(() {
-    lis = makeLIS();
-    v = new Vector(lis);
-  });
-
-  tearDown(() {
-    v.destroy();
-    lis.finalize();
-  });
 
   Vector rvec([Vector vdst]) {
     int n;
@@ -41,10 +29,18 @@ vectorTest(LIS makeLIS(), makeScalar()) {
       n = vdst.size;
     }
     for (var i = 0; i < n; i++) {
-      vdst[i] = makeScalar();
+      vdst[i] = rscal();
     }
     return vdst;
   }
+
+  Vector v;
+  setUp(() {
+    v = new Vector(lis);
+  });
+  tearDown(() {
+    v.destroy();
+  });
   test('size', () {
     int size = rint();
     v.size = size;
@@ -60,7 +56,7 @@ vectorTest(LIS makeLIS(), makeScalar()) {
   });
   test('[]', () {
     v.size = rint();
-    var val = makeScalar();
+    var val = rscal();
     v[0] = val;
     expect(v[0], equals(val));
   });
@@ -126,7 +122,7 @@ vectorTest(LIS makeLIS(), makeScalar()) {
     var y = v.copy();
     rvec(y);
     var y0 = y.copy();
-    var alpha = makeScalar();
+    var alpha = rscal();
     y.axpy(v, alpha);
     for (var i = 0; i < v.size; i++) {
       expect(y[i], equals(alpha * v[i] + y0[i]));
@@ -139,7 +135,7 @@ vectorTest(LIS makeLIS(), makeScalar()) {
     var y = v.copy();
     rvec(y);
     var y0 = y.copy();
-    var alpha = makeScalar();
+    var alpha = rscal();
     y.xpay(v, alpha);
     for (var i = 0; i < v.size; i++) {
       expect(y[i], equals(v[i] + alpha * y0[i]));
@@ -151,7 +147,7 @@ vectorTest(LIS makeLIS(), makeScalar()) {
     rvec(v);
     var y = v.copy();
     rvec(y);
-    var alpha = makeScalar();
+    var alpha = rscal();
     var z = y.axpyz(v, alpha);
     for (var i = 0; i < v.size; i++) {
       expect(z[i], equals(alpha * v[i] + y[i]));
@@ -162,7 +158,7 @@ vectorTest(LIS makeLIS(), makeScalar()) {
   test('scale', () {
     rvec(v);
     var v0 = v.copy();
-    var alpha = makeScalar();
+    var alpha = rscal();
     v.scale(alpha);
     for (var i = 0; i < v.size; i++) {
       expect(v[i], equals(alpha * v0[i]));
@@ -188,14 +184,18 @@ vectorTest(LIS makeLIS(), makeScalar()) {
     rvec(vx);
     v.pdiv(vx);
     for (var i = 0; i < v.size; i++) {
-      expect(v[i], equals(vx[i] / v0[i]));
+      if (v[i] is Complex) {
+        expect(v[i].abs(), closeTo((vx[i] / v0[i]).abs(), 1e-12));
+      } else {
+        expect(v[i], equals(vx[i] / v0[i]));
+      }
     }
     v0.destroy();
     vx.destroy();
   });
   test('fill', () {
     rvec(v);
-    var alpha = makeScalar();
+    var alpha = rscal();
     v.fill(alpha);
     for (var i = 0; i < v.size; i++) {
       expect(v[i], equals(alpha));
@@ -203,12 +203,17 @@ vectorTest(LIS makeLIS(), makeScalar()) {
   });
   test('abs', () {
     rvec(v);
+    var v0 = v.copy();
     for (var i = 0; i < v.size; i++) {
       v[i] = -v[i];
     }
     v.abs();
     for (var i = 0; i < v.size; i++) {
-      expect(v[i], greaterThan(0.0));
+      if (v[i] is Complex) {
+        expect(v[i].real, closeTo(v0[i].abs(), 1e-12));
+      } else {
+        expect(v[i], equals(v0[i]));
+      }
     }
   });
   test('reciprocal', () {
@@ -216,14 +221,18 @@ vectorTest(LIS makeLIS(), makeScalar()) {
     var v0 = v.copy();
     v.reciprocal();
     for (var i = 0; i < v.size; i++) {
-      expect(v[i], equals(1.0 / v0[i]));
+      if (v[i] is Complex) {
+        expect(v[i].abs(), closeTo(v0[i].reciprocal().abs(), 1e-12));
+      } else {
+        expect(v[i], equals(1.0 / v0[i]));
+      }
     }
     v0.destroy();
   });
   test('shift', () {
     rvec(v);
     var v0 = v.copy();
-    var alpha = makeScalar();
+    var alpha = rscal();
     v.shift(alpha);
     for (var i = 0; i < v.size; i++) {
       expect(v[i], equals(v0[i] + alpha));
@@ -234,7 +243,7 @@ vectorTest(LIS makeLIS(), makeScalar()) {
     rvec(v);
     var vx = v.copy();
     var val = v.dot(vx);
-    var expected = 0.0;
+    var expected = lis.scalarZero();
     for (var i = 0; i < v.size; i++) {
       expected += v[i] * vx[i];
     }
@@ -248,12 +257,12 @@ vectorTest(LIS makeLIS(), makeScalar()) {
     for (var i = 0; i < v.size; i++) {
       expected = max(expected, v[i].abs());
     }
-    expect(val, equals(expected));
+    expect(val, closeTo(expected, 1e-12));
   });
   test('sum', () {
     rvec(v);
     var val = v.sum();
-    var expected = 0.0;
+    var expected = lis.scalarZero();
     for (var i = 0; i < v.size; i++) {
       expected += v[i];
     }

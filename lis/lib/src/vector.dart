@@ -79,8 +79,15 @@ class Vector<S> {
   }
 
   void operator []=(int i, S value) {
-    int err = _lis.callFunc(
-        'lis_vector_set_value', [LIS_INS_VALUE, i, value, _p_vec]);
+    int err;
+    if (value is Complex) {
+      var cval = value as Complex;
+      err = _lis.callFunc('zlis_vector_set_value',
+          [LIS_INS_VALUE, i, cval.real, cval.imaginary, _p_vec]);
+    } else {
+      err = _lis.callFunc(
+          'lis_vector_set_value', [LIS_INS_VALUE, i, value, _p_vec]);
+    }
     _lis._CHKERR(err);
   }
 
@@ -142,7 +149,14 @@ class Vector<S> {
     if (alpha == null) {
       alpha = _lis.scalarOne();
     }
-    int err = _lis.callFunc('lis_vector_axpy', [alpha, vx._p_vec, _p_vec]);
+    int err;
+    if (alpha is Complex) {
+      var calpha = alpha as Complex;
+      err = _lis.callFunc('zlis_vector_axpy',
+          [calpha.real, calpha.imaginary, vx._p_vec, _p_vec]);
+    } else {
+      err = _lis.callFunc('lis_vector_axpy', [alpha, vx._p_vec, _p_vec]);
+    }
     _lis._CHKERR(err);
   }
 
@@ -151,7 +165,14 @@ class Vector<S> {
     if (alpha == null) {
       alpha = _lis.scalarOne();
     }
-    int err = _lis.callFunc('lis_vector_xpay', [vx._p_vec, alpha, _p_vec]);
+    int err;
+    if (alpha is Complex) {
+      var calpha = alpha as Complex;
+      err = _lis.callFunc('zlis_vector_xpay',
+          [vx._p_vec, calpha.real, calpha.imaginary, _p_vec]);
+    } else {
+      err = _lis.callFunc('lis_vector_xpay', [vx._p_vec, alpha, _p_vec]);
+    }
     _lis._CHKERR(err);
   }
 
@@ -163,15 +184,29 @@ class Vector<S> {
     if (vz == null) {
       vz = duplicate();
     }
-    int err = _lis.callFunc(
-        'lis_vector_axpyz', [alpha, vx._p_vec, _p_vec, vz._p_vec]);
+    int err;
+    if (alpha is Complex) {
+      var calpha = alpha as Complex;
+      err = _lis.callFunc('zlis_vector_axpyz',
+          [calpha.real, calpha.imaginary, vx._p_vec, _p_vec, vz._p_vec]);
+    } else {
+      err = _lis.callFunc(
+          'lis_vector_axpyz', [alpha, vx._p_vec, _p_vec, vz._p_vec]);
+    }
     _lis._CHKERR(err);
     return vz;
   }
 
   /// Multiply vector x by scalar a.
   void scale(S alpha) {
-    int err = _lis.callFunc('lis_vector_scale', [alpha, _p_vec]);
+    int err;
+    if (alpha is Complex) {
+      var calpha = alpha as Complex;
+      err = _lis.callFunc(
+          'zlis_vector_scale', [calpha.real, calpha.imaginary, _p_vec]);
+    } else {
+      err = _lis.callFunc('lis_vector_scale', [alpha, _p_vec]);
+    }
     _lis._CHKERR(err);
   }
 
@@ -189,8 +224,14 @@ class Vector<S> {
 
   /// Assign the scalar value to the elements of vector x.
   void fill(S alpha) {
-//    int p_alpha = _lis.heapScalar(alpha);
-    int err = _lis.callFunc('lis_vector_set_all', [alpha, _p_vec]);
+    int err;
+    if (alpha is Complex) {
+      var calpha = alpha as Complex;
+      err = _lis.callFunc(
+          'zlis_vector_set_all', [calpha.real, calpha.imaginary, _p_vec]);
+    } else {
+      err = _lis.callFunc('lis_vector_set_all', [alpha, _p_vec]);
+    }
     _lis._CHKERR(err);
   }
 
@@ -207,15 +248,22 @@ class Vector<S> {
   }
 
   void shift(S alpha) {
-    int err = _lis.callFunc('lis_vector_shift', [alpha, _p_vec]);
+    int err;
+    if (alpha is Complex) {
+      var calpha = alpha as Complex;
+      err = _lis.callFunc(
+          'zlis_vector_shift', [calpha.real, calpha.imaginary, _p_vec]);
+    } else {
+      err = _lis.callFunc('lis_vector_shift', [alpha, _p_vec]);
+    }
     _lis._CHKERR(err);
   }
 
-  double dot(Vector<S> vx) {
-    int p_value = _lis.heapDouble();
+  S dot(Vector<S> vx) {
+    int p_value = _lis.heapScalar();
     int err = _lis.callFunc('lis_vector_dot', [vx._p_vec, _p_vec, p_value]);
     _lis._CHKERR(err);
-    return _lis.derefDouble(p_value);
+    return _lis.derefScalar(p_value);
   }
 
   double nrm1() {

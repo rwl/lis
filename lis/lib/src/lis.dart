@@ -2,6 +2,8 @@ library lis.internal;
 
 import 'dart:typed_data';
 import 'dart:js' show JsObject;
+
+import 'package:complex/complex.dart';
 import 'package:emscripten/emscripten.dart';
 import 'package:emscripten/experimental.dart';
 
@@ -18,7 +20,7 @@ abstract class LIS<S> extends Module {
   final FS _fs;
 
   LIS(String funcName, List<String> options, JsObject context)
-      : super(funcName, context),
+      : super.func(funcName, context),
         _fs = new FS(context: context) {
     if (options == null) {
       options = [];

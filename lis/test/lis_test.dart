@@ -1,3 +1,5 @@
+library lis.test;
+
 import 'package:test/test.dart';
 import 'package:lis/lis.dart';
 import 'package:lis/dlis.dart' as dlis;
@@ -9,34 +11,22 @@ import 'matrix_test.dart';
 
 import 'random.dart';
 
-testLIS(LIS makeLIS(), makeScalar()) {
-  LIS lis;
-
-  setUp(() {
-    lis = makeLIS();
-  });
-
-  tearDown(() {
-    lis.finalize();
-  });
-
+testLIS(LIS lis, rscal()) {
   test('scalar', () {
-    var c = makeScalar();
+    var c = rscal();
     int ptr = lis.heapScalar(c);
     expect(ptr, isNonZero);
     var c2 = lis.derefScalar(ptr);
     expect(c2, equals(c));
   });
-
   test('scalars', () {
     int n = rint();
-    var l = new List.generate(n, (_) => makeScalar());
+    var l = new List.generate(n, (_) => rscal());
     int ptr = lis.heapScalars(l);
     expect(ptr, isNonZero);
     var l2 = lis.derefScalars(ptr, n);
     expect(l2, equals(l));
   });
-
   test('one', () {
     var one = lis.scalarOne();
     expect(one, isNotNull);
@@ -47,18 +37,19 @@ testLIS(LIS makeLIS(), makeScalar()) {
 main() {
   group('lis', () {
     group('double', () {
-      makeLIS() => new dlis.DLIS();
-      makeScalar() => rand();
-      group('module', () => testLIS(makeLIS, makeScalar));
-      group('vector', () => vectorTest(makeLIS, makeScalar));
-      group('matrix', () => matrixTest(makeLIS, makeScalar));
+      var lis = new dlis.DLIS();
+      group('module', () => testLIS(lis, rand));
+      group('vector', () => vectorTest(lis, rand));
+      group('matrix', () => matrixTest(lis, rand));
+      lis.finalize();
     });
     group('complex', () {
-      makeLIS() => new zlis.ZLIS();
-      makeScalar() => new Complex(rand(), rand());
-      group('module', () => testLIS(makeLIS, makeScalar));
-//      group('vector', () => vectorTest(makeLIS, makeScalar));
-//      group('matrix', () => matrixTest(makeLIS, makeScalar));
+      var lis = new zlis.ZLIS();
+      rcmplx() => new Complex(rand(), rand());
+      group('module', () => testLIS(lis, rcmplx));
+      group('vector', () => vectorTest(lis, rcmplx));
+      group('matrix', () => matrixTest(lis, rcmplx));
+      lis.finalize();
     });
   });
 }

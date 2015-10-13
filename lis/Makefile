@@ -140,6 +140,14 @@ $(EXP_MATRIX),\
 $(EXP_SOLVER),\
 $(EXP_ESOLVER),\
 $(EXP_OUTPUT),\
+'_zlis_vector_set_value',\
+'_zlis_vector_axpy',\
+'_zlis_vector_xpay',\
+'_zlis_vector_axpyz',\
+'_zlis_vector_scale',\
+'_zlis_vector_set_all',\
+'_zlis_vector_shift',\
+'_zlis_matrix_set_value',\
 $(EXP_COMPLEX)]"
 
 LIBDIR = lib
@@ -147,12 +155,15 @@ SRCDIR = $(LIBDIR)/src
 
 EMPOST = $(EMDIR)/post.js
 ZEXT = $(EMDIR)/complex.c
+ZLIS = $(SRCDIR)/zlis.c
 
 EMFLAGS = $(DEXP_NAME) $(DEXP_FUNC) --post-js $(EMPOST)
 ZEMFLAGS = $(ZEXP_NAME) $(ZEXP_FUNC) --post-js $(EMPOST)
 
 DLIBS = $(LIBDIR)/dlis/lib/liblis.a
 ZLIBS = $(LIBDIR)/zlis/lib/liblis.a
+ZINC  = -I$(LIBDIR)/zlis/include
+ZDEFS = -D_COMPLEX
 
 all: module
 
@@ -161,8 +172,8 @@ module: $(LIBDIR)/dlis.js $(LIBDIR)/zlis.js
 $(LIBDIR)/dlis.js: $(DLIBS) Makefile $(EMPOST)
 	$(CC) $(CFLAGS) $(DLIBS) $(EMFLAGS) -o $@
 
-$(LIBDIR)/zlis.js: $(ZLIBS) Makefile $(ZEXT) $(EMPOST)
-	$(CC) $(CFLAGS) $(ZLIBS) $(ZEXT) $(ZEMFLAGS) -o $@
+$(LIBDIR)/zlis.js: $(ZLIBS) Makefile $(ZEXT) $(ZLIS) $(EMPOST)
+	$(CC) $(CFLAGS) $(ZLIBS) $(ZINC) $(ZDEFS) $(ZEXT) $(ZLIS) $(ZEMFLAGS) -o $@
 
 $(LISLIB):
 	( cd .. ; $(MAKE) all )

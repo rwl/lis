@@ -142,8 +142,15 @@ class Matrix<S> {
   }
 
   void setValue(int i, int j, S value) {
-    int err = _lis.callFunc(
-        'lis_matrix_set_value', [LIS_INS_VALUE, i, j, value, _p_mat]);
+    int err;
+    if (value is Complex) {
+      var cval = value as Complex;
+      err = _lis.callFunc('zlis_matrix_set_value',
+          [LIS_INS_VALUE, i, j, cval.real, cval.imaginary, _p_mat]);
+    } else {
+      err = _lis.callFunc(
+          'lis_matrix_set_value', [LIS_INS_VALUE, i, j, value, _p_mat]);
+    }
     _lis._CHKERR(err);
   }
 
