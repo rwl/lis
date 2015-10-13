@@ -2,11 +2,11 @@ library lis.test.matrix;
 
 import 'dart:typed_data';
 import 'package:test/test.dart';
-import 'package:lis/dlis.dart';
+import 'package:lis/lis.dart';
 
-import 'random.dart';
+import 'random.dart' hide rand;
 
-matrixTest(LIS makeLIS()) {
+matrixTest(LIS makeLIS(), makeScalar()) {
   LIS lis;
   Matrix m;
 
@@ -24,7 +24,7 @@ matrixTest(LIS makeLIS()) {
     expect(m.assembled(), isTrue);
     m.size = rint();
     expect(m.assembled(), isFalse);
-    m.setValue(0, 0, rand());
+    m.setValue(0, 0, makeScalar());
     expect(m.assembled(), isTrue);
     m.type = MatrixType.DENSE;
     expect(m.assembled(), isTrue);
@@ -34,7 +34,7 @@ matrixTest(LIS makeLIS()) {
   test('duplicate', () {
     var size = rint();
     m.size = size;
-    m.setValue(0, 0, rand());
+    m.setValue(0, 0, makeScalar());
     m.type = MatrixType.DENSE;
     m.assemble();
     var m2 = m.duplicate();
@@ -52,7 +52,7 @@ matrixTest(LIS makeLIS()) {
     var size = rint();
     m.size = size;
     for (var i = 0; i < size; i++) {
-      m.setValue(i, i, rand());
+      m.setValue(i, i, makeScalar());
     }
     m.assemble();
     expect(m.nnz, equals(size));
@@ -64,7 +64,7 @@ matrixTest(LIS makeLIS()) {
       }
       var m2 = new Matrix(lis);
       m2.size = rint();
-      m2.setValue(0, 0, rand());
+      m2.setValue(0, 0, makeScalar());
       m2.type = t;
       m2.assemble();
       expect(m2.type, equals(t));
@@ -73,14 +73,14 @@ matrixTest(LIS makeLIS()) {
   });
   test('setValue', () {
     m.size = rint();
-    expect(() => m.setValue(0, 0, rand()), returnsNormally);
+    expect(() => m.setValue(0, 0, makeScalar()), returnsNormally);
   });
   test('setValues', () {
     var size = rint();
     m.size = size;
-    var vals = new Float64List(size * size);
+    var vals = new List(size * size);
     for (var i = 0; i < size * size; i++) {
-      vals[i] - rint();
+      vals[i] = makeScalar();
     }
     expect(() => m.setValues(vals), returnsNormally);
     m.assemble();
@@ -91,7 +91,7 @@ matrixTest(LIS makeLIS()) {
       m.size = size;
       m.type = MatrixType.CSR;
       m.malloc(nnz_row: rint(size));
-      m.setValue(0, 0, rand());
+      m.setValue(0, 0, makeScalar());
       m.assemble();
     });
     test('nnz', () {
@@ -102,16 +102,16 @@ matrixTest(LIS makeLIS()) {
         nnz[i] = rint(size);
       }
       m.malloc(nnz: nnz);
-      m.setValue(0, 0, rand());
+      m.setValue(0, 0, makeScalar());
       m.assemble();
     });
   });
   test('diagonal', () {
     var size = rint();
     m.size = size;
-    var vals = new Float64List(size);
+    var vals = new List(size);
     for (var i = 0; i < size; i++) {
-      vals[i] = rand();
+      vals[i] = makeScalar();
       m.setValue(i, i, vals[i]);
     }
     m.assemble();
@@ -123,7 +123,7 @@ matrixTest(LIS makeLIS()) {
     m.size = size;
     m.type = MatrixType.COO;
     for (var i = 0; i < size; i++) {
-      m.setValue(i, i, rand());
+      m.setValue(i, i, makeScalar());
     }
     m.assemble();
 
@@ -139,7 +139,7 @@ matrixTest(LIS makeLIS()) {
     m.size = size;
     m.type = MatrixType.COO;
     for (var i = 0; i < size; i++) {
-      m.setValue(i, i, rand());
+      m.setValue(i, i, makeScalar());
     }
     m.assemble();
 

@@ -40,6 +40,7 @@ abstract class LIS<S> extends Module {
   S derefScalar(int ptr, [bool free = true]);
 
   S scalarOne();
+  S scalarZero();
 
   finalize() => callFunc('lis_finalize');
 

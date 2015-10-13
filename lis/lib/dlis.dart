@@ -1,11 +1,11 @@
-library lis;
+library lis.double;
 
 import 'dart:js' show JsObject;
 import 'dart:typed_data';
 
 import 'src/lis.dart' as internal;
 
-export 'src/lis.dart';
+//export 'src/lis.dart';
 
 class DLIS extends internal.LIS<double> {
   DLIS([List<String> options, JsObject context])
@@ -26,4 +26,5 @@ class DLIS extends internal.LIS<double> {
   double derefScalar(int ptr, [bool free = true]) => derefDouble(ptr, free);
 
   double scalarOne() => 1.0;
+  double scalarZero() => 0.0;
 }

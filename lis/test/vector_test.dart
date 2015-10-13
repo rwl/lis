@@ -3,19 +3,19 @@ library lis.test.vector;
 import 'dart:math';
 import 'dart:typed_data';
 import 'package:test/test.dart';
-import 'package:lis/dlis.dart';
-import 'random.dart';
+import 'package:lis/lis.dart';
+import 'random.dart' hide rand;
 
-Float64List rarry() {
-  int n = rint();
-  var list = new Float64List(n);
-  for (var i = 0; i < n; i++) {
-    list[i] = rand();
+vectorTest(LIS makeLIS(), makeScalar()) {
+  List rarry() {
+    int n = rint();
+    var list = new List(n);
+    for (var i = 0; i < n; i++) {
+      list[i] = makeScalar();
+    }
+    return list;
   }
-  return list;
-}
 
-vectorTest(LIS makeLIS()) {
   LIS lis;
   Vector v;
 
@@ -41,7 +41,7 @@ vectorTest(LIS makeLIS()) {
       n = vdst.size;
     }
     for (var i = 0; i < n; i++) {
-      vdst[i] = rand();
+      vdst[i] = makeScalar();
     }
     return vdst;
   }
@@ -60,7 +60,7 @@ vectorTest(LIS makeLIS()) {
   });
   test('[]', () {
     v.size = rint();
-    var val = rand();
+    var val = makeScalar();
     v[0] = val;
     expect(v[0], equals(val));
   });
@@ -126,7 +126,7 @@ vectorTest(LIS makeLIS()) {
     var y = v.copy();
     rvec(y);
     var y0 = y.copy();
-    var alpha = rand();
+    var alpha = makeScalar();
     y.axpy(v, alpha);
     for (var i = 0; i < v.size; i++) {
       expect(y[i], equals(alpha * v[i] + y0[i]));
@@ -139,7 +139,7 @@ vectorTest(LIS makeLIS()) {
     var y = v.copy();
     rvec(y);
     var y0 = y.copy();
-    var alpha = rand();
+    var alpha = makeScalar();
     y.xpay(v, alpha);
     for (var i = 0; i < v.size; i++) {
       expect(y[i], equals(v[i] + alpha * y0[i]));
@@ -151,7 +151,7 @@ vectorTest(LIS makeLIS()) {
     rvec(v);
     var y = v.copy();
     rvec(y);
-    var alpha = rand();
+    var alpha = makeScalar();
     var z = y.axpyz(v, alpha);
     for (var i = 0; i < v.size; i++) {
       expect(z[i], equals(alpha * v[i] + y[i]));
@@ -162,7 +162,7 @@ vectorTest(LIS makeLIS()) {
   test('scale', () {
     rvec(v);
     var v0 = v.copy();
-    var alpha = rand();
+    var alpha = makeScalar();
     v.scale(alpha);
     for (var i = 0; i < v.size; i++) {
       expect(v[i], equals(alpha * v0[i]));
@@ -195,7 +195,7 @@ vectorTest(LIS makeLIS()) {
   });
   test('fill', () {
     rvec(v);
-    var alpha = rand();
+    var alpha = makeScalar();
     v.fill(alpha);
     for (var i = 0; i < v.size; i++) {
       expect(v[i], equals(alpha));
@@ -223,7 +223,7 @@ vectorTest(LIS makeLIS()) {
   test('shift', () {
     rvec(v);
     var v0 = v.copy();
-    var alpha = rand();
+    var alpha = makeScalar();
     v.shift(alpha);
     for (var i = 0; i < v.size; i++) {
       expect(v[i], equals(v0[i] + alpha));

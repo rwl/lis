@@ -88,7 +88,7 @@ class Vector<S> {
     if (count == null) {
       count = size;
     }
-    var vals = new Float64List(count);
+    var vals = new List.generate(count, (_) => _lis.scalarZero());
     int p_value = _lis.heapScalars(vals);
     int err =
         _lis.callFunc('lis_vector_get_values', [_p_vec, start, count, p_value]);
