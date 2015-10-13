@@ -356,7 +356,16 @@ LIS_INT lis_vector_pdiv(LIS_VECTOR vx,LIS_VECTOR vy,LIS_VECTOR vz)
 	#endif
 	for(i=0; i<n; i++)
 	{
-		z[i] = x[i] / y[i];
+#if defined(_COMPLEX)
+		double xr, xi, yr, yi;
+		xr = creal(x[i]);
+		xi = cimag(x[i]);
+		yr = creal(y[i]);
+		yi = cimag(y[i]);
+		z[i] = ((xr*yr + xi*yi) / (yr*yr + yi*yi)) + ((xi*yr - xr*yi) / (yr*yr + yi*yi)) * I;
+#else
+		z[i] = x[i] / y[i]; // FIXME: complex divide (divdc3)
+#endif
 	}
 	LIS_DEBUG_FUNC_OUT;
 	return LIS_SUCCESS;
@@ -445,7 +454,16 @@ LIS_INT lis_vector_reciprocal(LIS_VECTOR vx)
 	#endif
 	for(i=0; i<n; i++)
 	{
-		x[i] = 1.0 / x[i];
+#if defined(_COMPLEX)
+		double xr, xi, yr, yi;
+		xr = 1.0;
+		xi = 0.0;
+		yr = creal(x[i]);
+		yi = cimag(x[i]);
+		x[i] = ((xr*yr) / (yr*yr + yi*yi)) + ((xi*yr - xr*yi) / (yr*yr + yi*yi)) * I;
+#else
+		x[i] = 1.0 / x[i]; // FIXME: complex divide (divdc3)
+#endif
 	}
 	LIS_DEBUG_FUNC_OUT;
 	return LIS_SUCCESS;
