@@ -168,30 +168,30 @@ vectorTest(LIS lis, rscal()) {
   test('pmul', () {
     rvec(v);
     var v0 = v.copy();
-    var vx = v.copy();
-    rvec(vx);
-    v.pmul(vx);
+    var vy = v.copy();
+    rvec(vy);
+    v.pmul(vy);
     for (var i = 0; i < v.size; i++) {
-      expect(v[i], equals(vx[i] * v0[i]));
+      expect(v[i], equals(v0[i] * vy[i]));
     }
     v0.destroy();
-    vx.destroy();
+    vy.destroy();
   });
   test('pdiv', () {
     rvec(v);
     var v0 = v.copy();
-    var vx = v.copy();
-    rvec(vx);
-    v.pdiv(vx);
+    var vy = v.copy();
+    rvec(vy);
+    v.pdiv(vy);
     for (var i = 0; i < v.size; i++) {
       if (v[i] is Complex) {
-        expect(v[i].abs(), closeTo((vx[i] / v0[i]).abs(), 1e-12));
+        expect(v[i].abs(), closeTo((v0[i] / vy[i]).abs(), 1e-12));
       } else {
-        expect(v[i], equals(vx[i] / v0[i]));
+        expect(v[i], equals(v0[i] / vy[i]));
       }
     }
     v0.destroy();
-    vx.destroy();
+    vy.destroy();
   });
   test('fill', () {
     rvec(v);
@@ -267,5 +267,47 @@ vectorTest(LIS lis, rscal()) {
       expected += v[i];
     }
     expect(val, equals(expected));
+  });
+  group('operator', () {
+    test('*', () {
+      rvec(v);
+      var v2 = v.copy();
+      rvec(v2);
+      var v3 = v * v2;
+      for (var i = 0; i < v.size; i++) {
+        expect(v3[i], equals(v[i] * v2[i]));
+      }
+    });
+    test('/', () {
+      rvec(v);
+      var v2 = v.copy();
+      rvec(v2);
+      var v3 = v / v2;
+      for (var i = 0; i < v.size; i++) {
+        if (v[i] is Complex) {
+          expect(v3[i].abs(), closeTo((v[i] / v2[i]).abs(), 1e-12));
+        } else {
+          expect(v3[i], equals(v[i] / v2[i]));
+        }
+      }
+    });
+    test('+', () {
+      rvec(v);
+      var v2 = v.copy();
+      rvec(v2);
+      var v3 = v + v2;
+      for (var i = 0; i < v.size; i++) {
+        expect(v3[i], equals(v[i] + v2[i]));
+      }
+    });
+    test('-', () {
+      rvec(v);
+      var v2 = v.copy();
+      rvec(v2);
+      var v3 = v - v2;
+      for (var i = 0; i < v.size; i++) {
+        expect(v3[i], equals(v[i] - v2[i]));
+      }
+    });
   });
 }

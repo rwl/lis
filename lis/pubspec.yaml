@@ -4,6 +4,7 @@ dependencies:
   complex: any
   emscripten:
     path: /home/rwl/dart/emscripten
+  quiver: any
 dev_dependencies:
   browser: any
   test: any

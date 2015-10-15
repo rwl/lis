@@ -36,6 +36,10 @@ class Vector<S> {
     return v;
   }
 
+  factory Vector.from(LIS lis, List<S> vals) {
+    return new Vector<S>(lis, vals.length)..setAll(0, vals);
+  }
+
   String output([Format fmt = Format.PLAIN]) {
     int p_path = _lis._heapPath();
     int err = _lis.callFunc('lis_output_vector', [_p_vec, fmt.index, p_path]);
@@ -78,15 +82,17 @@ class Vector<S> {
     return _lis.derefScalar(p_value);
   }
 
-  void operator []=(int i, S value) {
+  void operator []=(int i, S value) => setValue(i, value);
+
+  void setValue(int i, S value, [Flag flag = Flag.INSERT]) {
     int err;
     if (value is Complex) {
       var cval = value as Complex;
       err = _lis.callFunc('zlis_vector_set_value',
-          [LIS_INS_VALUE, i, cval.real, cval.imaginary, _p_vec]);
+          [flag.index, i, cval.real, cval.imaginary, _p_vec]);
     } else {
-      err = _lis.callFunc(
-          'lis_vector_set_value', [LIS_INS_VALUE, i, value, _p_vec]);
+      err =
+          _lis.callFunc('lis_vector_set_value', [flag.index, i, value, _p_vec]);
     }
     _lis._CHKERR(err);
   }
@@ -103,12 +109,12 @@ class Vector<S> {
     return _lis.derefScalars(p_value, count);
   }
 
-  void setValues(Int32List index, List<S> value) {
+  void setValues(Int32List index, List<S> value, [Flag flag = Flag.INSERT]) {
     int count = index.length;
     int p_index = _lis.heapInts(index);
     int p_value = _lis.heapScalars(value);
-    int err = _lis.callFunc('lis_vector_set_values',
-        [LIS_INS_VALUE, count, p_index, p_value, _p_vec]);
+    int err = _lis.callFunc(
+        'lis_vector_set_values', [flag.index, count, p_index, p_value, _p_vec]);
     _lis._CHKERR(err);
     _lis.free(p_index);
     _lis.free(p_value);
@@ -118,7 +124,7 @@ class Vector<S> {
     int count = value.length;
     int p_value = _lis.heapScalars(value);
     int err = _lis.callFunc('lis_vector_set_values2',
-        [LIS_INS_VALUE, start, count, p_value, _p_vec]);
+        [Flag.INSERT.index, start, count, p_value, _p_vec]);
     _lis._CHKERR(err);
     _lis.free(p_value);
   }
@@ -211,14 +217,14 @@ class Vector<S> {
   }
 
   /// Multiply each element of vector x by the corresponding element of y.
-  void pmul(Vector<S> vx) {
-    int err = _lis.callFunc('lis_vector_pmul', [vx._p_vec, _p_vec, _p_vec]);
+  void pmul(Vector<S> vy) {
+    int err = _lis.callFunc('lis_vector_pmul', [_p_vec, vy._p_vec, _p_vec]);
     _lis._CHKERR(err);
   }
 
   /// Divide each element of vector x by the corresponding element of y.
-  void pdiv(Vector<S> vx) {
-    int err = _lis.callFunc('lis_vector_pdiv', [vx._p_vec, _p_vec, _p_vec]);
+  void pdiv(Vector<S> vy) {
+    int err = _lis.callFunc('lis_vector_pdiv', [_p_vec, vy._p_vec, _p_vec]);
     _lis._CHKERR(err);
   }
 
@@ -293,4 +299,14 @@ class Vector<S> {
     _lis._CHKERR(err);
     return _lis.derefScalar(p_value);
   }
+
+  Vector<S> operator *(Vector y) => copy()..pmul(y);
+
+  Vector<S> operator /(Vector y) => copy()..pdiv(y);
+
+  Vector<S> operator +(Vector y) => axpyz(y);
+
+  Vector<S> operator -(Vector y) => axpyz(y, -_lis.scalarOne());
+
+  Vector<S> operator -() => copy()..scale(-_lis.scalarOne());
 }

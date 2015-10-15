@@ -141,27 +141,27 @@ class Matrix<S> {
     return MatrixType.values[t];
   }
 
-  void setValue(int i, int j, S value) {
+  void setValue(int i, int j, S value, [Flag flag = Flag.INSERT]) {
     int err;
     if (value is Complex) {
       var cval = value as Complex;
       err = _lis.callFunc('zlis_matrix_set_value',
-          [LIS_INS_VALUE, i, j, cval.real, cval.imaginary, _p_mat]);
+          [flag.index, i, j, cval.real, cval.imaginary, _p_mat]);
     } else {
       err = _lis.callFunc(
-          'lis_matrix_set_value', [LIS_INS_VALUE, i, j, value, _p_mat]);
+          'lis_matrix_set_value', [flag.index, i, j, value, _p_mat]);
     }
     _lis._CHKERR(err);
   }
 
-  void setValues(List<S> values) {
+  void setValues(List<S> values, [Flag flag = Flag.INSERT]) {
     int n = size; //sqrt(values.length).toInt();
     if (values.length != n * n) {
       throw new ArgumentError.value(values);
     }
     int p_values = _lis.heapScalars(values);
     int err = _lis.callFunc(
-        'lis_matrix_set_values', [LIS_INS_VALUE, n, p_values, _p_mat]);
+        'lis_matrix_set_values', [flag.index, n, p_values, _p_mat]);
     _lis._CHKERR(err);
     _lis.free(p_values);
   }

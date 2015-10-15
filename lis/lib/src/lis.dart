@@ -12,7 +12,7 @@ part 'matrix.dart';
 part 'solver.dart';
 part 'esolver.dart';
 
-const int LIS_INS_VALUE = 0;
+enum Flag { INSERT, ADD }
 
 const int COMM_WORLD = 0x1;
 
