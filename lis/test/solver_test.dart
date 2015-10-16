@@ -2,10 +2,63 @@ library lis.test1;
 
 import 'package:test/test.dart';
 import 'package:lis/lis.dart';
+import 'package:lis/zlis.dart';
 
-solverTest(LIS lis, String data, rscal()) {
-  /*test('solve', () {
-    var A = new Matrix.input(lis, data);
+import 'random.dart' show rand;
+import 'testmat.dart';
+
+solverTest(LIS lis, rscal()) {
+  test('basic', () {
+    var n = 30;
+    var row = <int>[];
+    var col = <int>[];
+    var value = [];
+    for (var r = 0; r < n; r++) {
+      for (var c = 0; c < n; c++) {
+        if (r == c) {
+          row.add(r);
+          col.add(c);
+          value.add(rscal() * 4.0); // dominant diagonal (non-singular)
+        } else if (rand() > 0.9) {
+          row.add(r);
+          col.add(c);
+          value.add(rscal());
+        }
+      }
+    }
+
+    var coo = new Coo(n, value.length)
+      ..value.setAll(0, value)
+      ..row.setAll(0, row)
+      ..col.setAll(0, col);
+
+    var A = new Matrix.coo(lis, coo);
+    var b = new Vector(lis, n)..fill(lis.scalarOne());
+
+    var solver = new LinearSolver(lis);
+    var x = solver.solve(A, b);
+
+    var b2 = A * x;
+    for (var i = 0; i < n; i++) {
+      expect(b2[i], closeTo(b[i], 1e-9));
+    }
+
+    A.destroy();
+    b.destroy();
+    x.destroy();
+    b2.destroy();
+    solver.destroy();
+  });
+
+  test('solve', () {
+    if (lis is ZLIS) {
+      return;
+    }
+
+    // read matrix and vectors
+    var lp = new LinearProblem(lis, testmat);
+    Matrix A = lp.A;
+    Vector b = lp.b; //, x = lp.x;
 
     var A0 = A.duplicate();
     A0.type = MatrixType.CSR;
@@ -13,54 +66,48 @@ solverTest(LIS lis, String data, rscal()) {
     A.destroy();
     A = A0;
 
-    var x0 = new Vector.fromMatrix(lis, A);
-    x0.setAll(0, new List.generate(x0.size, (_) => rscal() * 10.0));
-    var b0 = A * x0;
-
     var solver = new LinearSolver(lis);
-    solver.setOption("-print mem");
-    solver.setOptionC();
 
-    var x = solver.solve(A, b0.copy());
+    var x = solver.solve(A, b);
 
-    var iterx = solver.iterex();
-    var timeex = solver.timeex();
-    var resid = solver.residualnorm();
-    var sol = solver.solver();
-
-    // write results
-    print("${sol.name}: number of iterations = ${iterx.iter} "
-        "(double = ${iterx.iter_double}, quad = ${iterx.iter_quad})");
-    print("${sol.name}: elapsed time         = ${timeex.time} sec.");
-    print("${sol.name}:   preconditioner     = ${timeex.ptime} sec.");
-    print("${sol.name}:     matrix creation  = ${timeex.p_c_time} sec.");
-    print("${sol.name}:   linear solver      = ${timeex.itime} sec.");
-    print("${sol.name}: relative residual    = $resid\n");
-
-    expect(x.values(), equals(x0.values()));
+    var b2 = A.mult(x);
+    for (var i = 0; i < b2.size; i++) {
+      expect(b2[i], closeTo(b[i], 1e-9));
+    }
 
     solver.destroy();
     x.destroy();
-    x0.destroy();
-    b0.destroy();
+    b.destroy();
+    b2.destroy();
     A.destroy();
-  });*/
-  test('simple', () {
-    var ptr = [0, 2, 5, 9, 10, 12];
-    var index = [0, 1, 0, 2, 4, 1, 2, 3, 4, 2, 1, 4];
+  });
+
+  test('duplicate', () {
+    if (lis is ZLIS) {
+      return;
+    }
+
+    var n = 5;
+    var nnz = 12;
+    var row = [0, 1, 0, 2, 4, 1, 2, 3, 4, 2, 1, 4];
+    var col = [0, 0, 1, 1, 1, 2, 2, 2, 2, 3, 4, 4];
     var value = [2.0, 3.0, 3.0, -1.0, 4.0, 4.0, -3.0, 1.0, 2.0, 2.0, 6.0, 1.0];
     var b = new Vector.from(lis, [8.0, 45.0, -3.0, 3.0, 19.0]);
     var expected = [1.0, 2.0, 3.0, 4.0, 5.0];
 
-    var n = 5;
-    var nnz = 12;
-    var csc = new CSC(n, nnz);
+    // add a duplicate entry
+    nnz += 1;
+    row.add(0);
+    col.add(0);
+    value.add(value[0] / 2);
+    value[0] /= 2;
 
-    csc.ptr.setAll(0, ptr);
-    csc.index.setAll(0, index);
-    csc.value.setAll(0, value);
+    var coo = new Coo(n, nnz);
+    coo.value.setAll(0, value);
+    coo.row.setAll(0, row);
+    coo.col.setAll(0, col);
 
-    var A = new Matrix.csc(lis, csc);
+    var A = new Matrix.coo(lis, coo);
 
     var B = A.copy();
     var b0 = B * new Vector.from(lis, expected);
@@ -69,24 +116,8 @@ solverTest(LIS lis, String data, rscal()) {
     }
 
     var solver = new LinearSolver(lis);
-    solver.setOption("-print mem");
-    solver.setOptionC();
 
     var x = solver.solve(A, b);
-
-    var iterx = solver.iterex();
-    var timeex = solver.timeex();
-    var resid = solver.residualnorm();
-    var sol = solver.solver();
-
-    // write results
-    print("${sol.name}: number of iterations = ${iterx.iter} "
-        "(double = ${iterx.iter_double}, quad = ${iterx.iter_quad})");
-    print("${sol.name}: elapsed time         = ${timeex.time} sec.");
-    print("${sol.name}:   preconditioner     = ${timeex.ptime} sec.");
-    print("${sol.name}:     matrix creation  = ${timeex.p_c_time} sec.");
-    print("${sol.name}:   linear solver      = ${timeex.itime} sec.");
-    print("${sol.name}: relative residual    = $resid\n");
 
     for (var i = 0; i < n; i++) {
       expect(x[i], closeTo(expected[i], 1e-9));
