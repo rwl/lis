@@ -55,6 +55,10 @@
  * lis_vector_reciprocal	x_i <- 1 / x_i
  * lis_vector_shift		x_i <- alpha + x_i
  * lis_vector_cgs		classical Gram-Schmidt
+ * lis_vector_real      x_i <- creal(x_i) + 0.0 * I
+ * lis_vector_imaginary x_i <- cimag(x_i) + 0.0 * I
+ * lis_vector_argument  x_i <- carg(x_i) + 0.0 * I
+ * lis_vector_conjugate x_i <- conj(x_i)
  ********************************************************/
 
 
@@ -506,8 +510,8 @@ LIS_INT lis_vector_shift(LIS_SCALAR alpha, LIS_VECTOR vx)
 #define __FUNC__ "lis_vector_cgs"
 LIS_INT lis_vector_cgs(LIS_INT n, LIS_VECTOR *x, LIS_VECTOR *q, LIS_VECTOR *r)
 {
-  LIS_INT i, j, k; 
-  LIS_VECTOR x_k; 
+  LIS_INT i, j, k;
+  LIS_VECTOR x_k;
   LIS_REAL nrm2;
   LIS_REAL tol;
 
@@ -547,5 +551,137 @@ LIS_INT lis_vector_cgs(LIS_INT n, LIS_VECTOR *x, LIS_VECTOR *q, LIS_VECTOR *r)
   lis_vector_destroy(x_k);
 
   return 0;
-} 
+}
+
+
+/*******************************/
+/* x_i <- creal(x_i) + 0.0 * I */
+/*******************************/
+#undef __FUNC__
+#define __FUNC__ "lis_vector_real"
+LIS_INT lis_vector_real(LIS_VECTOR vx)
+{
+	LIS_INT i,n;
+	LIS_SCALAR *x;
+
+	LIS_DEBUG_FUNC_IN;
+
+	x = vx->value;
+	n = vx->n;
+	#ifdef USE_VEC_COMP
+    #pragma cdir nodep
+	#endif
+	#ifdef _OPENMP
+	#pragma omp parallel for private(i)
+	#endif
+	for(i=0; i<n; i++)
+	{
+#if defined(_COMPLEX)
+		x[i] = creal(x[i]) + 0.0 * I;
+#endif
+	}
+	LIS_DEBUG_FUNC_OUT;
+	return LIS_SUCCESS;
+}
+
+
+/*******************************/
+/* x_i <- cimag(x_i) + 0.0 * I */
+/*******************************/
+#undef __FUNC__
+#define __FUNC__ "lis_vector_imaginary"
+LIS_INT lis_vector_imaginary(LIS_VECTOR vx)
+{
+	LIS_INT i,n;
+	LIS_SCALAR *x;
+
+	LIS_DEBUG_FUNC_IN;
+
+	x = vx->value;
+	n = vx->n;
+	#ifdef USE_VEC_COMP
+    #pragma cdir nodep
+	#endif
+	#ifdef _OPENMP
+	#pragma omp parallel for private(i)
+	#endif
+	for(i=0; i<n; i++)
+	{
+#if defined(_COMPLEX)
+		x[i] = cimag(x[i]) + 0.0 * I;
+#else
+		x[i] = 0.0;
+#endif
+	}
+	LIS_DEBUG_FUNC_OUT;
+	return LIS_SUCCESS;
+}
+
+
+/******************************/
+/* x_i <- carg(x_i) + 0.0 * I */
+/******************************/
+#undef __FUNC__
+#define __FUNC__ "lis_vector_argument"
+LIS_INT lis_vector_argument(LIS_VECTOR vx)
+{
+	LIS_INT i,n;
+	LIS_SCALAR *x;
+
+	LIS_DEBUG_FUNC_IN;
+
+	x = vx->value;
+	n = vx->n;
+	#ifdef USE_VEC_COMP
+    #pragma cdir nodep
+	#endif
+	#ifdef _OPENMP
+	#pragma omp parallel for private(i)
+	#endif
+	for(i=0; i<n; i++)
+	{
+#if defined(_COMPLEX)
+		x[i] = carg(x[i]) + 0.0 * I;
+#else
+		if (x[i] >= 0) {
+			x[i] = 0.0;
+		} else {
+			x[i] = 3.14159265358979323846;
+		}
+#endif
+	}
+	LIS_DEBUG_FUNC_OUT;
+	return LIS_SUCCESS;
+}
+
+
+/********************/
+/* x_i <- conj(x_i) */
+/********************/
+#undef __FUNC__
+#define __FUNC__ "lis_vector_conjugate"
+LIS_INT lis_vector_conjugate(LIS_VECTOR vx)
+{
+	LIS_INT i,n;
+	LIS_SCALAR *x;
+
+	LIS_DEBUG_FUNC_IN;
+
+	x = vx->value;
+	n = vx->n;
+	#ifdef USE_VEC_COMP
+    #pragma cdir nodep
+	#endif
+	#ifdef _OPENMP
+	#pragma omp parallel for private(i)
+	#endif
+	for(i=0; i<n; i++)
+	{
+#if defined(_COMPLEX)
+		x[i] = conj(x[i]);
+#endif
+	}
+	LIS_DEBUG_FUNC_OUT;
+	return LIS_SUCCESS;
+}
 

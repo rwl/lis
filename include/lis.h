@@ -761,6 +761,10 @@ extern "C"
 	extern LIS_INT lis_vector_nrm2(LIS_VECTOR vx, LIS_REAL *value);
 	extern LIS_INT lis_vector_nrmi(LIS_VECTOR vx, LIS_REAL *value);
 	extern LIS_INT lis_vector_sum(LIS_VECTOR vx, LIS_SCALAR *value);
+	extern LIS_INT lis_vector_real(LIS_VECTOR vx);
+	extern LIS_INT lis_vector_imaginary(LIS_VECTOR vx);
+	extern LIS_INT lis_vector_argument(LIS_VECTOR vx);
+	extern LIS_INT lis_vector_conjugate(LIS_VECTOR vx);
 
 /****************************/
 /* Matrix Operations        */

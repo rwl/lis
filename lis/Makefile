@@ -43,7 +43,11 @@ EXP_VECTOR = \
 '_lis_vector_nrm1',\
 '_lis_vector_nrm2',\
 '_lis_vector_nrmi',\
-'_lis_vector_sum'
+'_lis_vector_sum',\
+'_lis_vector_real',\
+'_lis_vector_imaginary',\
+'_lis_vector_argument',\
+'_lis_vector_conjugate'
 
 EXP_MATRIX = \
 '_lis_matrix_create',\

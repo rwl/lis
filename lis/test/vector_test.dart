@@ -268,6 +268,69 @@ vectorTest(LIS lis, rscal()) {
     }
     expect(val, equals(expected));
   });
+  test('real', () {
+    rvec(v);
+    var v0 = v.copy();
+    v.real();
+    for (var i = 0; i < v.size; i++) {
+      if (v[i] is Complex) {
+        expect(v[i].real, closeTo(v0[i].real, 1e-12));
+        expect(v[i].imaginary, equals(0.0));
+      } else {
+        expect(v[i], equals(v0[i]));
+      }
+    }
+  });
+  test('imag', () {
+    rvec(v);
+    var v0 = v.copy();
+    v.imag();
+    for (var i = 0; i < v.size; i++) {
+      if (v[i] is Complex) {
+        expect(v[i].real, closeTo(v0[i].imaginary, 1e-12));
+        expect(v[i].imaginary, equals(0.0));
+      } else {
+        expect(v[i], equals(0.0));
+      }
+    }
+  });
+  test('arg', () {
+    rvec(v);
+    for (var i = 0; i < v.size; i++) {
+      if (rint() % 2 == 0) {
+        v[i] = -v[i];
+      }
+    }
+    var v0 = v.copy();
+    v.arg();
+    for (var i = 0; i < v.size; i++) {
+      if (v[i] is Complex) {
+        expect(v[i].real, closeTo(v0[i].argument(), 1e-12));
+        expect(v[i].imaginary, equals(0.0));
+      } else {
+        expect(v[i], equals(v0[i] >= 0 ? 0.0 : PI));
+      }
+    }
+  });
+  test('conj', () {
+    rvec(v);
+    for (var i = 0; i < v.size; i++) {
+      if (rint() % 2 == 0) {
+        if (v[i] is Complex) {
+          v[i] = v[i].conjugate();
+        }
+      }
+    }
+    var v0 = v.copy();
+    v.conj();
+    for (var i = 0; i < v.size; i++) {
+      if (v[i] is Complex) {
+        expect(v[i], equals(v0[i].conjugate()));
+      } else {
+        expect(v[i], equals(v0[i]));
+      }
+    }
+  });
   group('operator', () {
     test('*', () {
       rvec(v);

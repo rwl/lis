@@ -300,6 +300,26 @@ class Vector<S> {
     return _lis.derefScalar(p_value);
   }
 
+  void real() {
+    int err = _lis.callFunc('lis_vector_real', [_p_vec]);
+    _lis._CHKERR(err);
+  }
+
+  void imag() {
+    int err = _lis.callFunc('lis_vector_imaginary', [_p_vec]);
+    _lis._CHKERR(err);
+  }
+
+  void arg() {
+    int err = _lis.callFunc('lis_vector_argument', [_p_vec]);
+    _lis._CHKERR(err);
+  }
+
+  void conj() {
+    int err = _lis.callFunc('lis_vector_conjugate', [_p_vec]);
+    _lis._CHKERR(err);
+  }
+
   Vector<S> operator *(Vector y) => copy()..pmul(y);
 
   Vector<S> operator /(Vector y) => copy()..pdiv(y);
