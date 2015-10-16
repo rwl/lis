@@ -82,7 +82,10 @@ EXP_MATRIX = \
 '_lis_matrix_malloc_coo',\
 '_lis_matrix_set_coo',\
 '_lis_matrix_set_dns',\
-'_lis_matrix_malloc_dns'
+'_lis_matrix_malloc_dns',\
+\
+'_lis_matvec',\
+'_lis_matvect'
 
 EXP_SOLVER = \
 '_lis_solver_create',\

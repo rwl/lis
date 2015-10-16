@@ -17,11 +17,14 @@ enum Flag { INSERT, ADD }
 const int COMM_WORLD = 0x1;
 
 abstract class LIS<S> extends Module {
-  final FS _fs;
+  FS _fs;
 
   LIS(String funcName, List<String> options, JsObject context)
-      : super.func(funcName, context),
-        _fs = new FS(context: context) {
+      : super.func(funcName, context) {
+    _fs = new FS.func(module);
+    if (_fs == null) {
+      throw new ArgumentError.notNull('fs');
+    }
     if (options == null) {
       options = [];
     }
