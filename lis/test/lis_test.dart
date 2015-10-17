@@ -41,7 +41,7 @@ main() {
       var lis = new dlis.DLIS();
       group('module', () => testLIS(lis, rand));
       group('vector', () => vectorTest(lis, rand));
-      group('matrix', () => matrixTest(lis, rand));
+      group('matrix', () => matrixTest(lis, rand, (i) => i.toDouble()));
       group('solver', () => solverTest(lis, rand));
       lis.finalize();
     });
@@ -50,7 +50,7 @@ main() {
       rcmplx() => new Complex(rand(), rand());
       group('module', () => testLIS(lis, rcmplx));
       group('vector', () => vectorTest(lis, rcmplx));
-      group('matrix', () => matrixTest(lis, rcmplx));
+      group('matrix', () => matrixTest(lis, rcmplx, (i) => new Complex(i)));
 //      group('solver', () => solverTest(lis, rcmplx));
       lis.finalize();
     });

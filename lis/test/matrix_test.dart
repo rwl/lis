@@ -9,7 +9,7 @@ import 'package:complex/complex.dart';
 
 import 'random.dart' hide rand;
 
-matrixTest(LIS lis, rscal()) {
+matrixTest(LIS lis, rscal(), toScalar(int i)) {
   Matrix m;
 
   setUp(() {
@@ -145,6 +145,44 @@ matrixTest(LIS lis, rscal()) {
     var m2 = m.copy();
     expect(m2.type, equals(m.type));
     expect(m2.diagonal().values(), equals(m.diagonal().values()));
+  });
+  group('transpose', () {
+    Matrix A;
+    Vector ones;
+    setUp(() {
+      int n = rint();
+      var coo = new Coo(n, 2 * n);
+      for (int i = 0; i < n; i++) {
+        coo.row[2 * i] = i;
+        coo.col[2 * i] = i;
+        coo.value[2 * i] = lis.scalarOne();
+
+        coo.row[2 * i + 1] = i;
+        coo.col[2 * i + 1] = n - 1 - i;
+        coo.value[2 * i + 1] = toScalar(i + 1);
+      }
+      A = new Matrix.coo(lis, coo);
+      ones = new Vector(lis, n)..fill(lis.scalarOne());
+    });
+    tearDown(() {
+      A.destroy();
+      ones.destroy();
+    });
+    for (var matrixType in [MatrixType.CSR, MatrixType.CSC]) {
+      test(matrixType.toString(), () {
+        var AA = new Matrix(lis, A.size, matrixType);
+        A.convert(AA);
+        var At = AA.transpose();
+
+        expect(At.type, equals(matrixType));
+        expect(At.diagonal().values(), equals(AA.diagonal().values()));
+
+        var Asum = AA * ones;
+        var Atsum = At * ones;
+
+        expect(Atsum.values().reversed, equals(Asum.values()));
+      });
+    }
   });
 
   group('factory', () {

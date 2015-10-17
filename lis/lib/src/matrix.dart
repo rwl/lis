@@ -5,12 +5,19 @@ class Matrix<S> {
   final int _p_mat;
   Matrix._(this._lis, this._p_mat);
 
-  factory Matrix(LIS lis) {
+  factory Matrix(LIS lis, [int size, MatrixType type]) {
     int pp_mat = lis.heapInt();
     int err = lis.callFunc('lis_matrix_create', [COMM_WORLD, pp_mat]);
     lis._CHKERR(err);
     int p_mat = lis.derefInt(pp_mat);
-    return new Matrix<S>._(lis, p_mat);
+    var m = new Matrix<S>._(lis, p_mat);
+    if (size != null) {
+      m.size = size;
+    }
+    if (type != null) {
+      m.type = type;
+    }
+    return m;
   }
 
   factory Matrix.csr(LIS lis, CSR csr) {
@@ -201,8 +208,7 @@ class Matrix<S> {
 
   Matrix<S> copy([Matrix<S> Aout]) {
     if (Aout == null) {
-      Aout = new Matrix(_lis);
-      Aout.size = size;
+      Aout = duplicate();
     }
     int err = _lis.callFunc('lis_matrix_copy', [_p_mat, Aout._p_mat]);
     _lis._CHKERR(err);
@@ -234,6 +240,15 @@ class Matrix<S> {
     int err = _lis.callFunc('lis_matvect', [_p_mat, vx._p_vec, vy._p_vec]);
     _lis._CHKERR(err);
     return vy;
+  }
+
+  Matrix<S> transpose([Matrix<S> Aout]) {
+    if (Aout == null) {
+      Aout = duplicate();
+    }
+    int err = _lis.callFunc('lis_matrix_transpose', [_p_mat, Aout._p_mat]);
+    _lis._CHKERR(err);
+    return Aout;
   }
 }
 

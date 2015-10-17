@@ -98,6 +98,7 @@ extern "C"
 	extern LIS_INT lis_matrix_shift_diagonal_dns(LIS_MATRIX A, LIS_SCALAR alpha);
 	extern LIS_INT lis_matrix_shift_diagonal_coo(LIS_MATRIX A, LIS_SCALAR alpha);
 	extern LIS_INT lis_matrix_shift_diagonal_vbr(LIS_MATRIX A, LIS_SCALAR alpha);
+	extern LIS_INT lis_matrix_transpose(LIS_MATRIX Ain, LIS_MATRIX Aout);
 
 /*******************/
 /* Diagonal Matrix */

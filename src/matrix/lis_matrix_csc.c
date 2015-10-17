@@ -482,7 +482,13 @@ LIS_INT lis_matrix_transpose_csc(LIS_MATRIX Ain, LIS_MATRIX Aout)
 
 	LIS_DEBUG_FUNC_IN;
 
-	err = lis_matrix_convert_csr2csc(Ain,Aout);
+	err = lis_matrix_convert_csc2csr(Ain,Aout);
+	if( err )
+	{
+		return err;
+	}
+	Aout->matrix_type = LIS_MATRIX_CSC;
+	Aout->status      = LIS_MATRIX_CSC;
 
 	LIS_DEBUG_FUNC_OUT;
 	return err;

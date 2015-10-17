@@ -1051,6 +1051,37 @@ LIS_INT lis_matrix_solvet(LIS_MATRIX A, LIS_VECTOR b, LIS_VECTOR x, LIS_INT flag
 	return LIS_SUCCESS;
 }
 
+#undef __FUNC__
+#define __FUNC__ "lis_matrix_transpose"
+LIS_INT lis_matrix_transpose(LIS_MATRIX A, LIS_MATRIX Aout)
+{
+	LIS_INT err;
+
+	LIS_DEBUG_FUNC_IN;
+
+	err = lis_matrix_check(A,LIS_MATRIX_CHECK_ALL);
+	if( err ) return err;
+	err = lis_matrix_check(Aout,LIS_MATRIX_CHECK_NULL);
+	if( err ) return err;
+
+	switch( A->matrix_type )
+	{
+	case LIS_MATRIX_CSR:
+		lis_matrix_transpose_csr(A,Aout);
+		break;
+	case LIS_MATRIX_CSC:
+		lis_matrix_transpose_csc(A,Aout);
+		break;
+	default:
+		LIS_SETERR_IMP;
+		return LIS_ERR_NOT_IMPLEMENTED;
+		break;
+	}
+
+	LIS_DEBUG_FUNC_OUT;
+	return LIS_SUCCESS;
+}
+
 
 
 
