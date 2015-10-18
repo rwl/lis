@@ -348,7 +348,7 @@ LIS_INT lis_esolve(LIS_MATRIX A, LIS_VECTOR x, LIS_SCALAR *evalue0, LIS_ESOLVER 
 		return LIS_ERR_ILL_ARG;
 	}
 
-	if ( esolver->options[LIS_EOPTIONS_ESOLVER] == ( LIS_ESOLVER_LI || LIS_ESOLVER_AI ) && mode >= ss )
+	if ( esolver->options[LIS_EOPTIONS_ESOLVER] == ( LIS_ESOLVER_LI | LIS_ESOLVER_AI ) && mode >= ss )
 	{
 		LIS_SETERR2(LIS_ERR_ILL_ARG,"Parameter LIS_EOPTIONS_MODE is %d (Set less than subspace size %d for Lanczos or Arnoldi)\n", mode, ss);
 		return LIS_ERR_ILL_ARG;
