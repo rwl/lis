@@ -55,7 +55,7 @@ abstract class NativeLIS<S> implements lis.LIS<S> {
   int matrixCreate() native "LIS_MatrixCreate";
   void matrixDestroy(int Amat) native "LIS_MatrixDestroy";
   void matrixAssemble(int A) native "LIS_MatrixAssemble";
-  bool matrixIsAssembled(int A) native "LIS_MatrixIsAssembled";
+  int matrixIsAssembled(int A) native "LIS_MatrixIsAssembled";
   int matrixDuplicate(int Ain) native "LIS_MatrixDuplicate";
   void matrixSetSize(int A, int n) native "LIS_MatrixSetSize";
   int matrixGetSize(int A) native "LIS_MatrixGetSize";
@@ -166,6 +166,7 @@ abstract class NativeLIS<S> implements lis.LIS<S> {
   // Utilities
   void initialize(List<String> args) native "LIS_Initialize";
   int finalize() native "LIS_Finalize";
+  void CHKERR(int err) native "LIS_CHKERR";
 }
 
 class DLIS extends NativeLIS<double> {

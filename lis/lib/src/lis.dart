@@ -28,7 +28,7 @@ abstract class LIS<S> {
       int flag, int count, List<int> index, List<S> value, int v);
   void vectorSetValues2(int flag, int start, int count, List<S> value, int v);
   void vectorPrint(int x);
-  bool vectorIsNull(int v);
+  int vectorIsNull(int v);
   void vectorSwap(int vsrc, int vdst);
   void vectorCopy(int vsrc, int vdst);
   void vectorAxpy(S alpha, int vx, int vy);
@@ -55,7 +55,7 @@ abstract class LIS<S> {
   int matrixCreate();
   void matrixDestroy(int Amat);
   void matrixAssemble(int A);
-  bool matrixIsAssembled(int A);
+  int matrixIsAssembled(int A);
   int matrixDuplicate(int Ain);
   void matrixSetSize(int A, int n);
   int matrixGetSize(int A);
@@ -151,6 +151,7 @@ abstract class LIS<S> {
   // Utilities
   void initialize(List<String> args);
   void finalize();
+  void CHKERR(int err);
 }
 
 class LinearProblem<S> {

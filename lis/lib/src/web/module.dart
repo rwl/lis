@@ -14,15 +14,6 @@ abstract class LisModule<S> extends Module {
     if (_fs == null) {
       throw new ArgumentError.notNull('fs');
     }
-    if (options == null) {
-      options = [];
-    }
-    int argc = heapInt(options.length + 1);
-    options = ['lis']..addAll(options);
-    int p_args = heapStrings(options);
-    int argv = heapInt(p_args);
-    int err = callFunc('lis_initialize', [argc, argv]);
-    CHKERR(err);
   }
 
   int heapScalars(List<S> list);
@@ -32,11 +23,6 @@ abstract class LisModule<S> extends Module {
   int heapScalar([S value]);
 
   S derefScalar(int ptr, [bool free = true]);
-
-//  S scalarOne();
-//  S scalarZero();
-
-  finalize() => callFunc('lis_finalize');
 
   int writeFile(String data) {
     var path = pathname();
@@ -61,11 +47,4 @@ abstract class LisModule<S> extends Module {
   }
 
   String pathname() => 'file';
-
-  void CHKERR(int err) {
-    if (err != 0) {
-      finalize();
-      throw err; // TODO: LisError
-    }
-  }
 }

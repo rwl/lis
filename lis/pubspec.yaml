@@ -1,7 +1,8 @@
 name: lis
 version: 0.0.1
 dependencies:
-  complex: any
+  complex:
+    path: /home/rwl/dart/complex
   emscripten:
     path: /home/rwl/dart/emscripten
   quiver: any
