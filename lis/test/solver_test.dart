@@ -2,7 +2,7 @@ library lis.test1;
 
 import 'package:test/test.dart';
 import 'package:lis/lis.dart';
-import 'package:lis/zlis.dart';
+import 'package:lis/web/zlis.dart';
 
 import 'random.dart' show rand;
 import 'testmat.dart';
@@ -33,7 +33,7 @@ solverTest(LIS lis, rscal()) {
       ..col.setAll(0, col);
 
     var A = new Matrix.coo(lis, coo);
-    var b = new Vector(lis, n)..fill(lis.scalarOne());
+    var b = new Vector(lis, n)..fill(lis.one);
 
     var solver = new LinearSolver(lis);
     var x = solver.solve(A, b);

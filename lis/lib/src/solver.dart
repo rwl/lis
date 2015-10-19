@@ -5,146 +5,67 @@ class LinearSolver<S> {
   final int _p_solve;
 
   factory LinearSolver(LIS lis) {
-    int pp_solver = lis.heapInt();
-    int err = lis.callFunc('lis_solver_create', [pp_solver]);
-    lis._CHKERR(err);
-    int p_solve = lis.derefInt(pp_solver);
+    int p_solve = lis.solverCreate();
     return new LinearSolver._(lis, p_solve);
   }
 
   LinearSolver._(this._lis, this._p_solve);
 
-  void destroy() {
-    int err = _lis.callFunc('lis_solver_destroy', [_p_solve]);
-    _lis._CHKERR(err);
-  }
+  void destroy() => _lis.solverDestroy(_p_solve);
 
-  int iter() {
-    int p_iter = _lis.heapInt();
-    int err = _lis.callFunc('lis_solver_get_iter', [_p_solve, p_iter]);
-    _lis._CHKERR(err);
-    return _lis.derefInt(p_iter);
-  }
+  int iter() => _lis.solverGetIter(_p_solve);
 
-  Iter iterex() {
-    int p_iter = _lis.heapInt();
-    int p_iter_double = _lis.heapInt();
-    int p_iter_quad = _lis.heapInt();
-    int err = _lis.callFunc('lis_solver_get_iterex',
-        [_p_solve, p_iter, p_iter_double, p_iter_quad]);
-    _lis._CHKERR(err);
-    return new Iter._(_lis.derefInt(p_iter), _lis.derefInt(p_iter_double),
-        _lis.derefInt(p_iter_quad));
-  }
+  Iter iterex() => _lis.solverGetIterEx(_p_solve);
 
-  double time() {
-    int p_time = _lis.heapDouble();
-    int err = _lis.callFunc('lis_solver_get_time', [_p_solve, p_time]);
-    _lis._CHKERR(err);
-    return _lis.derefDouble(p_time);
-  }
+  double time() => _lis.solverGetTime(_p_solve);
 
-  Time timeex() {
-    int p_time = _lis.heapDouble();
-    int p_itime = _lis.heapDouble();
-    int p_ptime = _lis.heapDouble();
-    int p_p_c_time = _lis.heapDouble();
-    int p_p_i_time = _lis.heapDouble();
-    int err = _lis.callFunc('lis_solver_get_timeex',
-        [_p_solve, p_time, p_itime, p_ptime, p_p_c_time, p_p_i_time]);
-    _lis._CHKERR(err);
-    return new Time._(
-        _lis.derefDouble(p_time),
-        _lis.derefDouble(p_itime),
-        _lis.derefDouble(p_ptime),
-        _lis.derefDouble(p_p_c_time),
-        _lis.derefDouble(p_p_i_time));
-  }
+  Time timeex() => _lis.solverGetTimeEx(_p_solve);
 
-  double residualnorm() {
-    int p_norm = _lis.heapDouble();
-    int err = _lis.callFunc('lis_solver_get_residualnorm', [_p_solve, p_norm]);
-    _lis._CHKERR(err);
-    return _lis.derefDouble(p_norm);
-  }
+  double residualnorm() => _lis.solverGetResidualNorm(_p_solve);
 
   LinearSolverType solver() {
-    int p_nsol = _lis.heapInt();
-    int err = _lis.callFunc('lis_solver_get_solver', [_p_solve, p_nsol]);
-    _lis._CHKERR(err);
-    return LinearSolverType.values[_lis.derefInt(p_nsol)];
+    int nsol = _lis.solverGetSolver(_p_solve);
+    return LinearSolverType.values[nsol];
   }
 
   PreconType precon() {
-    int p_precon = _lis.heapInt();
-    int err = _lis.callFunc('lis_solver_get_precon', [_p_solve, p_precon]);
-    _lis._CHKERR(err);
-    return PreconType.values[_lis.derefInt(p_precon)];
+    int precon = _lis.solverGetPrecon(_p_solve);
+    return PreconType.values[precon];
   }
 
-  int status() {
-    int p_status = _lis.heapInt();
-    int err = _lis.callFunc('lis_solver_get_status', [_p_solve, p_status]);
-    _lis._CHKERR(err);
-    return _lis.derefInt(p_status);
-  }
+  int status() => _lis.solverGetStatus(_p_solve);
 
   Vector rhistory([Vector v]) {
     if (v == null) {
       v = new Vector(_lis)..size = iter() + 1;
     }
-    int err = _lis.callFunc('lis_solver_get_rhistory', [_p_solve, v._p_vec]);
-    _lis._CHKERR(err);
+    _lis.solverGetRHistory(_p_solve, v._p_vec);
     return v;
   }
 
-  void setOption(String text) {
-    int p_text = _lis.heapString(text);
-    int err = _lis.callFunc('lis_solver_set_option', [p_text, _p_solve]);
-    _lis._CHKERR(err);
-    _lis.free(p_text);
-  }
+  void setOption(String text) => _lis.solverSetOption(text, _p_solve);
 
-  void setOptionC() {
-    int err = _lis.callFunc('lis_solver_set_optionC', [_p_solve]);
-    _lis._CHKERR(err);
-  }
+  void setOptionC() => _lis.solverSetOptionC(_p_solve);
 
   Vector<S> solve(Matrix<S> A, Vector<S> b, [Vector<S> x]) {
     if (x == null) {
       x = new Vector.fromMatrix(_lis, A);
     }
-    int err =
-        _lis.callFunc('lis_solve', [A._p_mat, b._p_vec, x._p_vec, _p_solve]);
-    _lis._CHKERR(err);
+    _lis.solve(A._p_mat, b._p_vec, x._p_vec, _p_solve);
     return x;
   }
 
-  //LIS_INT lis_solve_kernel(LIS_MATRIX A, LIS_VECTOR b, LIS_VECTOR x, LIS_SOLVER solver, LIS_PRECON precon);
-  //LIS_PRECON_REGISTER *precon_register_top;
-  //LIS_INT precon_register_type;
-  //LIS_INT lis_precon_register(char *name, LIS_PRECON_CREATE_XXX pcreate, LIS_PSOLVE_XXX psolve, LIS_PSOLVET_XXX psolvet);
-  //LIS_INT lis_precon_register_free(void);
-
-  //LIS_INT lis_solver_get_solvername(LIS_INT solver, char *solvername);
-  //LIS_INT lis_solver_get_preconname(LIS_INT precon_type, char *preconname);
-
-  String output() {
-    int p_path = _lis._heapPath();
-    int err = _lis.callFunc('lis_solver_output_rhistory', [_p_solve, p_path]);
-    _lis._CHKERR(err);
-    return _lis._readFile(p_path);
-  }
+  String output() => _lis.solverOutputRHistory(_p_solve);
 }
 
 class Iter {
   final int iter, iter_double, iter_quad;
-  Iter._(this.iter, this.iter_double, this.iter_quad);
+  Iter(this.iter, this.iter_double, this.iter_quad);
 }
 
 class Time {
   final double time, itime, ptime, p_c_time, p_i_time;
-  Time._(this.time, this.itime, this.ptime, this.p_c_time, this.p_i_time);
+  Time(this.time, this.itime, this.ptime, this.p_c_time, this.p_i_time);
 }
 
 class LinearSolverType {

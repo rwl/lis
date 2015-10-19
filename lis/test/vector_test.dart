@@ -243,7 +243,7 @@ vectorTest(LIS lis, rscal()) {
     rvec(v);
     var vx = v.copy();
     var val = v.dot(vx);
-    var expected = lis.scalarZero();
+    var expected = lis.zero;
     for (var i = 0; i < v.size; i++) {
       expected += v[i] * vx[i];
     }
@@ -262,7 +262,7 @@ vectorTest(LIS lis, rscal()) {
   test('sum', () {
     rvec(v);
     var val = v.sum();
-    var expected = lis.scalarZero();
+    var expected = lis.zero;
     for (var i = 0; i < v.size; i++) {
       expected += v[i];
     }

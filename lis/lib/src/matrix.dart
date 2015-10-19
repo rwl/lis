@@ -3,13 +3,11 @@ part of lis.internal;
 class Matrix<S> {
   final LIS _lis;
   final int _p_mat;
+
   Matrix._(this._lis, this._p_mat);
 
   factory Matrix(LIS lis, [int size, MatrixType type]) {
-    int pp_mat = lis.heapInt();
-    int err = lis.callFunc('lis_matrix_create', [COMM_WORLD, pp_mat]);
-    lis._CHKERR(err);
-    int p_mat = lis.derefInt(pp_mat);
+    int p_mat = lis.matrixCreate();
     var m = new Matrix<S>._(lis, p_mat);
     if (size != null) {
       m.size = size;
@@ -21,144 +19,74 @@ class Matrix<S> {
   }
 
   factory Matrix.csr(LIS lis, CSR csr) {
-    var p_ptr = lis.heapInts(csr.ptr);
-    var p_index = lis.heapInts(csr.index);
-    var p_value = lis.heapScalars(csr.value);
     var m = new Matrix(lis)..size = csr.n;
-    int err = lis.callFunc(
-        'lis_matrix_set_csr', [csr.nnz, p_ptr, p_index, p_value, m._p_mat]);
-    lis._CHKERR(err);
+    lis.matrixSetCsr(csr.nnz, csr.ptr, csr.index, csr.value, m._p_mat);
     m.assemble();
     return m;
   }
 
   factory Matrix.csc(LIS lis, CSC csc) {
-    var p_ptr = lis.heapInts(csc.ptr);
-    var p_index = lis.heapInts(csc.index);
-    var p_value = lis.heapScalars(csc.value);
     var m = new Matrix(lis)..size = csc.n;
-    int err = lis.callFunc(
-        'lis_matrix_set_csc', [csc.nnz, p_ptr, p_index, p_value, m._p_mat]);
-    lis._CHKERR(err);
+    lis.matrixSetCsc(csc.nnz, csc.ptr, csc.index, csc.value, m._p_mat);
     m.assemble();
     return m;
   }
 
   factory Matrix.dia(LIS lis, Dia dia) {
-    var p_index = lis.heapInts(dia.index);
-    var p_value = lis.heapScalars(dia.value);
     var m = new Matrix(lis)..size = dia.n;
-    int err = lis.callFunc(
-        'lis_matrix_set_dia', [dia.nnd, p_index, p_value, m._p_mat]);
-    lis._CHKERR(err);
+    lis.matrixSetDia(dia.nnd, dia.index, dia.value, m._p_mat);
     m.assemble();
     return m;
   }
 
   factory Matrix.coo(LIS lis, Coo coo) {
-    var p_row = lis.heapInts(coo.row);
-    var p_col = lis.heapInts(coo.col);
-    var p_value = lis.heapScalars(coo.value);
     var m = new Matrix(lis)..size = coo.n;
-    int err = lis.callFunc(
-        'lis_matrix_set_coo', [coo.nnz, p_row, p_col, p_value, m._p_mat]);
-    lis._CHKERR(err);
+    lis.matrixSetCoo(coo.nnz, coo.row, coo.col, coo.value, m._p_mat);
     m.assemble();
     return m;
   }
 
   factory Matrix.dense(LIS lis, Dense dense) {
-    var p_value = lis.heapScalars(dense.value);
     var m = new Matrix(lis)..size = dense.n;
-    int err = lis.callFunc('lis_matrix_set_dns', [p_value, m._p_mat]);
-    lis._CHKERR(err);
+    lis.matrixSetDns(dense.value, m._p_mat);
     m.assemble();
     return m;
   }
 
   factory Matrix.input(LIS lis, String data) {
     var A = new Matrix(lis);
-    int p_path = lis._writeFile(data);
-    int err = lis.callFunc('lis_input_matrix', [A._p_mat, p_path]);
-    lis._CHKERR(err);
-    lis._removeFile(p_path);
+    lis.inputMatrix(A._p_mat, data);
     return A;
   }
 
-  String output() {
-    int p_path = _lis._heapPath();
-    int err =
-        _lis.callFunc('lis_output_matrix', [_p_mat, Format.MM.index, p_path]);
-    _lis._CHKERR(err);
-    return _lis._readFile(p_path);
-  }
+  String output() => _lis.outputMatrix(_p_mat, Format.MM.index);
 
-  void destroy() {
-    int err = _lis.callFunc('lis_matrix_destroy', [_p_mat]);
-    _lis._CHKERR(err);
-  }
+  void destroy() => _lis.matrixDestroy(_p_mat);
 
-  void assemble() {
-    int err = _lis.callFunc('lis_matrix_assemble', [_p_mat]);
-    _lis._CHKERR(err);
-  }
+  void assemble() => _lis.matrixAssemble(_p_mat);
 
-  bool assembled() => _lis.callFunc('lis_matrix_is_assembled', [_p_mat]) != 0;
+  bool assembled() => _lis.matrixIsAssembled(_p_mat) != 0;
 
   Matrix<S> duplicate() {
-    int pp_Aout = _lis.heapInt();
-    int err = _lis.callFunc('lis_matrix_duplicate', [_p_mat, pp_Aout]);
-    _lis._CHKERR(err);
-    int p_Aout = _lis.derefInt(pp_Aout);
+    int p_Aout = _lis.matrixDuplicate(_p_mat);
     return new Matrix._(_lis, p_Aout);
   }
 
-  void set size(int sz) {
-    int err = _lis.callFunc('lis_matrix_set_size', [_p_mat, 0, sz]);
-    _lis._CHKERR(err);
-  }
+  void set size(int sz) => _lis.matrixSetSize(_p_mat, sz);
 
-  int get size {
-    int p_local_n = _lis.heapInt();
-    int p_global_n = _lis.heapInt();
-    int err =
-        _lis.callFunc('lis_matrix_get_size', [_p_mat, p_local_n, p_global_n]);
-    _lis._CHKERR(err);
-    _lis.free(p_local_n);
-    return _lis.derefInt(p_global_n);
-  }
+  int get size => _lis.matrixGetSize(_p_mat);
 
-  int get nnz {
-    int p_nnz = _lis.heapInt();
-    int err = _lis.callFunc('lis_matrix_get_nnz', [_p_mat, p_nnz]);
-    _lis._CHKERR(err);
-    return _lis.derefInt(p_nnz);
-  }
+  int get nnz => _lis.matrixGetNnz(_p_mat);
 
-  void set type(MatrixType t) {
-    int err = _lis.callFunc('lis_matrix_set_type', [_p_mat, t._index]);
-    _lis._CHKERR(err);
-  }
+  void set type(MatrixType t) => _lis.matrixSetType(_p_mat, t._index);
 
   MatrixType get type {
-    int p_type = _lis.heapInt();
-    int err = _lis.callFunc('lis_matrix_get_type', [_p_mat, p_type]);
-    _lis._CHKERR(err);
-    int t = _lis.derefInt(p_type);
+    int t = _lis.matrixGetType(_p_mat);
     return MatrixType.values[t];
   }
 
   void setValue(int i, int j, S value, [Flag flag = Flag.INSERT]) {
-    int err;
-    if (value is Complex) {
-      var cval = value as Complex;
-      err = _lis.callFunc('zlis_matrix_set_value',
-          [flag.index, i, j, cval.real, cval.imaginary, _p_mat]);
-    } else {
-      err = _lis.callFunc(
-          'lis_matrix_set_value', [flag.index, i, j, value, _p_mat]);
-    }
-    _lis._CHKERR(err);
+    _lis.matrixSetValue(flag.index, i, j, value, _p_mat);
   }
 
   void setValues(List<S> values, [Flag flag = Flag.INSERT]) {
@@ -166,68 +94,40 @@ class Matrix<S> {
     if (values.length != n * n) {
       throw new ArgumentError.value(values);
     }
-    int p_values = _lis.heapScalars(values);
-    int err = _lis.callFunc(
-        'lis_matrix_set_values', [flag.index, n, p_values, _p_mat]);
-    _lis._CHKERR(err);
-    _lis.free(p_values);
+    _lis.matrixSetValues(flag.index, n, values, _p_mat);
   }
 
   /// Either [nnz_row] or [nnz] must be provided.
-  void malloc({int nnz_row, Int32List nnz}) {
-    int p_nnz = 0;
+  void malloc({int nnz_row, List<int> nnz}) {
     if (nnz_row == null && nnz == null) {
       throw new ArgumentError("Either `nnz_row` or `nnz` must be provided");
     }
-    if (nnz != null) {
-      p_nnz = _lis.heapInts(nnz);
-    }
-    int err = _lis.callFunc('lis_matrix_malloc', [_p_mat, nnz_row, p_nnz]);
-    _lis._CHKERR(err);
-    if (nnz != null) {
-      _lis.free(p_nnz);
-    }
+    _lis.matrixMalloc(_p_mat, nnz_row, nnz);
   }
 
   Vector<S> diagonal([Vector<S> d]) {
     if (d == null) {
-      d = new Vector(_lis); // TODO: duplicate_vector?
-      d.size = size;
+      d = new Vector.fromMatrix(_lis, this);
     }
-    int err = _lis.callFunc('lis_matrix_get_diagonal', [_p_mat, d._p_vec]);
-    _lis._CHKERR(err);
+    _lis.matrixGetDiagonal(_p_mat, d._p_vec);
     return d;
   }
 
-  // LIS_INT lis_matrix_scale(LIS_MATRIX A, LIS_VECTOR B, LIS_VECTOR D, LIS_INT action);
-
-  void convert(Matrix<S> Aout) {
-    int err = _lis.callFunc('lis_matrix_convert', [_p_mat, Aout._p_mat]);
-    _lis._CHKERR(err);
-  }
+  void convert(Matrix<S> Aout) => _lis.matrixConvert(_p_mat, Aout._p_mat);
 
   Matrix<S> copy([Matrix<S> Aout]) {
     if (Aout == null) {
       Aout = duplicate();
     }
-    int err = _lis.callFunc('lis_matrix_copy', [_p_mat, Aout._p_mat]);
-    _lis._CHKERR(err);
+    _lis.matrixCopy(_p_mat, Aout._p_mat);
     return Aout;
-  }
-
-  // LIS_INT lis_matrix_set_blocksize(LIS_MATRIX A, LIS_INT bnr, LIS_INT bnc, LIS_INT row[], LIS_INT col[]);
-
-  void unset() {
-    int err = _lis.callFunc('lis_matrix_unset', [_p_mat]);
-    _lis._CHKERR(err);
   }
 
   Vector<S> mult(Vector<S> vx, [Vector<S> vy]) {
     if (vy == null) {
       vy = vx.duplicate();
     }
-    int err = _lis.callFunc('lis_matvec', [_p_mat, vx._p_vec, vy._p_vec]);
-    _lis._CHKERR(err);
+    _lis.matvec(_p_mat, vx._p_vec, vy._p_vec);
     return vy;
   }
 
@@ -237,8 +137,7 @@ class Matrix<S> {
     if (vy == null) {
       vy = vx.duplicate();
     }
-    int err = _lis.callFunc('lis_matvect', [_p_mat, vx._p_vec, vy._p_vec]);
-    _lis._CHKERR(err);
+    _lis.matvect(_p_mat, vx._p_vec, vy._p_vec);
     return vy;
   }
 
@@ -246,8 +145,7 @@ class Matrix<S> {
     if (Aout == null) {
       Aout = duplicate();
     }
-    int err = _lis.callFunc('lis_matrix_transpose', [_p_mat, Aout._p_mat]);
-    _lis._CHKERR(err);
+    _lis.matrixTranspose(_p_mat, Aout._p_mat);
     return Aout;
   }
 }
@@ -255,15 +153,15 @@ class Matrix<S> {
 class CSR<S> {
   final int n;
   final int nnz;
-  final Int32List ptr;
-  final Int32List index;
+  final List<int> ptr;
+  final List<int> index;
   final List<S> value;
 
   CSR(int n_, int nnz_)
       : n = n_,
         nnz = nnz_,
-        ptr = new Int32List(n_ + 1),
-        index = new Int32List(nnz_),
+        ptr = new List<int>(n_ + 1),
+        index = new List<int>(nnz_),
         value = new List<S>(nnz_);
 
   CSR.from(this.n, this.nnz, this.ptr, this.index, this.value);
@@ -272,15 +170,15 @@ class CSR<S> {
 class CSC<S> {
   final int n;
   final int nnz;
-  final Int32List ptr;
-  final Int32List index;
+  final List<int> ptr;
+  final List<int> index;
   final List<S> value;
 
   CSC(int n_, int nnz_)
       : n = n_,
         nnz = nnz_,
-        ptr = new Int32List(n_ + 1),
-        index = new Int32List(nnz_),
+        ptr = new List<int>(n_ + 1),
+        index = new List<int>(nnz_),
         value = new List<S>(nnz_);
 
   CSC.from(this.n, this.nnz, this.ptr, this.index, this.value);
@@ -289,13 +187,13 @@ class CSC<S> {
 class Dia<S> {
   final int n;
   final int nnd;
-  final Int32List index;
+  final List<int> index;
   final List<S> value;
 
   Dia(int n_, int nnd_)
       : n = n_,
         nnd = nnd_,
-        index = new Int32List(nnd_), // TODO: n*nnd
+        index = new List<int>(nnd_), // TODO: n*nnd
         value = new List<S>(n_ * nnd_);
 
   Dia.from(this.n, this.nnd, this.index, this.value);
@@ -304,13 +202,13 @@ class Dia<S> {
 class Coo<S> {
   final int n;
   final int nnz;
-  final Int32List row, col;
+  final List<int> row, col;
   final List<S> value;
 
   Coo(this.n, int nnz_)
       : nnz = nnz_,
-        row = new Int32List(nnz_),
-        col = new Int32List(nnz_),
+        row = new List<int>(nnz_),
+        col = new List<int>(nnz_),
         value = new List<S>(nnz_);
 
   Coo.from(this.n, this.nnz, this.row, this.col, this.value);

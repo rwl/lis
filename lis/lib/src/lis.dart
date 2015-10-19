@@ -1,12 +1,5 @@
 library lis.internal;
 
-import 'dart:typed_data';
-import 'dart:js' show JsObject;
-
-import 'package:complex/complex.dart';
-import 'package:emscripten/emscripten.dart';
-import 'package:emscripten/experimental.dart';
-
 part 'vector.dart';
 part 'matrix.dart';
 part 'solver.dart';
@@ -16,69 +9,148 @@ enum Flag { INSERT, ADD }
 
 const int COMM_WORLD = 0x1;
 
-abstract class LIS<S> extends Module {
-  FS _fs;
+enum Format { AUTO, PLAIN, MM, ASCII, BINARY, FREE, ITBL, HB, MMB }
 
-  LIS(String funcName, List<String> options, JsObject context)
-      : super.func(funcName, context) {
-    _fs = new FS.func(module);
-    if (_fs == null) {
-      throw new ArgumentError.notNull('fs');
-    }
-    if (options == null) {
-      options = [];
-    }
-    int argc = heapInt(options.length + 1);
-    options = ['lis']..addAll(options);
-    int p_args = heapStrings(options);
-    int argv = heapInt(p_args);
-    int err = callFunc('lis_initialize', [argc, argv]);
-    _CHKERR(err);
-  }
+abstract class LIS<S> {
+  S get one;
+  S get zero;
 
-  int heapScalars(List<S> list);
+  // Vector Operations
+  int vectorCreate();
+  void vectorSetSize(int vec, int n);
+  void vectorDestroy(int vec);
+  int vectorDuplicate(int vin);
+  int vectorGetSize(int v);
+  S vectorGetValue(int v, int i);
+  List<S> vectorGetValues(int v, int start, int count);
+  void vectorSetValue(int flag, int i, S value, int v);
+  void vectorSetValues(
+      int flag, int count, List<int> index, List<S> value, int v);
+  void vectorSetValues2(int flag, int start, int count, List<S> value, int v);
+  void vectorPrint(int x);
+  bool vectorIsNull(int v);
+  void vectorSwap(int vsrc, int vdst);
+  void vectorCopy(int vsrc, int vdst);
+  void vectorAxpy(S alpha, int vx, int vy);
+  void vectorXpay(int vx, S alpha, int vy);
+  void vectorAxpyz(S alpha, int vx, int vy, int vz);
+  void vectorScale(S alpha, int vx);
+  void vectorPmul(int vx, int vy, int vz);
+  void vectorPdiv(int vx, int vy, int vz);
+  void vectorSetAll(S alpha, int vx);
+  void vectorAbs(int vx);
+  void vectorReciprocal(int vx);
+  void vectorShift(S alpha, int vx);
+  S vectorDot(int vx, int vy);
+  double vectorNrm1(int vx);
+  double vectorNrm2(int vx);
+  double vectorNrmi(int vx);
+  S vectorSum(int vx);
+  void vectorReal(int vx);
+  void vectorImaginary(int vx);
+  void vectorArgument(int vx);
+  void vectorConjugate(int vx);
 
-  List<S> derefScalars(int ptr, int n, [bool free = true]);
+  // Matrix Operations
+  int matrixCreate();
+  void matrixDestroy(int Amat);
+  void matrixAssemble(int A);
+  bool matrixIsAssembled(int A);
+  int matrixDuplicate(int Ain);
+  void matrixSetSize(int A, int n);
+  int matrixGetSize(int A);
+  int matrixGetNnz(int A);
+  void matrixSetType(int A, int matrix_type);
+  int matrixGetType(int A);
+  void matrixSetValue(int flag, int i, int j, S value, int A);
+  void matrixSetValues(int flag, int n, List<S> value, int A);
+  void matrixMalloc(int A, int nnz_row, List<int> nnz);
+  void matrixGetDiagonal(int A, int d);
+  void matrixConvert(int Ain, int Aout);
+  void matrixCopy(int Ain, int Aout);
+  void matrixTranspose(int Ain, int Aout);
 
-  int heapScalar([S value]);
+  void matrixSetCsr(
+      int nnz, List<int> row, List<int> index, List<S> value, int A);
+  void matrixSetCsc(
+      int nnz, List<int> row, List<int> index, List<S> value, int A);
+  void matrixSetBsr(int bnr, int bnc, int bnnz, List<int> bptr,
+      List<int> bindex, List<S> value, int A);
+  void matrixSetMsr(int nnz, int ndz, List<int> index, List<S> value, int A);
+  void matrixSetEll(int maxnzr, List<int> index, List<S> value, int A);
+  void matrixSetJad(int nnz, int maxnzr, List<int> perm, List<int> ptr,
+      List<int> index, List<S> value, int A);
+  void matrixSetDia(int nnd, List<int> index, List<S> value, int A);
+  void matrixSetBsc(int bnr, int bnc, int bnnz, List<int> bptr,
+      List<int> bindex, List<S> value, int A);
+  void matrixSetVbr(
+      int nnz,
+      int nr,
+      int nc,
+      int bnnz,
+      List<int> row,
+      List<int> col,
+      List<int> ptr,
+      List<int> bptr,
+      List<int> bindex,
+      List<S> value,
+      int A);
+  void matrixSetCoo(
+      int nnz, List<int> row, List<int> col, List<S> value, int A);
+  void matrixSetDns(List<S> value, int A);
 
-  S derefScalar(int ptr, [bool free = true]);
+  // Matrix-Vector Operations
+  void matvec(int A, int x, int y);
+  void matvect(int A, int x, int y);
 
-  S scalarOne();
-  S scalarZero();
+  // Linear Solvers
+  int solverCreate();
+  void solverDestroy(int solver);
+  int solverGetIter(int solver);
+  Iter solverGetIterEx(int solver);
+  double solverGetTime(int solver);
+  Time solverGetTimeEx(int solver);
+  double solverGetResidualNorm(int solver);
+  int solverGetSolver(int solver);
+  int solverGetPrecon(int solver);
+  int solverGetStatus(int solver);
+  void solverGetRHistory(int solver, int v);
+  void solverSetOption(String text, int solver);
+  void solverSetOptionC(int solver);
+  void solve(int A, int b, int x, int solver);
 
-  finalize() => callFunc('lis_finalize');
+  // Eigensolvers
+  int esolverCreate();
+  void esolverDestroy(int esolver);
+  void esolverSetOption(String text, int esolver);
+  void esolverSetOptionC(int esolver);
+  S esolve(int A, int x, int esolver);
+  int esolverGetIter(int esolver);
+  Iter esolverGetIterEx(int esolver);
+  double esolverGetTime(int esolver);
+  Time esolverGetTimeEx(int esolver);
+  double esolverGetResidualNorm(int esolver);
+  int esolverGetStatus(int esolver);
+  void esolverGetRHistory(int esolver, int v);
+  void esolverGetEvalues(int esolver, int v);
+  void esolverGetEvectors(int esolver, int M);
+  void esolverGetResidualNorms(int esolver, int v);
+  void esolverGetIters(int esolver, int v);
+  int esolverGetEsolver(int esolver);
 
-  int _writeFile(String data) {
-    var path = _pathname();
-    _fs.writeFile(path, data);
-    return heapString(path);
-  }
+  // I/O Functions
+  void input(int A, int b, int x, String s);
+  void inputMatrix(int A, String s);
+  void inputVector(int v, String s);
+  String output(int A, int b, int x, int mode, [String path]);
+  String outputMatrix(int A, int mode, [String path]);
+  String outputVector(int v, int format, [String filename]);
+  String solverOutputRHistory(int solver, [String filename]);
+  String esolverOutputRHistory(int esolver, [String filename]);
 
-  void _removeFile(int p_path) {
-    _fs.unlink(stringify(p_path));
-  }
-
-  int _heapPath() {
-    var path = _pathname();
-    return heapString(path);
-  }
-
-  String _readFile(int p_path) {
-    var path = stringify(p_path);
-    var data = _fs.readFile(path);
-    _fs.unlink(path);
-    return data;
-  }
-
-  String _pathname() => 'file';
-
-  void _CHKERR(int err) {
-    if (err != 0) {
-      finalize();
-      throw err; // TODO: LisError
-    }
-  }
+  // Utilities
+  void initialize(List<String> args);
+  void finalize();
 }
 
 class LinearProblem<S> {
@@ -90,22 +162,11 @@ class LinearProblem<S> {
     var A = new Matrix<S>(lis);
     var b = new Vector<S>(lis);
     var x = new Vector<S>(lis);
-    int p_path = lis._writeFile(data);
-    int err = lis.callFunc('lis_input', [A._p_mat, b._p_vec, x._p_vec, p_path]);
-    lis._CHKERR(err);
-    lis._removeFile(p_path);
+    lis.input(A._p_mat, b._p_vec, x._p_vec, data);
     return new LinearProblem<S>._(lis, A, b, x);
   }
 
   LinearProblem._(this._lis, this.A, this.b, this.x);
 
-  String output() {
-    int p_path = _lis._heapPath();
-    int err = _lis.callFunc(
-        'lis_output', [A._p_mat, b._p_vec, x._p_vec, Format.MM.index, p_path]);
-    _lis._CHKERR(err);
-    return _lis._readFile(p_path);
-  }
+  String output() => _lis.output(A._p_mat, b._p_vec, x._p_vec, Format.MM.index);
 }
-
-enum Format { AUTO, PLAIN, MM, ASCII, BINARY, FREE, ITBL, HB, MMB }

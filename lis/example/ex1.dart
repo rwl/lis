@@ -1,5 +1,5 @@
 import 'package:lis/lis.dart';
-import 'package:lis/dlis.dart';
+import 'package:lis/web/dlis.dart';
 
 main() {
   final lis = new DLIS();

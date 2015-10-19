@@ -1,7 +1,7 @@
 library lis.test1;
 
 import 'package:lis/lis.dart';
-import 'package:lis/dlis.dart';
+import 'package:lis/web/dlis.dart';
 
 import '../testmat.dart';
 

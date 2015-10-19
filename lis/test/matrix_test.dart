@@ -3,8 +3,7 @@ library lis.test.matrix;
 import 'dart:typed_data';
 import 'package:test/test.dart';
 import 'package:lis/lis.dart';
-import 'package:lis/dlis.dart' as dlis;
-import 'package:lis/zlis.dart' as zlis;
+import 'package:lis/web/zlis.dart' as zlis;
 import 'package:complex/complex.dart';
 
 import 'random.dart' hide rand;
@@ -155,14 +154,14 @@ matrixTest(LIS lis, rscal(), toScalar(int i)) {
       for (int i = 0; i < n; i++) {
         coo.row[2 * i] = i;
         coo.col[2 * i] = i;
-        coo.value[2 * i] = lis.scalarOne();
+        coo.value[2 * i] = lis.one;
 
         coo.row[2 * i + 1] = i;
         coo.col[2 * i + 1] = n - 1 - i;
         coo.value[2 * i + 1] = toScalar(i + 1);
       }
       A = new Matrix.coo(lis, coo);
-      ones = new Vector(lis, n)..fill(lis.scalarOne());
+      ones = new Vector(lis, n)..fill(lis.one);
     });
     tearDown(() {
       A.destroy();

@@ -12,5 +12,8 @@ pubspec.lock
 
 !./Makefile
 
-lib/dlis/*
-lib/zlis/*
+lib/native/dlis/*
+lib/native/zlis/*
+
+lib/web/dlis/*
+lib/web/zlis/*
