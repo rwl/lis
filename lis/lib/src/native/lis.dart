@@ -12,7 +12,7 @@ abstract class NativeLIS<S> implements lis.LIS<S> {
   }
 
   // Vector Operations
-  int vectorCreate(int comm, int vec) native "LIS_VectorCreate";
+  int vectorCreate() native "LIS_VectorCreate";
   void vectorSetSize(int vec, int n) native "LIS_VectorSetSize";
   void vectorDestroy(int vec) native "LIS_VectorDestroy";
   int vectorDuplicate(int vin) native "LIS_VectorDuplicate";
@@ -170,13 +170,13 @@ abstract class NativeLIS<S> implements lis.LIS<S> {
 }
 
 class DLIS extends NativeLIS<double> {
-  DLIS(List<String> options) : super(options);
+  DLIS([List<String> options]) : super(options);
   double get one => 1.0;
   double get zero => 0.0;
 }
 
 class ZLIS extends NativeLIS<Complex> {
-  ZLIS(List<String> options) : super(options);
+  ZLIS([List<String> options]) : super(options);
   Complex get one => Complex.ONE;
   Complex get zero => Complex.ZERO;
 }

@@ -160,32 +160,51 @@ $(EXP_OUTPUT),\
 $(EXP_COMPLEX)]"
 
 LIBDIR = lib
-SRCDIR = $(LIBDIR)/src
+WEBDIR = $(LIBDIR)/web
 
 EMPOST = $(EMDIR)/post.js
 ZEXT = $(EMDIR)/complex.c
-ZLIS = $(SRCDIR)/zlis.c
+ZLIS = $(LIBDIR)/src/web/zlis.c
 
 EMFLAGS = $(DEXP_NAME) $(DEXP_FUNC) --post-js $(EMPOST)
 ZEMFLAGS = $(ZEXP_NAME) $(ZEXP_FUNC) --post-js $(EMPOST)
 
-DLIBS = $(LIBDIR)/dlis/lib/liblis.a
-ZLIBS = $(LIBDIR)/zlis/lib/liblis.a
-ZINC  = -I$(LIBDIR)/zlis/include
+DLIBS = $(WEBDIR)/dlis/lib/liblis.a
+ZLIBS = $(WEBDIR)/zlis/lib/liblis.a
+ZINC  = -I$(WEBDIR)/zlis/include
 ZDEFS = -D_COMPLEX
 
-all: module
+#all: web native
 
-module: $(LIBDIR)/dlis.js $(LIBDIR)/zlis.js
+web: cleanweb $(WEBDIR)/dlis.js $(WEBDIR)/zlis.js
 
-$(LIBDIR)/dlis.js: $(DLIBS) Makefile $(EMPOST)
+$(WEBDIR)/dlis.js: $(DLIBS) Makefile $(EMPOST)
 	$(CC) $(CFLAGS) $(DLIBS) $(EMFLAGS) -o $@
 
-$(LIBDIR)/zlis.js: $(ZLIBS) Makefile $(ZEXT) $(ZLIS) $(EMPOST)
+$(WEBDIR)/zlis.js: $(ZLIBS) Makefile $(ZEXT) $(ZLIS) $(EMPOST)
 	$(CC) $(CFLAGS) $(ZLIBS) $(ZINC) $(ZDEFS) $(ZEXT) $(ZLIS) $(ZEMFLAGS) -o $@
 
-$(LISLIB):
-	( cd .. ; $(MAKE) all )
 
-clean:
-	( cd lib ; $(RM) *lis*.js* )
+DNATDIR = $(LIBDIR)/native/dlis
+ZNATDIR = $(LIBDIR)/native/zlis
+NSRCDIR = $(LIBDIR)/src/native
+
+native: cleannative $(NSRCDIR)/liblis_extension.so
+
+$(NSRCDIR)/lis_extension.o: $(NSRCDIR)/lis_extension.c
+	$(CC) -fPIC -std=c99 -Wall -I/usr/lib/dart/include -I$(DNATDIR)/include -DDART_SHARED_LIB -o $@ -c $<
+
+$(NSRCDIR)/liblis_extension.so: $(NSRCDIR)/lis_extension.o
+	$(CC) -L$(DNATDIR)/lib -Wall -shared -Wl,-rpath=$(DNATDIR)/lib,-soname,liblis_extension.so -o $@ $< -llis
+
+#$(DLIBS):
+#	( cd .. ; $(MAKE) all )
+
+clean: cleanweb cleannative
+
+cleanweb:
+	( cd $(WEBDIR) ; $(RM) *lis*.js* )
+
+cleannative:
+	@( cd $(NSRCDIR) ; $(RM) *.o )
+	@( cd $(NSRCDIR) ; $(RM) *.so )

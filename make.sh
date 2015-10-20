@@ -11,8 +11,8 @@
 #cd ..
 
 
-./configure --prefix=${PWD}/lis/lib/native/dlis
+./configure --prefix=${PWD}/lis/lib/native/dlis --enable-shared
 make clean all install
 
-./configure --prefix=${PWD}/lis/lib/native/zlis --enable-complex
+./configure --prefix=${PWD}/lis/lib/native/zlis --enable-shared --enable-complex
 make clean all install
