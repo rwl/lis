@@ -59,6 +59,13 @@ void LIS_Initialize(Dart_NativeArguments arguments) {
   Dart_ExitScope();
 }
 
+void LIS_Finalize(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  Dart_EnterScope();
+  err = lis_finalize(); CHKERR(err);
+  Dart_ExitScope();
+}
+
 void LIS_VectorCreate(Dart_NativeArguments arguments) {
   Dart_Handle result;
   LIS_INT err;
@@ -122,6 +129,47 @@ void LIS_VectorSetSize(Dart_NativeArguments arguments) {
   Dart_ExitScope();
 }
 
+void LIS_VectorSetAll(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  uint64_t vec;
+  LIS_SCALAR alpha;
+
+  Dart_EnterScope();
+  HandleError(Dart_GetNativeDoubleArgument(arguments, 1, &alpha));
+  HandleError(Dart_GetNativeUint64Argument(arguments, 2, &vec));
+
+  err = lis_vector_set_all(alpha, (LIS_VECTOR) vec); CHKERR(err);
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
+void LIS_VectorPrint(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  uint64_t vec;
+
+  Dart_EnterScope();
+  HandleError(Dart_GetNativeUint64Argument(arguments, 1, &vec));
+
+  err = lis_vector_print((LIS_VECTOR) vec); CHKERR(err);
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
+void LIS_VectorDestroy(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  uint64_t vec;
+
+  Dart_EnterScope();
+  HandleError(Dart_GetNativeUint64Argument(arguments, 1, &vec));
+
+  err = lis_vector_destroy((LIS_VECTOR) vec); CHKERR(err);
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
 Dart_NativeFunction ResolveName(Dart_Handle name, int argc,
     bool* auto_setup_scope) {
   if (!Dart_IsString(name)) {
@@ -137,8 +185,12 @@ Dart_NativeFunction ResolveName(Dart_Handle name, int argc,
   HandleError(Dart_StringToCString(name, &cname));
 
   if (strcmp("LIS_Initialize", cname) == 0) result = LIS_Initialize;
+  if (strcmp("LIS_Finalize", cname) == 0) result = LIS_Finalize;
   if (strcmp("LIS_VectorCreate", cname) == 0) result = LIS_VectorCreate;
   if (strcmp("LIS_VectorSetSize", cname) == 0) result = LIS_VectorSetSize;
+  if (strcmp("LIS_VectorSetAll", cname) == 0) result = LIS_VectorSetAll;
+  if (strcmp("LIS_VectorPrint", cname) == 0) result = LIS_VectorPrint;
+  if (strcmp("LIS_VectorDestroy", cname) == 0) result = LIS_VectorDestroy;
 
   Dart_ExitScope();
   return result;
