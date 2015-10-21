@@ -81,6 +81,88 @@ void Dart_GetNativeLisScalarArgument(Dart_NativeArguments args, int index,
 }
 
 
+void Dart_GetNativeLisIntArrayArgument(Dart_NativeArguments args, int index,
+    LIS_INT* value[]) {
+  Dart_Handle obj, val;
+  Dart_TypedData_Type type;
+  void* data;
+  intptr_t len, i;
+  int32_t* dataP;
+  bool fits;
+  int64_t val2;
+
+  obj = HandleError(Dart_GetNativeArgument(args, index));
+  if (Dart_IsTypedData(obj)) {
+    if (Dart_GetTypeOfTypedData(obj) != Dart_TypedData_kInt32) {
+      HandleError(Dart_NewApiError("expected Int32List"));
+    }
+    HandleError(Dart_TypedDataAcquireData(obj, &type, &data, &len));
+    dataP = (int32_t*) data;
+    *value = (LIS_INT*) malloc(sizeof(LIS_INT) * len);
+    for (i = 0; i < len; i++) {
+      (*value)[i] = (LIS_INT) dataP[i];
+    }
+    HandleError(Dart_TypedDataReleaseData(obj));
+//  } else if (Dart_IsList(obj)) {
+//    HandleError(Dart_ListLength(obj, &len));
+//    *value = (LIS_INT*) malloc(sizeof(LIS_INT) * len);
+//    for (i = 0; i < len; i++) {
+//      val = HandleError(Dart_ListGetAt(obj, i));
+//      if (Dart_IsInteger(val)) {
+//        HandleError(Dart_IntegerFitsIntoInt64(obj, &fits));
+//        if (fits) {
+//          HandleError(Dart_IntegerToInt64(obj, &val2));
+//          *value[i] = val2;
+//        } else {
+//          HandleError(Dart_NewApiError("expected List<int>"));
+//        }
+//      }
+//    }
+  } else {
+    HandleError(Dart_NewApiError("expected List"));
+  }
+}
+
+
+void Dart_GetNativeLisScalarArrayArgument(Dart_NativeArguments args, int index,
+    LIS_SCALAR* value[]) {
+  Dart_Handle obj, val;
+  Dart_TypedData_Type type;
+  void* data;
+  intptr_t len, i;
+  double* dataP;
+  double val2;
+
+  obj = HandleError(Dart_GetNativeArgument(args, index));
+  if (Dart_IsTypedData(obj)) {
+	if (Dart_GetTypeOfTypedData(obj) != Dart_TypedData_kFloat64) {
+	  HandleError(Dart_NewApiError("expected Float64List"));
+	}
+	HandleError(Dart_TypedDataAcquireData(obj, &type, &data, &len));
+	dataP = (double*) data;
+	*value = (LIS_SCALAR*) malloc(sizeof(LIS_SCALAR) * len);
+	for (i = 0; i < len; i++) {
+	  *value[i] = dataP[i];
+	}
+    HandleError(Dart_TypedDataReleaseData(obj));
+  } else if (Dart_IsList(obj)) {
+	HandleError(Dart_ListLength(obj, &len));
+	*value = (LIS_SCALAR*) malloc(sizeof(LIS_SCALAR) * len);
+	for (i = 0; i < len; i++) {
+	  val = HandleError(Dart_ListGetAt(obj, i));
+	  if (Dart_IsDouble(val)) {
+        HandleError(Dart_DoubleValue(val, &val2));
+		(*value)[i] = (LIS_SCALAR) val2;
+      } else {
+        HandleError(Dart_NewApiError("expected List<S>"));
+	  }
+	}
+  } else {
+	HandleError(Dart_NewApiError("expected List"));
+  }
+}
+
+
 void LIS_Initialize(Dart_NativeArguments arguments) {
   LIS_INT err, argc;
   char* argv[] = { "lis", NULL };
@@ -216,6 +298,27 @@ void LIS_VectorSetValue(Dart_NativeArguments arguments) {
   Dart_ExitScope();
 }
 
+
+void LIS_VectorSetValues(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_VECTOR vec;
+  LIS_INT flag, count, *index;
+  LIS_SCALAR *value;
+
+  Dart_EnterScope();
+  Dart_GetNativeLisIntArgument(arguments, 1, &flag);
+  Dart_GetNativeLisIntArgument(arguments, 2, &count);
+  Dart_GetNativeLisIntArrayArgument(arguments, 3, &index);
+  Dart_GetNativeLisScalarArrayArgument(arguments, 4, &value);
+  Dart_GetNativeVectorArgument(arguments, 5, &vec);
+
+  err = lis_vector_set_values(flag, count, index, value, vec); CHKERR(err);
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
+
 void LIS_VectorDestroy(Dart_NativeArguments arguments) {
   LIS_INT err;
   LIS_VECTOR vec;
@@ -286,6 +389,7 @@ Dart_NativeFunction ResolveName(Dart_Handle name, int argc,
   if (strcmp("LIS_VectorGetValue", cname) == 0) result = LIS_VectorGetValue;
   if (strcmp("LIS_VectorGetValues", cname) == 0) result = LIS_VectorGetValues;
   if (strcmp("LIS_VectorSetValue", cname) == 0) result = LIS_VectorSetValue;
+  if (strcmp("LIS_VectorSetValues", cname) == 0) result = LIS_VectorSetValues;
 
   Dart_ExitScope();
   return result;

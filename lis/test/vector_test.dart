@@ -70,19 +70,19 @@ vectorTest(LIS lis, rscal()) {
     expect(v.values(), equals(vals));
     expect(v.values(1, count - 1), equals(vals.sublist(1)));
   });
-//  test('setValues', () {
-//    var vals = rarry();
-//    var count = vals.length;
-//    v.size = count;
-//    var idxs = new Int32List(count);
-//    for (var i = 0; i < count; i++) {
-//      idxs[i] = count - i - 1;
-//    }
-//    v.setValues(idxs, vals);
-//    for (var i = 0; i < count; i++) {
-//      expect(v[idxs[i]], equals(vals[i]));
-//    }
-//  });
+  test('setValues', () {
+    var vals = rarry();
+    var count = vals.length;
+    v.size = count;
+    var idxs = new Int32List(count);
+    for (var i = 0; i < count; i++) {
+      idxs[i] = count - i - 1;
+    }
+    v.setValues(idxs, vals);
+    for (var i = 0; i < count; i++) {
+      expect(v[idxs[i]], equals(vals[i]));
+    }
+  });
 //  test('setAll', () {
 //    var vals = rarry();
 //    var count = vals.length;
