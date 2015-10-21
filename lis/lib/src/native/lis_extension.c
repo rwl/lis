@@ -7,6 +7,7 @@
 Dart_NativeFunction ResolveName(Dart_Handle name, int argc,
     bool* auto_setup_scope);
 
+
 DART_EXPORT Dart_Handle lis_extension_Init(Dart_Handle parent_library) {
   if (Dart_IsError(parent_library)) {
     return parent_library;
@@ -21,6 +22,7 @@ DART_EXPORT Dart_Handle lis_extension_Init(Dart_Handle parent_library) {
   return Dart_Null();
 }
 
+
 Dart_Handle HandleError(Dart_Handle handle) {
   if (Dart_IsError(handle)) {
     Dart_PropagateError(handle);
@@ -28,9 +30,9 @@ Dart_Handle HandleError(Dart_Handle handle) {
   return handle;
 }
 
-Dart_Handle Dart_GetNativeUint64Argument(Dart_NativeArguments args,
-                                                      int index,
-                                                      uint64_t* value) {
+
+Dart_Handle Dart_GetNativeUint64Argument(Dart_NativeArguments args, int index,
+    uint64_t* value) {
   Dart_Handle obj = HandleError(Dart_GetNativeArgument(args, index));
   if (Dart_IsInteger(obj)) {
     bool fits;
@@ -46,6 +48,22 @@ Dart_Handle Dart_GetNativeUint64Argument(Dart_NativeArguments args,
   return Dart_Null();
 }
 
+
+//void Dart_SetUint64ReturnValue(Dart_NativeArguments args, uint64_t retval) {
+//  Dart_Handle result;
+//  result = HandleError(Dart_NewIntegerFromUint64(retval));
+//  Dart_SetReturnValue(args, result);
+//}
+
+
+void Dart_GetNativeVectorArgument(Dart_NativeArguments args, int index,
+    LIS_VECTOR* value) {
+  uint64_t ptr;
+  HandleError(Dart_GetNativeUint64Argument(args, index, &ptr));
+  *value = (LIS_VECTOR) ptr;
+}
+
+
 void LIS_Initialize(Dart_NativeArguments arguments) {
   LIS_INT err, argc;
   char* argv[] = { "lis", NULL };
@@ -54,10 +72,12 @@ void LIS_Initialize(Dart_NativeArguments arguments) {
   Dart_EnterScope();
   argc = 1;
   p_argv = &argv[0];
-  err = lis_initialize(&argc, &p_argv); CHKERR(err);
+  err = lis_initialize(&argc, &p_argv)
+		  ; CHKERR(err);
 //	err = lis_initialize(0, NULL);
   Dart_ExitScope();
 }
+
 
 void LIS_Finalize(Dart_NativeArguments arguments) {
   LIS_INT err;
@@ -66,6 +86,7 @@ void LIS_Finalize(Dart_NativeArguments arguments) {
   Dart_ExitScope();
 }
 
+
 void LIS_VectorCreate(Dart_NativeArguments arguments) {
   Dart_Handle result;
   LIS_INT err;
@@ -73,10 +94,8 @@ void LIS_VectorCreate(Dart_NativeArguments arguments) {
 
   Dart_EnterScope();
   err = lis_vector_create(LIS_COMM_WORLD, &vec); CHKERR(err);
+
   result = HandleError(Dart_NewIntegerFromUint64((uint64_t) vec));
-
-//  printf("vec: %" PRIu64 "\n", (uint64_t) vec);
-
   Dart_SetReturnValue(arguments, result);
   Dart_ExitScope();
 }
@@ -86,19 +105,19 @@ void LIS_VectorSetSize(Dart_NativeArguments arguments) {
   Dart_Handle result;
   LIS_INT err;
   LIS_VECTOR vec;
-  LIS_INT n;
+//  LIS_INT n;
 //  bool fits;
-  uint64_t p_vec, N;
+  int64_t n;
 //  Dart_Handle vec_object, n_object;
 
   Dart_EnterScope();
 
-  HandleError(Dart_GetNativeUint64Argument(arguments, 1, &p_vec));
+  Dart_GetNativeVectorArgument(arguments, 1, &vec);
 //  printf("p_vec: %" PRIu64 "\n", p_vec);
-  vec = (LIS_VECTOR) p_vec;
+//  vec = (LIS_VECTOR) p_vec;
 
-  HandleError(Dart_GetNativeUint64Argument(arguments, 2, &N));
-  n = (LIS_INT) N;
+  HandleError(Dart_GetNativeIntegerArgument(arguments, 2, &n));
+//  n = (LIS_INT) N;
 
 //  vec_object = HandleError(Dart_GetNativeArgument(arguments, 1));
 //
@@ -122,36 +141,90 @@ void LIS_VectorSetSize(Dart_NativeArguments arguments) {
 //  }
 //  printf("n: %d\n", n);
 
-  err = lis_vector_set_size(vec, n, n); CHKERR(err);
-  result = HandleError(Dart_Null());
+  err = lis_vector_set_size(vec, (LIS_INT) n, (LIS_INT) n); CHKERR(err);
 
+  result = HandleError(Dart_Null());
   Dart_SetReturnValue(arguments, result);
   Dart_ExitScope();
 }
 
-void LIS_VectorSetAll(Dart_NativeArguments arguments) {
+
+void LIS_VectorDuplicate(Dart_NativeArguments arguments) {
+  Dart_Handle result;
   LIS_INT err;
-  uint64_t vec;
-  LIS_SCALAR alpha;
+  LIS_VECTOR vout, vin;
 
   Dart_EnterScope();
-  HandleError(Dart_GetNativeDoubleArgument(arguments, 1, &alpha));
-  HandleError(Dart_GetNativeUint64Argument(arguments, 2, &vec));
+  Dart_GetNativeVectorArgument(arguments, 1, &vin);
 
-  err = lis_vector_set_all(alpha, (LIS_VECTOR) vec); CHKERR(err);
+  err = lis_vector_duplicate(vin, &vout); CHKERR(err);
+
+  result = HandleError(Dart_NewIntegerFromUint64((uint64_t) vout));
+  Dart_SetReturnValue(arguments, result);
+  Dart_ExitScope();
+}
+
+
+void LIS_VectorGetSize(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_VECTOR vin;
+  LIS_INT loc_n, glob_n;
+
+  Dart_EnterScope();
+  Dart_GetNativeVectorArgument(arguments, 1, &vin);
+
+  err = lis_vector_get_size(vin, &loc_n, &glob_n); CHKERR(err);
+
+  Dart_SetIntegerReturnValue(arguments, (int64_t) loc_n);
+  Dart_ExitScope();
+}
+
+
+void LIS_VectorGetValue(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_VECTOR vin;
+  LIS_SCALAR value;
+  int64_t i;
+
+  Dart_EnterScope();
+  Dart_GetNativeVectorArgument(arguments, 1, &vin);
+  HandleError(Dart_GetNativeIntegerArgument(arguments, 2, &i));
+
+  err = lis_vector_get_value(vin, (LIS_INT) i, &value); CHKERR(err);
+
+  Dart_SetDoubleReturnValue(arguments, value);
+  Dart_ExitScope();
+}
+
+
+void LIS_VectorGetValues(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_VECTOR vec;
+
+  Dart_EnterScope();
+  Dart_GetNativeVectorArgument(arguments, 1, &vec);
+
+//  err = lis_vector_get_values(vec); CHKERR(err);
 
   Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
   Dart_ExitScope();
 }
 
-void LIS_VectorPrint(Dart_NativeArguments arguments) {
+
+void LIS_VectorSetValue(Dart_NativeArguments arguments) {
   LIS_INT err;
-  uint64_t vec;
+  LIS_VECTOR vin;
+  LIS_SCALAR value;
+  int64_t flag, i;
 
   Dart_EnterScope();
-  HandleError(Dart_GetNativeUint64Argument(arguments, 1, &vec));
+  HandleError(Dart_GetNativeIntegerArgument(arguments, 1, &flag));
+  HandleError(Dart_GetNativeIntegerArgument(arguments, 2, &i));
+  HandleError(Dart_GetNativeDoubleArgument(arguments, 1, &value));
+  Dart_GetNativeVectorArgument(arguments, 1, &vin);
 
-  err = lis_vector_print((LIS_VECTOR) vec); CHKERR(err);
+  err = lis_vector_set_value((LIS_INT) flag, (LIS_INT) i, value, vin);
+  CHKERR(err);
 
   Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
   Dart_ExitScope();
@@ -159,16 +232,47 @@ void LIS_VectorPrint(Dart_NativeArguments arguments) {
 
 void LIS_VectorDestroy(Dart_NativeArguments arguments) {
   LIS_INT err;
-  uint64_t vec;
+  LIS_VECTOR vec;
 
   Dart_EnterScope();
-  HandleError(Dart_GetNativeUint64Argument(arguments, 1, &vec));
+  Dart_GetNativeVectorArgument(arguments, 1, &vec);
 
-  err = lis_vector_destroy((LIS_VECTOR) vec); CHKERR(err);
+  err = lis_vector_destroy(vec); CHKERR(err);
 
   Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
   Dart_ExitScope();
 }
+
+
+void LIS_VectorSetAll(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_VECTOR vec;
+  LIS_SCALAR alpha;
+
+  Dart_EnterScope();
+  HandleError(Dart_GetNativeDoubleArgument(arguments, 1, &alpha));
+  Dart_GetNativeVectorArgument(arguments, 2, &vec);
+
+  err = lis_vector_set_all(alpha, vec); CHKERR(err);
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
+
+void LIS_VectorPrint(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_VECTOR vec;
+
+  Dart_EnterScope();
+  Dart_GetNativeVectorArgument(arguments, 1, &vec);
+
+  err = lis_vector_print(vec); CHKERR(err);
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
 
 Dart_NativeFunction ResolveName(Dart_Handle name, int argc,
     bool* auto_setup_scope) {
@@ -191,6 +295,11 @@ Dart_NativeFunction ResolveName(Dart_Handle name, int argc,
   if (strcmp("LIS_VectorSetAll", cname) == 0) result = LIS_VectorSetAll;
   if (strcmp("LIS_VectorPrint", cname) == 0) result = LIS_VectorPrint;
   if (strcmp("LIS_VectorDestroy", cname) == 0) result = LIS_VectorDestroy;
+  if (strcmp("LIS_VectorDuplicate", cname) == 0) result = LIS_VectorDuplicate;
+  if (strcmp("LIS_VectorGetSize", cname) == 0) result = LIS_VectorGetSize;
+  if (strcmp("LIS_VectorGetValue", cname) == 0) result = LIS_VectorGetValue;
+  if (strcmp("LIS_VectorGetValues", cname) == 0) result = LIS_VectorGetValues;
+  if (strcmp("LIS_VectorSetValue", cname) == 0) result = LIS_VectorSetValue;
 
   Dart_ExitScope();
   return result;
