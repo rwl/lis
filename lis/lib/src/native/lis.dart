@@ -28,7 +28,7 @@ abstract class NativeLIS<S> implements lis.LIS<S> {
   void vectorSetValues2(int flag, int start, int count, List<S> value, int v)
       native "LIS_VectorSetValues2";
   void vectorPrint(int x) native "LIS_VectorPrint";
-  bool vectorIsNull(int v) native "LIS_VectorIsNull";
+  int vectorIsNull(int v) native "LIS_VectorIsNull";
   void vectorSwap(int vsrc, int vdst) native "LIS_VectorSwap";
   void vectorCopy(int vsrc, int vdst) native "LIS_VectorCopy";
   void vectorAxpy(S alpha, int vx, int vy) native "LIS_VectorAxpy";

@@ -103,21 +103,21 @@ void Dart_GetNativeLisIntArrayArgument(Dart_NativeArguments args, int index,
       (*value)[i] = (LIS_INT) dataP[i];
     }
     HandleError(Dart_TypedDataReleaseData(obj));
-//  } else if (Dart_IsList(obj)) {
-//    HandleError(Dart_ListLength(obj, &len));
-//    *value = (LIS_INT*) malloc(sizeof(LIS_INT) * len);
-//    for (i = 0; i < len; i++) {
-//      val = HandleError(Dart_ListGetAt(obj, i));
-//      if (Dart_IsInteger(val)) {
-//        HandleError(Dart_IntegerFitsIntoInt64(obj, &fits));
-//        if (fits) {
-//          HandleError(Dart_IntegerToInt64(obj, &val2));
-//          *value[i] = val2;
-//        } else {
-//          HandleError(Dart_NewApiError("expected List<int>"));
-//        }
-//      }
-//    }
+  } else if (Dart_IsList(obj)) {
+    HandleError(Dart_ListLength(obj, &len));
+    *value = (LIS_INT*) malloc(sizeof(LIS_INT) * len);
+    for (i = 0; i < len; i++) {
+      val = HandleError(Dart_ListGetAt(obj, i));
+      if (Dart_IsInteger(val)) {
+        HandleError(Dart_IntegerFitsIntoInt64(obj, &fits));
+        if (fits) {
+          HandleError(Dart_IntegerToInt64(obj, &val2));
+          (*value)[i] = (LIS_INT) val2;
+        } else {
+          HandleError(Dart_NewApiError("expected List<int>"));
+        }
+      }
+    }
   } else {
     HandleError(Dart_NewApiError("expected List"));
   }
@@ -142,7 +142,7 @@ void Dart_GetNativeLisScalarArrayArgument(Dart_NativeArguments args, int index,
 	dataP = (double*) data;
 	*value = (LIS_SCALAR*) malloc(sizeof(LIS_SCALAR) * len);
 	for (i = 0; i < len; i++) {
-	  *value[i] = dataP[i];
+	  (*value)[i] = (LIS_SCALAR) dataP[i];
 	}
     HandleError(Dart_TypedDataReleaseData(obj));
   } else if (Dart_IsList(obj)) {
@@ -207,6 +207,20 @@ void LIS_VectorSetSize(Dart_NativeArguments arguments) {
   Dart_GetNativeLisIntArgument(arguments, 2, &n);
 
   err = lis_vector_set_size(vec, n, n); CHKERR(err);
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
+
+void LIS_VectorDestroy(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_VECTOR vec;
+
+  Dart_EnterScope();
+  Dart_GetNativeVectorArgument(arguments, 1, &vec);
+
+  err = lis_vector_destroy(vec); CHKERR(err);
 
   Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
   Dart_ExitScope();
@@ -319,14 +333,178 @@ void LIS_VectorSetValues(Dart_NativeArguments arguments) {
 }
 
 
-void LIS_VectorDestroy(Dart_NativeArguments arguments) {
+void LIS_VectorSetValues2(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_VECTOR vec;
+  LIS_INT flag, start, count;
+  LIS_SCALAR* value;
+
+  Dart_EnterScope();
+  Dart_GetNativeLisIntArgument(arguments, 1, &flag);
+  Dart_GetNativeLisIntArgument(arguments, 2, &start);
+  Dart_GetNativeLisIntArgument(arguments, 3, &count);
+  Dart_GetNativeLisScalarArrayArgument(arguments, 4, &value);
+  Dart_GetNativeVectorArgument(arguments, 5, &vec);
+
+  err = lis_vector_set_values2(flag, start, count, value, vec); CHKERR(err);
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
+
+void LIS_VectorPrint(Dart_NativeArguments arguments) {
   LIS_INT err;
   LIS_VECTOR vec;
 
   Dart_EnterScope();
   Dart_GetNativeVectorArgument(arguments, 1, &vec);
 
-  err = lis_vector_destroy(vec); CHKERR(err);
+  err = lis_vector_print(vec); CHKERR(err);
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
+
+void LIS_VectorIsNull(Dart_NativeArguments arguments) {
+  LIS_INT retval;
+  LIS_VECTOR vec;
+
+  Dart_EnterScope();
+  Dart_GetNativeVectorArgument(arguments, 1, &vec);
+
+  retval = lis_vector_is_null(vec);
+
+  Dart_SetIntegerReturnValue(arguments, retval);
+  Dart_ExitScope();
+}
+
+
+void LIS_VectorSwap(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_VECTOR vsrc, vdst;
+
+  Dart_EnterScope();
+  Dart_GetNativeVectorArgument(arguments, 1, &vsrc);
+  Dart_GetNativeVectorArgument(arguments, 2, &vdst);
+
+  err = lis_vector_swap(vsrc, vdst); CHKERR(err);
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
+
+void LIS_VectorCopy(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_VECTOR vsrc, vdst;
+
+  Dart_EnterScope();
+  Dart_GetNativeVectorArgument(arguments, 1, &vsrc);
+  Dart_GetNativeVectorArgument(arguments, 2, &vdst);
+
+  err = lis_vector_copy(vsrc, vdst); CHKERR(err);
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
+
+void LIS_VectorAxpy(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_VECTOR vx, vy;
+  LIS_SCALAR alpha;
+
+  Dart_EnterScope();
+  Dart_GetNativeLisScalarArgument(arguments, 1, &alpha);
+  Dart_GetNativeVectorArgument(arguments, 2, &vx);
+  Dart_GetNativeVectorArgument(arguments, 3, &vy);
+
+  err = lis_vector_axpy(alpha, vx, vy); CHKERR(err);
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
+
+void LIS_VectorXpay(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_VECTOR vx, vy;
+  LIS_SCALAR alpha;
+
+  Dart_EnterScope();
+  Dart_GetNativeVectorArgument(arguments, 1, &vx);
+  Dart_GetNativeLisScalarArgument(arguments, 2, &alpha);
+  Dart_GetNativeVectorArgument(arguments, 3, &vy);
+
+  err = lis_vector_xpay(vx, alpha, vy); CHKERR(err);
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
+
+void LIS_VectorAxpyz(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_VECTOR vx, vy, vz;
+  LIS_SCALAR alpha;
+
+  Dart_EnterScope();
+  Dart_GetNativeLisScalarArgument(arguments, 1, &alpha);
+  Dart_GetNativeVectorArgument(arguments, 2, &vx);
+  Dart_GetNativeVectorArgument(arguments, 3, &vy);
+  Dart_GetNativeVectorArgument(arguments, 4, &vz);
+
+  err = lis_vector_axpyz(alpha, vx, vy, vz); CHKERR(err);
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
+
+void LIS_VectorScale(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_VECTOR vec;
+  LIS_SCALAR alpha;
+
+  Dart_EnterScope();
+  Dart_GetNativeLisScalarArgument(arguments, 1, &alpha);
+  Dart_GetNativeVectorArgument(arguments, 2, &vec);
+
+  err = lis_vector_scale(alpha, vec); CHKERR(err);
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
+
+void LIS_VectorPmul(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_VECTOR vx, vy, vz;
+
+  Dart_EnterScope();
+  Dart_GetNativeVectorArgument(arguments, 1, &vx);
+  Dart_GetNativeVectorArgument(arguments, 2, &vy);
+  Dart_GetNativeVectorArgument(arguments, 3, &vz);
+
+  err = lis_vector_pmul(vx, vy, vz); CHKERR(err);
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
+
+void LIS_VectorPdiv(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_VECTOR vx, vy, vz;
+
+  Dart_EnterScope();
+  Dart_GetNativeVectorArgument(arguments, 1, &vx);
+  Dart_GetNativeVectorArgument(arguments, 2, &vy);
+  Dart_GetNativeVectorArgument(arguments, 3, &vz);
+
+  err = lis_vector_pdiv(vx, vy, vz); CHKERR(err);
 
   Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
   Dart_ExitScope();
@@ -349,14 +527,175 @@ void LIS_VectorSetAll(Dart_NativeArguments arguments) {
 }
 
 
-void LIS_VectorPrint(Dart_NativeArguments arguments) {
+void LIS_VectorAbs(Dart_NativeArguments arguments) {
   LIS_INT err;
   LIS_VECTOR vec;
 
   Dart_EnterScope();
   Dart_GetNativeVectorArgument(arguments, 1, &vec);
 
-  err = lis_vector_print(vec); CHKERR(err);
+  err = lis_vector_abs(vec); CHKERR(err);
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
+
+void LIS_VectorReciprocal(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_VECTOR vec;
+
+  Dart_EnterScope();
+  Dart_GetNativeVectorArgument(arguments, 1, &vec);
+
+  err = lis_vector_reciprocal(vec); CHKERR(err);
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
+void LIS_VectorShift(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_VECTOR vec;
+  LIS_SCALAR alpha;
+
+  Dart_EnterScope();
+  Dart_GetNativeLisScalarArgument(arguments, 1, &alpha);
+  Dart_GetNativeVectorArgument(arguments, 2, &vec);
+
+  err = lis_vector_shift(alpha, vec); CHKERR(err);
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
+
+void LIS_VectorDot(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_VECTOR vx, vy;
+  LIS_SCALAR value;
+
+  Dart_EnterScope();
+  Dart_GetNativeVectorArgument(arguments, 1, &vx);
+  Dart_GetNativeVectorArgument(arguments, 2, &vy);
+
+  err = lis_vector_dot(vx, vy, &value); CHKERR(err);
+
+  Dart_SetDoubleReturnValue(arguments, value);
+  Dart_ExitScope();
+}
+
+
+void LIS_VectorNrm1(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_VECTOR vec;
+  LIS_REAL value;
+
+  Dart_EnterScope();
+  Dart_GetNativeVectorArgument(arguments, 1, &vec);
+
+  err = lis_vector_nrm1(vec, &value); CHKERR(err);
+
+  Dart_SetDoubleReturnValue(arguments, value);
+  Dart_ExitScope();
+}
+
+
+void LIS_VectorNrm2(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_VECTOR vec;
+  LIS_REAL value;
+
+  Dart_EnterScope();
+  Dart_GetNativeVectorArgument(arguments, 1, &vec);
+
+  err = lis_vector_nrm2(vec, &value); CHKERR(err);
+
+  Dart_SetDoubleReturnValue(arguments, value);
+  Dart_ExitScope();
+}
+
+
+void LIS_VectorNrmi(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_VECTOR vec;
+  LIS_REAL value;
+
+  Dart_EnterScope();
+  Dart_GetNativeVectorArgument(arguments, 1, &vec);
+
+  err = lis_vector_nrmi(vec, &value); CHKERR(err);
+
+  Dart_SetDoubleReturnValue(arguments, value);
+  Dart_ExitScope();
+}
+
+
+void LIS_VectorSum(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_VECTOR vec;
+  LIS_SCALAR value;
+
+  Dart_EnterScope();
+  Dart_GetNativeVectorArgument(arguments, 1, &vec);
+
+  err = lis_vector_sum(vec, &value); CHKERR(err);
+
+  Dart_SetDoubleReturnValue(arguments, value);
+  Dart_ExitScope();
+}
+
+
+void LIS_VectorReal(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_VECTOR vec;
+
+  Dart_EnterScope();
+  Dart_GetNativeVectorArgument(arguments, 1, &vec);
+
+  err = lis_vector_real(vec); CHKERR(err);
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
+
+void LIS_VectorImaginary(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_VECTOR vec;
+
+  Dart_EnterScope();
+  Dart_GetNativeVectorArgument(arguments, 1, &vec);
+
+  err = lis_vector_imaginary(vec); CHKERR(err);
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
+
+void LIS_VectorArgument(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_VECTOR vec;
+
+  Dart_EnterScope();
+  Dart_GetNativeVectorArgument(arguments, 1, &vec);
+
+  err = lis_vector_argument(vec); CHKERR(err);
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
+
+void LIS_VectorConjugate(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_VECTOR vec;
+
+  Dart_EnterScope();
+  Dart_GetNativeVectorArgument(arguments, 1, &vec);
+
+  err = lis_vector_conjugate(vec); CHKERR(err);
 
   Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
   Dart_ExitScope();
@@ -381,8 +720,6 @@ Dart_NativeFunction ResolveName(Dart_Handle name, int argc,
   if (strcmp("LIS_Finalize", cname) == 0) result = LIS_Finalize;
   if (strcmp("LIS_VectorCreate", cname) == 0) result = LIS_VectorCreate;
   if (strcmp("LIS_VectorSetSize", cname) == 0) result = LIS_VectorSetSize;
-  if (strcmp("LIS_VectorSetAll", cname) == 0) result = LIS_VectorSetAll;
-  if (strcmp("LIS_VectorPrint", cname) == 0) result = LIS_VectorPrint;
   if (strcmp("LIS_VectorDestroy", cname) == 0) result = LIS_VectorDestroy;
   if (strcmp("LIS_VectorDuplicate", cname) == 0) result = LIS_VectorDuplicate;
   if (strcmp("LIS_VectorGetSize", cname) == 0) result = LIS_VectorGetSize;
@@ -390,6 +727,30 @@ Dart_NativeFunction ResolveName(Dart_Handle name, int argc,
   if (strcmp("LIS_VectorGetValues", cname) == 0) result = LIS_VectorGetValues;
   if (strcmp("LIS_VectorSetValue", cname) == 0) result = LIS_VectorSetValue;
   if (strcmp("LIS_VectorSetValues", cname) == 0) result = LIS_VectorSetValues;
+  if (strcmp("LIS_VectorSetValues2", cname) == 0) result = LIS_VectorSetValues2;
+  if (strcmp("LIS_VectorSetAll", cname) == 0) result = LIS_VectorSetAll;
+  if (strcmp("LIS_VectorPrint", cname) == 0) result = LIS_VectorPrint;
+  if (strcmp("LIS_VectorIsNull", cname) == 0) result = LIS_VectorIsNull;
+  if (strcmp("LIS_VectorSwap", cname) == 0) result = LIS_VectorSwap;
+  if (strcmp("LIS_VectorCopy", cname) == 0) result = LIS_VectorCopy;
+  if (strcmp("LIS_VectorAxpy", cname) == 0) result = LIS_VectorAxpy;
+  if (strcmp("LIS_VectorXpay", cname) == 0) result = LIS_VectorXpay;
+  if (strcmp("LIS_VectorAxpyz", cname) == 0) result = LIS_VectorAxpyz;
+  if (strcmp("LIS_VectorScale", cname) == 0) result = LIS_VectorScale;
+  if (strcmp("LIS_VectorPmul", cname) == 0) result = LIS_VectorPmul;
+  if (strcmp("LIS_VectorPdiv", cname) == 0) result = LIS_VectorPdiv;
+  if (strcmp("LIS_VectorAbs", cname) == 0) result = LIS_VectorAbs;
+  if (strcmp("LIS_VectorReciprocal", cname) == 0) result = LIS_VectorReciprocal;
+  if (strcmp("LIS_VectorShift", cname) == 0) result = LIS_VectorShift;
+  if (strcmp("LIS_VectorDot", cname) == 0) result = LIS_VectorDot;
+  if (strcmp("LIS_VectorNrm1", cname) == 0) result = LIS_VectorNrm1;
+  if (strcmp("LIS_VectorNrm2", cname) == 0) result = LIS_VectorNrm2;
+  if (strcmp("LIS_VectorNrmi", cname) == 0) result = LIS_VectorNrmi;
+  if (strcmp("LIS_VectorSum", cname) == 0) result = LIS_VectorSum;
+  if (strcmp("LIS_VectorReal", cname) == 0) result = LIS_VectorReal;
+  if (strcmp("LIS_VectorImaginary", cname) == 0) result = LIS_VectorImaginary;
+  if (strcmp("LIS_VectorArgument", cname) == 0) result = LIS_VectorArgument;
+  if (strcmp("LIS_VectorConjugate", cname) == 0) result = LIS_VectorConjugate;
 
   Dart_ExitScope();
   return result;

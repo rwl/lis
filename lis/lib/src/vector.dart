@@ -96,6 +96,9 @@ class Vector<S> {
 
   /// Calculate the sum of the vectors `z = ax + y`.
   Vector<S> axpyz(Vector<S> vx, [S alpha, Vector<S> vz]) {
+    if (alpha == null) {
+      alpha = _lis.one;
+    }
     if (vz == null) {
       vz = duplicate();
     }
