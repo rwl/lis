@@ -37,12 +37,12 @@ Dart_Handle Dart_GetNativeUint64Argument(Dart_NativeArguments args, int index,
   Dart_Handle obj = HandleError(Dart_GetNativeArgument(args, index));
   if (Dart_IsInteger(obj)) {
     bool fits;
-	HandleError(Dart_IntegerFitsIntoUint64(obj, &fits));
-	if (fits) {
-	  HandleError(Dart_IntegerToUint64(obj, value));
-	} else {
-		return Dart_NewApiError("expected uint64_t");
-	}
+    HandleError(Dart_IntegerFitsIntoUint64(obj, &fits));
+    if (fits) {
+      HandleError(Dart_IntegerToUint64(obj, value));
+    } else {
+      return Dart_NewApiError("expected uint64_t");
+    }
   } else {
     return Dart_NewApiError("expected integer");
   }
@@ -53,6 +53,27 @@ Dart_Handle Dart_GetNativeUint64Argument(Dart_NativeArguments args, int index,
 void Dart_SetUint64ReturnValue(Dart_NativeArguments args, uint64_t retval) {
   Dart_Handle result;
   result = HandleError(Dart_NewIntegerFromUint64(retval));
+  Dart_SetReturnValue(args, result);
+}
+
+
+void Dart_SetLisScalarReturnValue(Dart_NativeArguments args,
+    LIS_SCALAR retval) {
+  Dart_Handle result;
+#if defined(_COMPLEX)
+  Dart_Handle url, lib, klass;
+
+  url = Dart_NewString("package:complex/complex.dart");
+  lib = HandleError(Dart_LookupLibrary(url));
+  klass = HandleError(Dart_GetClass(lib, Dart_NewString("Complex")));
+  Dart_Handle args[2] = {
+    HandleError(Dart_NewDouble(creal(retval))),
+    HandleError(Dart_NewDouble(cimag(retval)))
+  };
+  result = HandleError(Dart_New(klass, Dart_Null(), 2, args));
+#else
+  result = HandleError(Dart_NewDouble(retval));
+#endif
   Dart_SetReturnValue(args, result);
 }
 
@@ -75,9 +96,23 @@ void Dart_GetNativeLisIntArgument(Dart_NativeArguments args, int index,
 
 void Dart_GetNativeLisScalarArgument(Dart_NativeArguments args, int index,
     LIS_SCALAR* value) {
-  double v;
+  LIS_SCALAR v;
+#if defined(_COMPLEX)
+  Dart_Handle obj, real_obj, imag_obj;
+  double real, imag;
+
+  obj = HandleError(Dart_GetNativeArgument(args, index));
+  real_obj = HandleError(Dart_GetField(obj, Dart_NewString("real")));
+  imag_obj = HandleError(Dart_GetField(obj, Dart_NewString("imaginary")));
+
+  real = HandleError(Dart_NewDouble(real_obj));
+  imag = HandleError(Dart_NewDouble(imag_obj));
+
+  v = real + imag * I;
+#else
   HandleError(Dart_GetNativeDoubleArgument(args, index, &v));
-  *value = (LIS_SCALAR) v;
+#endif
+  *value = v;
 }
 
 
@@ -126,39 +161,74 @@ void Dart_GetNativeLisIntArrayArgument(Dart_NativeArguments args, int index,
 
 void Dart_GetNativeLisScalarArrayArgument(Dart_NativeArguments args, int index,
     LIS_SCALAR* value[]) {
-  Dart_Handle obj, val;
+  Dart_Handle obj;
+#if defined(_COMPLEX)
+  Dart_Handle url, lib, klass;
+  bool instanceof;
+  Dart_Handle obj, real_obj, imag_obj;
+  double real, imag;
+#else
+  Dart_Handle val;
   Dart_TypedData_Type type;
   void* data;
   intptr_t len, i;
   double* dataP;
   double val2;
+#endif
 
   obj = HandleError(Dart_GetNativeArgument(args, index));
-  if (Dart_IsTypedData(obj)) {
-	if (Dart_GetTypeOfTypedData(obj) != Dart_TypedData_kFloat64) {
-	  HandleError(Dart_NewApiError("expected Float64List"));
-	}
-	HandleError(Dart_TypedDataAcquireData(obj, &type, &data, &len));
-	dataP = (double*) data;
-	*value = (LIS_SCALAR*) malloc(sizeof(LIS_SCALAR) * len);
-	for (i = 0; i < len; i++) {
-	  (*value)[i] = (LIS_SCALAR) dataP[i];
-	}
-    HandleError(Dart_TypedDataReleaseData(obj));
-  } else if (Dart_IsList(obj)) {
+
+  if (Dart_IsList(obj)) {
 	HandleError(Dart_ListLength(obj, &len));
 	*value = (LIS_SCALAR*) malloc(sizeof(LIS_SCALAR) * len);
-	for (i = 0; i < len; i++) {
-	  val = HandleError(Dart_ListGetAt(obj, i));
-	  if (Dart_IsDouble(val)) {
-        HandleError(Dart_DoubleValue(val, &val2));
-		(*value)[i] = (LIS_SCALAR) val2;
+
+#if defined(_COMPLEX)
+    url = Dart_NewString("package:complex/complex.dart");
+    lib = HandleError(Dart_LookupLibrary(url));
+    klass = HandleError(Dart_GetClass(lib, Dart_NewString("Complex")));
+#endif
+
+    for (i = 0; i < len; i++) {
+      val = HandleError(Dart_ListGetAt(obj, i));
+#if defined(_COMPLEX)
+      HandleError(Dart_ObjectIsType(val, klass, &instanceof));
+      if (instanceof) {
+        real_obj = HandleError(Dart_GetField(val, Dart_NewString("real")));
+        imag_obj = HandleError(Dart_GetField(val, Dart_NewString("imaginary")));
+
+        real = HandleError(Dart_NewDouble(real_obj));
+        imag = HandleError(Dart_NewDouble(imag_obj));
+
+        (*value)[i] = real + imag * I;
       } else {
-        HandleError(Dart_NewApiError("expected List<S>"));
-	  }
-	}
+        HandleError(Dart_NewApiError("expected List<Complex>"));
+      }
+#else
+      if (Dart_IsDouble(val)) {
+        HandleError(Dart_DoubleValue(val, &val2));
+        (*value)[i] = (LIS_SCALAR) val2;
+      } else {
+        HandleError(Dart_NewApiError("expected List<double>"));
+      }
+#endif
+    }
+  } else if (Dart_IsTypedData(obj)) {
+#if defined(_COMPLEX)
+    HandleError(Dart_NewApiError("expected List<Complex>"));
+#else
+    if (Dart_GetTypeOfTypedData(obj) != Dart_TypedData_kFloat64) {
+      HandleError(Dart_NewApiError("expected Float64List"));
+    }
+    HandleError(Dart_TypedDataAcquireData(obj, &type, &data, &len));
+    dataP = (double*) data;
+    *value = (LIS_SCALAR*) malloc(sizeof(LIS_SCALAR) * len);
+    for (i = 0; i < len; i++) {
+      (*value)[i] = (LIS_SCALAR) dataP[i];
+    }
+    HandleError(Dart_TypedDataReleaseData(obj));
+#endif
   } else {
-	HandleError(Dart_NewApiError("expected List"));
+    HandleError(Dart_NewApiError("expected List"));
   }
 }
 
