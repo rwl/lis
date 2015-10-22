@@ -3,7 +3,6 @@ library lis.test.matrix;
 import 'dart:typed_data';
 import 'package:test/test.dart';
 import 'package:lis/lis.dart';
-import 'package:lis/web/zlis.dart' as zlis;
 import 'package:complex/complex.dart';
 
 import 'random.dart' hide rand;
@@ -185,6 +184,8 @@ matrixTest(LIS lis, rscal(), toScalar(int i)) {
   });
 
   group('factory', () {
+    bool complex = rscal() is Complex;
+
     cmplxify(List list) {
       for (var i = 0; i < list.length; i++) {
         list[i] = new Complex(list[i]);
@@ -192,7 +193,7 @@ matrixTest(LIS lis, rscal(), toScalar(int i)) {
     }
 
     var diagonal = [11.0, 22.0, 33.0, 44.0];
-    if (lis is zlis.ZLIS) {
+    if (complex) {
       cmplxify(diagonal);
     }
 
@@ -222,7 +223,7 @@ matrixTest(LIS lis, rscal(), toScalar(int i)) {
       csr.value[6] = 43.0;
       csr.value[7] = 44.0;
 
-      if (lis is zlis.ZLIS) {
+      if (complex) {
         cmplxify(csr.value);
       }
 
@@ -255,7 +256,7 @@ matrixTest(LIS lis, rscal(), toScalar(int i)) {
       csc.value[6] = 43.0;
       csc.value[7] = 44.0;
 
-      if (lis is zlis.ZLIS) {
+      if (complex) {
         cmplxify(csc.value);
       }
 
@@ -282,7 +283,7 @@ matrixTest(LIS lis, rscal(), toScalar(int i)) {
       dia.value[10] = 33.0;
       dia.value[11] = 44.0;
 
-      if (lis is zlis.ZLIS) {
+      if (complex) {
         cmplxify(dia.value);
       }
 
@@ -318,7 +319,7 @@ matrixTest(LIS lis, rscal(), toScalar(int i)) {
       coo.value[6] = 43.0;
       coo.value[7] = 44.0;
 
-      if (lis is zlis.ZLIS) {
+      if (complex) {
         cmplxify(coo.value);
       }
 
@@ -347,7 +348,7 @@ matrixTest(LIS lis, rscal(), toScalar(int i)) {
       dense.value[14] = 0.0;
       dense.value[15] = 44.0;
 
-      if (lis is zlis.ZLIS) {
+      if (complex) {
         cmplxify(dense.value);
       }
 

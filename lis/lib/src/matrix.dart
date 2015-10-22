@@ -101,6 +101,8 @@ class Matrix<S> {
   void malloc({int nnz_row, List<int> nnz}) {
     if (nnz_row == null && nnz == null) {
       throw new ArgumentError("Either `nnz_row` or `nnz` must be provided");
+    } else if (nnz_row == null) {
+      nnz_row = 0;
     }
     _lis.matrixMalloc(_p_mat, nnz_row, nnz);
   }

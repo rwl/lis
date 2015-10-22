@@ -1,13 +1,13 @@
 library lis.internal.native.lis;
 
-import "dart-ext:lis_extension";
+import "dart-ext:zlis_extension";
 
 import 'package:complex/complex.dart';
 
 import '../lis.dart' as lis;
 
-abstract class NativeLIS<S> implements lis.LIS<S> {
-  NativeLIS(List<String> options) {
+class ZLIS implements lis.LIS<Complex> {
+  ZLIS([List<String> options]) {
     initialize(options);
   }
 
@@ -17,35 +17,37 @@ abstract class NativeLIS<S> implements lis.LIS<S> {
   void vectorDestroy(int vec) native "LIS_VectorDestroy";
   int vectorDuplicate(int vin) native "LIS_VectorDuplicate";
   int vectorGetSize(int v) native "LIS_VectorGetSize";
-  S vectorGetValue(int v, int i) native "LIS_VectorGetValue";
-  List<S> vectorGetValues(int v, int start, int count)
+  Complex vectorGetValue(int v, int i) native "LIS_VectorGetValue";
+  List<Complex> vectorGetValues(int v, int start, int count)
       native "LIS_VectorGetValues";
-  void vectorSetValue(int flag, int i, S value, int v)
+  void vectorSetValue(int flag, int i, Complex value, int v)
       native "LIS_VectorSetValue";
   void vectorSetValues(
-      int flag, int count, List<int> index, List<S> value, int v)
+      int flag, int count, List<int> index, List<Complex> value, int v)
       native "LIS_VectorSetValues";
-  void vectorSetValues2(int flag, int start, int count, List<S> value, int v)
+  void vectorSetValues2(
+      int flag, int start, int count, List<Complex> value, int v)
       native "LIS_VectorSetValues2";
   void vectorPrint(int x) native "LIS_VectorPrint";
   int vectorIsNull(int v) native "LIS_VectorIsNull";
   void vectorSwap(int vsrc, int vdst) native "LIS_VectorSwap";
   void vectorCopy(int vsrc, int vdst) native "LIS_VectorCopy";
-  void vectorAxpy(S alpha, int vx, int vy) native "LIS_VectorAxpy";
-  void vectorXpay(int vx, S alpha, int vy) native "LIS_VectorXpay";
-  void vectorAxpyz(S alpha, int vx, int vy, int vz) native "LIS_VectorAxpyz";
-  void vectorScale(S alpha, int vx) native "LIS_VectorScale";
+  void vectorAxpy(Complex alpha, int vx, int vy) native "LIS_VectorAxpy";
+  void vectorXpay(int vx, Complex alpha, int vy) native "LIS_VectorXpay";
+  void vectorAxpyz(Complex alpha, int vx, int vy, int vz)
+      native "LIS_VectorAxpyz";
+  void vectorScale(Complex alpha, int vx) native "LIS_VectorScale";
   void vectorPmul(int vx, int vy, int vz) native "LIS_VectorPmul";
   void vectorPdiv(int vx, int vy, int vz) native "LIS_VectorPdiv";
-  void vectorSetAll(S alpha, int vx) native "LIS_VectorSetAll";
+  void vectorSetAll(Complex alpha, int vx) native "LIS_VectorSetAll";
   void vectorAbs(int vx) native "LIS_VectorAbs";
   void vectorReciprocal(int vx) native "LIS_VectorReciprocal";
-  void vectorShift(S alpha, int vx) native "LIS_VectorShift";
-  S vectorDot(int vx, int vy) native "LIS_VectorDot";
+  void vectorShift(Complex alpha, int vx) native "LIS_VectorShift";
+  Complex vectorDot(int vx, int vy) native "LIS_VectorDot";
   double vectorNrm1(int vx) native "LIS_VectorNrm1";
   double vectorNrm2(int vx) native "LIS_VectorNrm2";
   double vectorNrmi(int vx) native "LIS_VectorNrmi";
-  S vectorSum(int vx) native "LIS_VectorSum";
+  Complex vectorSum(int vx) native "LIS_VectorSum";
   void vectorReal(int vx) native "LIS_VectorReal";
   void vectorImaginary(int vx) native "LIS_VectorImaginary";
   void vectorArgument(int vx) native "LIS_VectorArgument";
@@ -62,35 +64,36 @@ abstract class NativeLIS<S> implements lis.LIS<S> {
   int matrixGetNnz(int A) native "LIS_MatrixGetNnz";
   void matrixSetType(int A, int matrix_type) native "LIS_MatrixSetType";
   int matrixGetType(int A) native "LIS_MatrixGetType";
-  void matrixSetValue(int flag, int i, int j, S value, int A)
+  void matrixSetValue(int flag, int i, int j, Complex value, int A)
       native "LIS_MatrixSetValue";
-  void matrixSetValues(int flag, int n, List<S> value, int A)
+  void matrixSetValues(int flag, int n, List<Complex> value, int A)
       native "LIS_MatrixSetValues";
   void matrixMalloc(int A, int nnz_row, List<int> nnz)
       native "LIS_MatrixMalloc";
-  int matrixGetDiagonal(int A) native "LIS_MatrixGetDiagonal";
+  void matrixGetDiagonal(int A, int Aout) native "LIS_MatrixGetDiagonal";
   void matrixConvert(int Ain, int Aout) native "LIS_MatrixConvert";
   void matrixCopy(int Ain, int Aout) native "LIS_MatrixCopy";
   void matrixTranspose(int Ain, int Aout) native "LIS_MatrixTranspose";
 
   void matrixSetCsr(
-      int nnz, List<int> row, List<int> index, List<S> value, int A)
+      int nnz, List<int> row, List<int> index, List<Complex> value, int A)
       native "LIS_MatrixSetCsr";
   void matrixSetCsc(
-      int nnz, List<int> row, List<int> index, List<S> value, int A)
+      int nnz, List<int> row, List<int> index, List<Complex> value, int A)
       native "LIS_MatrixSetCsc";
   void matrixSetBsr(int bnr, int bnc, int bnnz, List<int> bptr,
-      List<int> bindex, List<S> value, int A) native "LIS_MatrixSetBsr";
-  void matrixSetMsr(int nnz, int ndz, List<int> index, List<S> value, int A)
+      List<int> bindex, List<Complex> value, int A) native "LIS_MatrixSetBsr";
+  void matrixSetMsr(
+      int nnz, int ndz, List<int> index, List<Complex> value, int A)
       native "LIS_MatrixSetMsr";
-  void matrixSetEll(int maxnzr, List<int> index, List<S> value, int A)
+  void matrixSetEll(int maxnzr, List<int> index, List<Complex> value, int A)
       native "LIS_MatrixSetEll";
   void matrixSetJad(int nnz, int maxnzr, List<int> perm, List<int> ptr,
-      List<int> index, List<S> value, int A) native "LIS_MatrixSetJad";
-  void matrixSetDia(int nnd, List<int> index, List<S> value, int A)
+      List<int> index, List<Complex> value, int A) native "LIS_MatrixSetJad";
+  void matrixSetDia(int nnd, List<int> index, List<Complex> value, int A)
       native "LIS_MatrixSetDia";
   void matrixSetBsc(int bnr, int bnc, int bnnz, List<int> bptr,
-      List<int> bindex, List<S> value, int A) native "LIS_MatrixSetBsc";
+      List<int> bindex, List<Complex> value, int A) native "LIS_MatrixSetBsc";
   void matrixSetVbr(
       int nnz,
       int nr,
@@ -101,11 +104,12 @@ abstract class NativeLIS<S> implements lis.LIS<S> {
       List<int> ptr,
       List<int> bptr,
       List<int> bindex,
-      List<S> value,
+      List<Complex> value,
       int A) native "LIS_MatrixSetVbr";
-  void matrixSetCoo(int nnz, List<int> row, List<int> col, List<S> value, int A)
+  void matrixSetCoo(
+      int nnz, List<int> row, List<int> col, List<Complex> value, int A)
       native "LIS_MatrixSetCoo";
-  void matrixSetDns(List<S> value, int A) native "LIS_MatrixSetDns";
+  void matrixSetDns(List<Complex> value, int A) native "LIS_MatrixSetDns";
 
   // Matrix-Vector Operations
   void matvec(int A, int x, int y) native "LIS_MatVec";
@@ -133,7 +137,7 @@ abstract class NativeLIS<S> implements lis.LIS<S> {
   int iesolverDestroy(int esolver) native "iesolverDestroy";
   int esolverSetOption(String text, int esolver) native "LIS_EsolverSetOption";
   int esolverSetOptionC(int esolver) native "LIS_EsolverSetOptionC";
-  S esolve(int A, int x, int esolver) native "LIS_Esolve";
+  Complex esolve(int A, int x, int esolver) native "LIS_Esolve";
   int esolverGetIter(int esolver) native "LIS_EsolverGetIter";
   int esolverGetIterEx(int esolver) native "LIS_EsolverGetIterEx";
   double esolverGetTime(int esolver) native "LIS_EsolverGetTime";
@@ -167,16 +171,7 @@ abstract class NativeLIS<S> implements lis.LIS<S> {
   void initialize(List<String> args) native "LIS_Initialize";
   int finalize() native "LIS_Finalize";
   void CHKERR(int err) native "LIS_CHKERR";
-}
 
-class DLIS extends NativeLIS<double> {
-  DLIS([List<String> options]) : super(options);
-  double get one => 1.0;
-  double get zero => 0.0;
-}
-
-class ZLIS extends NativeLIS<Complex> {
-  ZLIS([List<String> options]) : super(options);
   Complex get one => Complex.ONE;
   Complex get zero => Complex.ZERO;
 }

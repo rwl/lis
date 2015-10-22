@@ -8,8 +8,12 @@
 Dart_NativeFunction ResolveName(Dart_Handle name, int argc,
     bool* auto_setup_scope);
 
-
-DART_EXPORT Dart_Handle lis_extension_Init(Dart_Handle parent_library) {
+#if defined(_COMPLEX)
+DART_EXPORT Dart_Handle zlis_extension_Init(Dart_Handle parent_library)
+#else
+DART_EXPORT Dart_Handle dlis_extension_Init(Dart_Handle parent_library)
+#endif
+{
   if (Dart_IsError(parent_library)) {
     return parent_library;
   }
@@ -63,17 +67,48 @@ void Dart_SetLisScalarReturnValue(Dart_NativeArguments args,
 #if defined(_COMPLEX)
   Dart_Handle url, lib, klass;
 
-  url = Dart_NewString("package:complex/complex.dart");
+  url = Dart_NewStringFromCString("package:complex/src/complex.dart");
   lib = HandleError(Dart_LookupLibrary(url));
-  klass = HandleError(Dart_GetClass(lib, Dart_NewString("Complex")));
-  Dart_Handle args[2] = {
+  klass = HandleError(Dart_GetClass(lib, Dart_NewStringFromCString("Complex")));
+  Dart_Handle arg[2] = {
     HandleError(Dart_NewDouble(creal(retval))),
     HandleError(Dart_NewDouble(cimag(retval)))
   };
-  result = HandleError(Dart_New(klass, Dart_Null(), 2, args));
+  result = HandleError(Dart_New(klass, Dart_Null(), 2, arg));
 #else
   result = HandleError(Dart_NewDouble(retval));
 #endif
+  Dart_SetReturnValue(args, result);
+}
+
+
+void Dart_SetLisScalarArrayReturnValue(Dart_NativeArguments args,
+    LIS_SCALAR retval[], intptr_t length) {
+  Dart_Handle result;
+
+#if defined(_COMPLEX)
+  Dart_Handle url, lib, klass, value;
+  intptr_t i;
+
+  url = Dart_NewStringFromCString("package:complex/src/complex.dart");
+  lib = HandleError(Dart_LookupLibrary(url));
+  klass = HandleError(Dart_GetClass(lib, Dart_NewStringFromCString("Complex")));
+
+  result = HandleError(Dart_NewList(length));
+  for (i = 0; i < length; i++) {
+    Dart_Handle arg[2] = {
+      HandleError(Dart_NewDouble(creal(retval[i]))),
+      HandleError(Dart_NewDouble(cimag(retval[i])))
+    };
+    value = HandleError(Dart_New(klass, Dart_Null(), 2, arg));
+
+    HandleError(Dart_ListSetAt(result, i, value));
+  }
+#else
+  result = HandleError(Dart_NewExternalTypedData(Dart_TypedData_kFloat64,
+      retval, length));
+#endif
+
   Dart_SetReturnValue(args, result);
 }
 
@@ -83,6 +118,14 @@ void Dart_GetNativeVectorArgument(Dart_NativeArguments args, int index,
   uint64_t ptr;
   HandleError(Dart_GetNativeUint64Argument(args, index, &ptr));
   *value = (LIS_VECTOR) ptr;
+}
+
+
+void Dart_GetNativeMatrixArgument(Dart_NativeArguments args, int index,
+    LIS_MATRIX* value) {
+  uint64_t ptr;
+  HandleError(Dart_GetNativeUint64Argument(args, index, &ptr));
+  *value = (LIS_MATRIX) ptr;
 }
 
 
@@ -98,17 +141,28 @@ void Dart_GetNativeLisScalarArgument(Dart_NativeArguments args, int index,
     LIS_SCALAR* value) {
   LIS_SCALAR v;
 #if defined(_COMPLEX)
-  Dart_Handle obj, real_obj, imag_obj;
+  Dart_Handle url, lib, klass, obj, real_obj, imag_obj;
   double real, imag;
+  bool instanceof;
+
+  url = Dart_NewStringFromCString("package:complex/src/complex.dart");
+  lib = HandleError(Dart_LookupLibrary(url));
+  klass = HandleError(Dart_GetClass(lib, Dart_NewStringFromCString("Complex")));
 
   obj = HandleError(Dart_GetNativeArgument(args, index));
-  real_obj = HandleError(Dart_GetField(obj, Dart_NewString("real")));
-  imag_obj = HandleError(Dart_GetField(obj, Dart_NewString("imaginary")));
 
-  real = HandleError(Dart_NewDouble(real_obj));
-  imag = HandleError(Dart_NewDouble(imag_obj));
+  HandleError(Dart_ObjectIsType(obj, klass, &instanceof));
+  if (instanceof) {
+    real_obj = HandleError(Dart_GetField(obj, Dart_NewStringFromCString("real")));
+    imag_obj = HandleError(Dart_GetField(obj, Dart_NewStringFromCString("imaginary")));
 
-  v = real + imag * I;
+    HandleError(Dart_DoubleValue(real_obj, &real));
+    HandleError(Dart_DoubleValue(imag_obj, &imag));
+    v = real + imag * I;
+  } else {
+    HandleError(Dart_NewApiError("expected Complex"));
+  }
+
 #else
   HandleError(Dart_GetNativeDoubleArgument(args, index, &v));
 #endif
@@ -127,7 +181,9 @@ void Dart_GetNativeLisIntArrayArgument(Dart_NativeArguments args, int index,
   int64_t val2;
 
   obj = HandleError(Dart_GetNativeArgument(args, index));
-  if (Dart_IsTypedData(obj)) {
+  if (Dart_IsNull(obj)) {
+    *value = NULL;
+  } else if (Dart_IsTypedData(obj)) {
     if (Dart_GetTypeOfTypedData(obj) != Dart_TypedData_kInt32) {
       HandleError(Dart_NewApiError("expected Int32List"));
     }
@@ -144,9 +200,9 @@ void Dart_GetNativeLisIntArrayArgument(Dart_NativeArguments args, int index,
     for (i = 0; i < len; i++) {
       val = HandleError(Dart_ListGetAt(obj, i));
       if (Dart_IsInteger(val)) {
-        HandleError(Dart_IntegerFitsIntoInt64(obj, &fits));
+        HandleError(Dart_IntegerFitsIntoInt64(val, &fits));
         if (fits) {
-          HandleError(Dart_IntegerToInt64(obj, &val2));
+          HandleError(Dart_IntegerToInt64(val, &val2));
           (*value)[i] = (LIS_INT) val2;
         } else {
           HandleError(Dart_NewApiError("expected List<int>"));
@@ -161,17 +217,16 @@ void Dart_GetNativeLisIntArrayArgument(Dart_NativeArguments args, int index,
 
 void Dart_GetNativeLisScalarArrayArgument(Dart_NativeArguments args, int index,
     LIS_SCALAR* value[]) {
-  Dart_Handle obj;
+  Dart_Handle obj, val;
+  intptr_t len, i;
 #if defined(_COMPLEX)
   Dart_Handle url, lib, klass;
   bool instanceof;
-  Dart_Handle obj, real_obj, imag_obj;
+  Dart_Handle real_obj, imag_obj;
   double real, imag;
 #else
-  Dart_Handle val;
   Dart_TypedData_Type type;
   void* data;
-  intptr_t len, i;
   double* dataP;
   double val2;
 #endif
@@ -183,9 +238,9 @@ void Dart_GetNativeLisScalarArrayArgument(Dart_NativeArguments args, int index,
 	*value = (LIS_SCALAR*) malloc(sizeof(LIS_SCALAR) * len);
 
 #if defined(_COMPLEX)
-    url = Dart_NewString("package:complex/complex.dart");
+    url = Dart_NewStringFromCString("package:complex/src/complex.dart");
     lib = HandleError(Dart_LookupLibrary(url));
-    klass = HandleError(Dart_GetClass(lib, Dart_NewString("Complex")));
+    klass = HandleError(Dart_GetClass(lib, Dart_NewStringFromCString("Complex")));
 #endif
 
     for (i = 0; i < len; i++) {
@@ -193,11 +248,11 @@ void Dart_GetNativeLisScalarArrayArgument(Dart_NativeArguments args, int index,
 #if defined(_COMPLEX)
       HandleError(Dart_ObjectIsType(val, klass, &instanceof));
       if (instanceof) {
-        real_obj = HandleError(Dart_GetField(val, Dart_NewString("real")));
-        imag_obj = HandleError(Dart_GetField(val, Dart_NewString("imaginary")));
+        real_obj = HandleError(Dart_GetField(val, Dart_NewStringFromCString("real")));
+        imag_obj = HandleError(Dart_GetField(val, Dart_NewStringFromCString("imaginary")));
 
-        real = HandleError(Dart_NewDouble(real_obj));
-        imag = HandleError(Dart_NewDouble(imag_obj));
+        HandleError(Dart_DoubleValue(real_obj, &real));
+        HandleError(Dart_DoubleValue(imag_obj, &imag));
 
         (*value)[i] = real + imag * I;
       } else {
@@ -241,8 +296,7 @@ void LIS_Initialize(Dart_NativeArguments arguments) {
   Dart_EnterScope();
   argc = 1;
   p_argv = &argv[0];
-  err = lis_initialize(&argc, &p_argv)
-		  ; CHKERR(err);
+  err = lis_initialize(&argc, &p_argv); CHKERR(err);
   Dart_ExitScope();
 }
 
@@ -337,7 +391,7 @@ void LIS_VectorGetValue(Dart_NativeArguments arguments) {
 
   err = lis_vector_get_value(vin, i, &value); CHKERR(err);
 
-  Dart_SetDoubleReturnValue(arguments, value);
+  Dart_SetLisScalarReturnValue(arguments, value);
   Dart_ExitScope();
 }
 
@@ -345,7 +399,6 @@ void LIS_VectorGetValue(Dart_NativeArguments arguments) {
 void LIS_VectorGetValues(Dart_NativeArguments arguments) {
   LIS_INT err, start, count;
   LIS_VECTOR vec;
-  Dart_Handle result;
   LIS_SCALAR *value;
 
   Dart_EnterScope();
@@ -357,10 +410,7 @@ void LIS_VectorGetValues(Dart_NativeArguments arguments) {
 
   err = lis_vector_get_values(vec, start, count, value); CHKERR(err);
 
-  result = Dart_NewExternalTypedData(Dart_TypedData_kFloat64, value,
-    (intptr_t) count);
-
-  Dart_SetReturnValue(arguments, HandleError(result));
+  Dart_SetLisScalarArrayReturnValue(arguments, value, (intptr_t) count);
   Dart_ExitScope();
 }
 
@@ -446,7 +496,7 @@ void LIS_VectorIsNull(Dart_NativeArguments arguments) {
 
   retval = lis_vector_is_null(vec);
 
-  Dart_SetIntegerReturnValue(arguments, retval);
+  Dart_SetIntegerReturnValue(arguments, (int64_t) retval);
   Dart_ExitScope();
 }
 
@@ -651,7 +701,7 @@ void LIS_VectorDot(Dart_NativeArguments arguments) {
 
   err = lis_vector_dot(vx, vy, &value); CHKERR(err);
 
-  Dart_SetDoubleReturnValue(arguments, value);
+  Dart_SetLisScalarReturnValue(arguments, value);
   Dart_ExitScope();
 }
 
@@ -711,7 +761,7 @@ void LIS_VectorSum(Dart_NativeArguments arguments) {
 
   err = lis_vector_sum(vec, &value); CHKERR(err);
 
-  Dart_SetDoubleReturnValue(arguments, value);
+  Dart_SetLisScalarReturnValue(arguments, value);
   Dart_ExitScope();
 }
 
@@ -772,6 +822,525 @@ void LIS_VectorConjugate(Dart_NativeArguments arguments) {
 }
 
 
+void LIS_MatrixCreate(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_MATRIX mat;
+
+  Dart_EnterScope();
+  err = lis_matrix_create(LIS_COMM_WORLD, &mat); CHKERR(err);
+
+  Dart_SetUint64ReturnValue(arguments, (uint64_t) mat);
+  Dart_ExitScope();
+}
+
+
+void LIS_MatrixDestroy(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_MATRIX mat;
+
+  Dart_EnterScope();
+  Dart_GetNativeMatrixArgument(arguments, 1, &mat);
+
+  err = lis_matrix_destroy(mat); CHKERR(err);
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
+
+void LIS_MatrixAssemble(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_MATRIX mat;
+
+  Dart_EnterScope();
+  Dart_GetNativeMatrixArgument(arguments, 1, &mat);
+
+  err = lis_matrix_assemble(mat); CHKERR(err);
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
+
+void LIS_MatrixIsAssembled(Dart_NativeArguments arguments) {
+  LIS_INT retval;
+  LIS_MATRIX mat;
+
+  Dart_EnterScope();
+  Dart_GetNativeMatrixArgument(arguments, 1, &mat);
+
+  retval = lis_matrix_is_assembled(mat);
+
+  Dart_SetIntegerReturnValue(arguments, (int64_t) retval);
+  Dart_ExitScope();
+}
+
+
+void LIS_MatrixDuplicate(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_MATRIX Ain, Aout;
+
+  Dart_EnterScope();
+  Dart_GetNativeMatrixArgument(arguments, 1, &Ain);
+
+  err = lis_matrix_duplicate(Ain, &Aout); CHKERR(err);
+
+  Dart_SetUint64ReturnValue(arguments, (uint64_t) Aout);
+  Dart_ExitScope();
+}
+
+
+void LIS_MatrixSetSize(Dart_NativeArguments arguments) {
+  LIS_INT err, n;
+  LIS_MATRIX mat;
+
+  Dart_EnterScope();
+  Dart_GetNativeMatrixArgument(arguments, 1, &mat);
+  Dart_GetNativeLisIntArgument(arguments, 2, &n);
+
+  err = lis_matrix_set_size(mat, n, n); CHKERR(err);
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
+
+void LIS_MatrixGetSize(Dart_NativeArguments arguments) {
+  LIS_INT err, loc_n, glob_n;
+  LIS_MATRIX mat;
+
+  Dart_EnterScope();
+  Dart_GetNativeMatrixArgument(arguments, 1, &mat);
+
+  err = lis_matrix_get_size(mat, &loc_n, &glob_n); CHKERR(err);
+
+  Dart_SetIntegerReturnValue(arguments, (int64_t) loc_n);
+  Dart_ExitScope();
+}
+
+
+void LIS_MatrixGetNnz(Dart_NativeArguments arguments) {
+  LIS_INT err, nnz;
+  LIS_MATRIX mat;
+
+  Dart_EnterScope();
+  Dart_GetNativeMatrixArgument(arguments, 1, &mat);
+
+  err = lis_matrix_get_nnz(mat, &nnz); CHKERR(err);
+
+  Dart_SetIntegerReturnValue(arguments, (int64_t) nnz);
+  Dart_ExitScope();
+}
+
+
+void LIS_MatrixSetType(Dart_NativeArguments arguments) {
+  LIS_INT err, matrix_type;
+  LIS_MATRIX mat;
+
+  Dart_EnterScope();
+  Dart_GetNativeMatrixArgument(arguments, 1, &mat);
+  Dart_GetNativeLisIntArgument(arguments, 2, &matrix_type);
+
+  err = lis_matrix_set_type(mat, matrix_type); CHKERR(err);
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
+
+void LIS_MatrixGetType(Dart_NativeArguments arguments) {
+  LIS_INT err, matrix_type;
+  LIS_MATRIX mat;
+
+  Dart_EnterScope();
+  Dart_GetNativeMatrixArgument(arguments, 1, &mat);
+
+  err = lis_matrix_get_type(mat, &matrix_type); CHKERR(err);
+
+  Dart_SetIntegerReturnValue(arguments, (int64_t) matrix_type);
+  Dart_ExitScope();
+}
+
+
+void LIS_MatrixSetValue(Dart_NativeArguments arguments) {
+  LIS_INT err, flag, i, j;
+  LIS_MATRIX mat;
+  LIS_SCALAR value;
+
+  Dart_EnterScope();
+  Dart_GetNativeLisIntArgument(arguments, 1, &flag);
+  Dart_GetNativeLisIntArgument(arguments, 2, &i);
+  Dart_GetNativeLisIntArgument(arguments, 3, &j);
+  Dart_GetNativeLisScalarArgument(arguments, 4, &value);
+  Dart_GetNativeMatrixArgument(arguments, 5, &mat);
+
+  err = lis_matrix_set_value(flag, i, j, value, mat); CHKERR(err);
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
+
+void LIS_MatrixSetValues(Dart_NativeArguments arguments) {
+  LIS_INT err, flag, n;
+  LIS_MATRIX mat;
+  LIS_SCALAR *values;
+
+  Dart_EnterScope();
+  Dart_GetNativeLisIntArgument(arguments, 1, &flag);
+  Dart_GetNativeLisIntArgument(arguments, 2, &n);
+  Dart_GetNativeLisScalarArrayArgument(arguments, 3, &values);
+  Dart_GetNativeMatrixArgument(arguments, 4, &mat);
+
+  err = lis_matrix_set_values(flag, n, values, mat); CHKERR(err);
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
+
+void LIS_MatrixMalloc(Dart_NativeArguments arguments) {
+  LIS_INT err, nnz_row, *nnz;
+  LIS_MATRIX mat;
+
+  Dart_EnterScope();
+  Dart_GetNativeMatrixArgument(arguments, 1, &mat);
+  Dart_GetNativeLisIntArgument(arguments, 2, &nnz_row);
+  Dart_GetNativeLisIntArrayArgument(arguments, 3, &nnz);
+
+  err = lis_matrix_malloc(mat, nnz_row, nnz); CHKERR(err);
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
+
+void LIS_MatrixGetDiagonal(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_MATRIX mat;
+  LIS_VECTOR vec;
+
+  Dart_EnterScope();
+  Dart_GetNativeMatrixArgument(arguments, 1, &mat);
+  Dart_GetNativeVectorArgument(arguments, 2, &vec);
+
+  err = lis_matrix_get_diagonal(mat, vec); CHKERR(err);
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
+
+void LIS_MatrixConvert(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_MATRIX Ain, Aout;
+
+  Dart_EnterScope();
+  Dart_GetNativeMatrixArgument(arguments, 1, &Ain);
+  Dart_GetNativeMatrixArgument(arguments, 2, &Aout);
+
+  err = lis_matrix_convert(Ain, Aout); CHKERR(err);
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
+
+void LIS_MatrixCopy(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_MATRIX Ain, Aout;
+
+  Dart_EnterScope();
+  Dart_GetNativeMatrixArgument(arguments, 1, &Ain);
+  Dart_GetNativeMatrixArgument(arguments, 2, &Aout);
+
+  err = lis_matrix_copy(Ain, Aout); CHKERR(err);
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
+
+void LIS_MatrixTranspose(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_MATRIX Ain, Aout;
+
+  Dart_EnterScope();
+  Dart_GetNativeMatrixArgument(arguments, 1, &Ain);
+  Dart_GetNativeMatrixArgument(arguments, 2, &Aout);
+
+  err = lis_matrix_transpose(Ain, Aout); CHKERR(err);
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
+
+void LIS_MatrixSetCsr(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_MATRIX A;
+  LIS_INT nnz, *ptr, *index;
+  LIS_SCALAR *value;
+
+  Dart_EnterScope();
+  Dart_GetNativeLisIntArgument(arguments, 1, &nnz);
+  Dart_GetNativeLisIntArrayArgument(arguments, 2, &ptr);
+  Dart_GetNativeLisIntArrayArgument(arguments, 3, &index);
+  Dart_GetNativeLisScalarArrayArgument(arguments, 4, &value);
+  Dart_GetNativeMatrixArgument(arguments, 5, &A);
+
+  err = lis_matrix_set_csr(nnz, ptr, index, value, A); CHKERR(err);
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
+
+void LIS_MatrixSetCsc(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_MATRIX A;
+  LIS_INT nnz, *ptr, *index;
+  LIS_SCALAR *value;
+
+  Dart_EnterScope();
+  Dart_GetNativeLisIntArgument(arguments, 1, &nnz);
+  Dart_GetNativeLisIntArrayArgument(arguments, 2, &ptr);
+  Dart_GetNativeLisIntArrayArgument(arguments, 3, &index);
+  Dart_GetNativeLisScalarArrayArgument(arguments, 4, &value);
+  Dart_GetNativeMatrixArgument(arguments, 5, &A);
+
+  err = lis_matrix_set_csc(nnz, ptr, index, value, A); CHKERR(err);
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
+
+void LIS_MatrixSetBsr(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_INT bnr, bnc, bnnz, *bptr, *bindex;
+  LIS_SCALAR *value;
+  LIS_MATRIX A;
+
+  Dart_EnterScope();
+  Dart_GetNativeLisIntArgument(arguments, 1, &bnr);
+  Dart_GetNativeLisIntArgument(arguments, 2, &bnc);
+  Dart_GetNativeLisIntArgument(arguments, 3, &bnnz);
+  Dart_GetNativeLisIntArrayArgument(arguments, 4, &bptr);
+  Dart_GetNativeLisIntArrayArgument(arguments, 5, &bindex);
+  Dart_GetNativeLisScalarArrayArgument(arguments, 6, &value);
+  Dart_GetNativeMatrixArgument(arguments, 7, &A);
+
+  err = lis_matrix_set_bsr(bnr, bnc, bnnz, bptr, bindex, value, A);
+  CHKERR(err);
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
+
+void LIS_MatrixSetMsr(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_INT nnz, ndz, *index;
+  LIS_SCALAR *value;
+  LIS_MATRIX A;
+
+  Dart_EnterScope();
+  Dart_GetNativeLisIntArgument(arguments, 1, &nnz);
+  Dart_GetNativeLisIntArgument(arguments, 2, &ndz);
+  Dart_GetNativeLisIntArrayArgument(arguments, 3, &index);
+  Dart_GetNativeLisScalarArrayArgument(arguments, 4, &value);
+  Dart_GetNativeMatrixArgument(arguments, 5, &A);
+
+  err = lis_matrix_set_msr(nnz, ndz, index, value, A); CHKERR(err);
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
+
+void LIS_MatrixSetEll(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_INT maxnzr, *index;
+  LIS_SCALAR *value;
+  LIS_MATRIX A;
+
+  Dart_EnterScope();
+  Dart_GetNativeLisIntArgument(arguments, 1, &maxnzr);
+  Dart_GetNativeLisIntArrayArgument(arguments, 3, &index);
+  Dart_GetNativeLisScalarArrayArgument(arguments, 4, &value);
+  Dart_GetNativeMatrixArgument(arguments, 1, &A);
+
+  err = lis_matrix_set_ell(maxnzr, index, value, A); CHKERR(err);
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
+
+void LIS_MatrixSetJad(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_INT nnz, maxnzr, *perm, *ptr, *index;
+  LIS_SCALAR *value;
+  LIS_MATRIX A;
+
+  Dart_EnterScope();
+  Dart_GetNativeLisIntArgument(arguments, 1, &nnz);
+  Dart_GetNativeLisIntArgument(arguments, 2, &maxnzr);
+  Dart_GetNativeLisIntArrayArgument(arguments, 3, &perm);
+  Dart_GetNativeLisIntArrayArgument(arguments, 4, &ptr);
+  Dart_GetNativeLisIntArrayArgument(arguments, 5, &index);
+  Dart_GetNativeLisScalarArrayArgument(arguments, 6, &value);
+  Dart_GetNativeMatrixArgument(arguments, 7, &A);
+
+  err = lis_matrix_set_jad(nnz, maxnzr, perm, ptr, index, value, A);
+  CHKERR(err);
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
+
+void LIS_MatrixSetDia(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_INT nnd, *index;
+  LIS_SCALAR *value;
+  LIS_MATRIX A;
+
+  Dart_EnterScope();
+  Dart_GetNativeLisIntArgument(arguments, 1, &nnd);
+  Dart_GetNativeLisIntArrayArgument(arguments, 2, &index);
+  Dart_GetNativeLisScalarArrayArgument(arguments, 3, &value);
+  Dart_GetNativeMatrixArgument(arguments, 4, &A);
+
+  err = lis_matrix_set_dia(nnd, index, value, A); CHKERR(err);
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
+
+void LIS_MatrixSetBsc(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_INT bnr, bnc, bnnz, *bptr, *bindex;
+  LIS_SCALAR *value;
+  LIS_MATRIX A;
+
+  Dart_EnterScope();
+  Dart_GetNativeLisIntArgument(arguments, 1, &bnr);
+  Dart_GetNativeLisIntArgument(arguments, 2, &bnc);
+  Dart_GetNativeLisIntArgument(arguments, 3, &bnnz);
+  Dart_GetNativeLisIntArrayArgument(arguments, 4, &bptr);
+  Dart_GetNativeLisIntArrayArgument(arguments, 5, &bindex);
+  Dart_GetNativeLisScalarArrayArgument(arguments, 6, &value);
+  Dart_GetNativeMatrixArgument(arguments, 7, &A);
+
+  err = lis_matrix_set_bsc(bnr, bnc, bnnz, bptr, bindex, value, A);
+  CHKERR(err);
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
+
+void LIS_MatrixSetVbr(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_INT nnz, nr, nc, bnnz, *row, *col, *ptr, *bptr, *bindex;
+  LIS_SCALAR *value;
+  LIS_MATRIX A;
+
+  Dart_EnterScope();
+  Dart_GetNativeLisIntArgument(arguments, 1, &nnz);
+  Dart_GetNativeLisIntArgument(arguments, 2, &nr);
+  Dart_GetNativeLisIntArgument(arguments, 3, &nc);
+  Dart_GetNativeLisIntArgument(arguments, 4, &bnnz);
+  Dart_GetNativeLisIntArrayArgument(arguments, 5, &row);
+  Dart_GetNativeLisIntArrayArgument(arguments, 6, &col);
+  Dart_GetNativeLisIntArrayArgument(arguments, 7, &ptr);
+  Dart_GetNativeLisIntArrayArgument(arguments, 8, &bptr);
+  Dart_GetNativeLisIntArrayArgument(arguments, 9, &bindex);
+  Dart_GetNativeLisScalarArrayArgument(arguments, 10, &value);
+  Dart_GetNativeMatrixArgument(arguments, 11, &A);
+
+  err = lis_matrix_set_vbr(nnz, nr, nc, bnnz, row, col, ptr, bptr,
+      bindex, value, A);
+  CHKERR(err);
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
+
+void LIS_MatrixSetCoo(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_INT nnz, *row, *col;
+  LIS_SCALAR *value;
+  LIS_MATRIX A;
+
+  Dart_EnterScope();
+  Dart_GetNativeLisIntArgument(arguments, 1, &nnz);
+  Dart_GetNativeLisIntArrayArgument(arguments, 2, &row);
+  Dart_GetNativeLisIntArrayArgument(arguments, 3, &col);
+  Dart_GetNativeLisScalarArrayArgument(arguments, 4, &value);
+  Dart_GetNativeMatrixArgument(arguments, 5, &A);
+
+  err = lis_matrix_set_coo(nnz, row, col, value, A); CHKERR(err);
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
+
+void LIS_MatrixSetDns(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_SCALAR *value;
+  LIS_MATRIX A;
+
+  Dart_EnterScope();
+  Dart_GetNativeLisScalarArrayArgument(arguments, 1, &value);
+  Dart_GetNativeMatrixArgument(arguments, 2, &A);
+
+  err = lis_matrix_set_dns(value, A); CHKERR(err);
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
+
+void LIS_MatVec(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_VECTOR X, Y;
+  LIS_MATRIX A;
+
+  Dart_EnterScope();
+  Dart_GetNativeMatrixArgument(arguments, 1, &A);
+  Dart_GetNativeVectorArgument(arguments, 2, &X);
+  Dart_GetNativeVectorArgument(arguments, 3, &Y);
+
+  err = lis_matvec(A, X, Y); CHKERR(err);
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
+
+void LIS_MatVecT(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_VECTOR X, Y;
+  LIS_MATRIX A;
+
+  Dart_EnterScope();
+  Dart_GetNativeMatrixArgument(arguments, 1, &A);
+  Dart_GetNativeVectorArgument(arguments, 2, &X);
+  Dart_GetNativeVectorArgument(arguments, 3, &Y);
+
+  err = lis_matvect(A, X, Y); CHKERR(err);
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
+
 Dart_NativeFunction ResolveName(Dart_Handle name, int argc,
     bool* auto_setup_scope) {
   if (!Dart_IsString(name)) {
@@ -821,6 +1390,39 @@ Dart_NativeFunction ResolveName(Dart_Handle name, int argc,
   if (strcmp("LIS_VectorImaginary", cname) == 0) result = LIS_VectorImaginary;
   if (strcmp("LIS_VectorArgument", cname) == 0) result = LIS_VectorArgument;
   if (strcmp("LIS_VectorConjugate", cname) == 0) result = LIS_VectorConjugate;
+
+  if (strcmp("LIS_MatrixCreate", cname) == 0) result = LIS_MatrixCreate;
+  if (strcmp("LIS_MatrixDestroy", cname) == 0) result = LIS_MatrixDestroy;
+  if (strcmp("LIS_MatrixAssemble", cname) == 0) result = LIS_MatrixAssemble;
+  if (strcmp("LIS_MatrixIsAssembled", cname) == 0) result = LIS_MatrixIsAssembled;
+  if (strcmp("LIS_MatrixDuplicate", cname) == 0) result = LIS_MatrixDuplicate;
+  if (strcmp("LIS_MatrixSetSize", cname) == 0) result = LIS_MatrixSetSize;
+  if (strcmp("LIS_MatrixGetSize", cname) == 0) result = LIS_MatrixGetSize;
+  if (strcmp("LIS_MatrixGetNnz", cname) == 0) result = LIS_MatrixGetNnz;
+  if (strcmp("LIS_MatrixSetType", cname) == 0) result = LIS_MatrixSetType;
+  if (strcmp("LIS_MatrixGetType", cname) == 0) result = LIS_MatrixGetType;
+  if (strcmp("LIS_MatrixSetValue", cname) == 0) result = LIS_MatrixSetValue;
+  if (strcmp("LIS_MatrixSetValues", cname) == 0) result = LIS_MatrixSetValues;
+  if (strcmp("LIS_MatrixMalloc", cname) == 0) result = LIS_MatrixMalloc;
+  if (strcmp("LIS_MatrixGetDiagonal", cname) == 0) result = LIS_MatrixGetDiagonal;
+  if (strcmp("LIS_MatrixConvert", cname) == 0) result = LIS_MatrixConvert;
+  if (strcmp("LIS_MatrixCopy", cname) == 0) result = LIS_MatrixCopy;
+  if (strcmp("LIS_MatrixTranspose", cname) == 0) result = LIS_MatrixTranspose;
+
+  if (strcmp("LIS_MatrixSetCsr", cname) == 0) result = LIS_MatrixSetCsr;
+  if (strcmp("LIS_MatrixSetCsc", cname) == 0) result = LIS_MatrixSetCsc;
+  if (strcmp("LIS_MatrixSetBsr", cname) == 0) result = LIS_MatrixSetBsr;
+  if (strcmp("LIS_MatrixSetMsr", cname) == 0) result = LIS_MatrixSetMsr;
+  if (strcmp("LIS_MatrixSetEll", cname) == 0) result = LIS_MatrixSetEll;
+  if (strcmp("LIS_MatrixSetJad", cname) == 0) result = LIS_MatrixSetJad;
+  if (strcmp("LIS_MatrixSetDia", cname) == 0) result = LIS_MatrixSetDia;
+  if (strcmp("LIS_MatrixSetBsc", cname) == 0) result = LIS_MatrixSetBsc;
+  if (strcmp("LIS_MatrixSetVbr", cname) == 0) result = LIS_MatrixSetVbr;
+  if (strcmp("LIS_MatrixSetCoo", cname) == 0) result = LIS_MatrixSetCoo;
+  if (strcmp("LIS_MatrixSetDns", cname) == 0) result = LIS_MatrixSetDns;
+
+  if (strcmp("LIS_MatVec", cname) == 0) result = LIS_MatVec;
+  if (strcmp("LIS_MatVecT", cname) == 0) result = LIS_MatVecT;
 
   Dart_ExitScope();
   return result;

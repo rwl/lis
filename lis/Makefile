@@ -172,7 +172,7 @@ ZEMFLAGS = $(ZEXP_NAME) $(ZEXP_FUNC) --post-js $(EMPOST)
 DLIBS = $(WEBDIR)/dlis/lib/liblis.a
 ZLIBS = $(WEBDIR)/zlis/lib/liblis.a
 ZINC  = -I$(WEBDIR)/zlis/include
-ZDEFS = -D_COMPLEX
+ZDEFS = -D_COMPLEX -DHAVE_COMPLEX_H
 
 #all: web native
 
@@ -189,13 +189,20 @@ DNATDIR = $(LIBDIR)/native/dlis
 ZNATDIR = $(LIBDIR)/native/zlis
 NSRCDIR = $(LIBDIR)/src/native
 
-native: cleannative $(NSRCDIR)/liblis_extension.so
+native: cleannative $(NSRCDIR)/libdlis_extension.so $(NSRCDIR)/libzlis_extension.so
 
-$(NSRCDIR)/lis_extension.o: $(NSRCDIR)/lis_extension.c
+$(NSRCDIR)/dlis_extension.o: $(NSRCDIR)/lis_extension.c
 	$(CC) -fPIC -std=c99 -Wall -I/usr/lib/dart/include -I$(DNATDIR)/include -DDART_SHARED_LIB -o $@ -c $<
 
-$(NSRCDIR)/liblis_extension.so: $(NSRCDIR)/lis_extension.o
-	$(CC) -L$(DNATDIR)/lib -Wall -shared -Wl,-rpath=$(DNATDIR)/lib,-soname,liblis_extension.so -o $@ $< -llis
+$(NSRCDIR)/libdlis_extension.so: $(NSRCDIR)/dlis_extension.o
+	$(CC) -L$(DNATDIR)/lib -Wall -shared -Wl,-rpath=$(DNATDIR)/lib,-soname,libdlis_extension.so -o $@ $< -llis
+
+
+$(NSRCDIR)/zlis_extension.o: $(NSRCDIR)/lis_extension.c
+	$(CC) -fPIC -std=c99 -Wall $(ZDEFS) -I/usr/lib/dart/include -I$(ZNATDIR)/include -DDART_SHARED_LIB -o $@ -c $<
+
+$(NSRCDIR)/libzlis_extension.so: $(NSRCDIR)/zlis_extension.o
+	$(CC) -L$(ZNATDIR)/lib $(ZDEFS) -Wall -shared -Wl,-rpath=$(ZNATDIR)/lib,-soname,libzlis_extension.so -o $@ $< -llis
 
 #$(DLIBS):
 #	( cd .. ; $(MAKE) all )

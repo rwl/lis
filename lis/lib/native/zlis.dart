@@ -1,3 +1,3 @@
 library lis.complex;
 
-export '../src/native/lis.dart' show ZLIS;
+export '../src/native/zlis.dart' show ZLIS;

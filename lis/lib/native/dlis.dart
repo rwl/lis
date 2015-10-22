@@ -1,3 +1,3 @@
 library lis.double;
 
-export '../src/native/lis.dart' show DLIS;
+export '../src/native/dlis.dart' show DLIS;
