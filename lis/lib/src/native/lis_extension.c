@@ -129,6 +129,22 @@ void Dart_GetNativeMatrixArgument(Dart_NativeArguments args, int index,
 }
 
 
+void Dart_GetNativeSolverArgument(Dart_NativeArguments args, int index,
+    LIS_SOLVER* value) {
+  uint64_t ptr;
+  HandleError(Dart_GetNativeUint64Argument(args, index, &ptr));
+  *value = (LIS_SOLVER) ptr;
+}
+
+
+void Dart_GetNativeEsolverArgument(Dart_NativeArguments args, int index,
+    LIS_ESOLVER* value) {
+  uint64_t ptr;
+  HandleError(Dart_GetNativeUint64Argument(args, index, &ptr));
+  *value = (LIS_ESOLVER) ptr;
+}
+
+
 void Dart_GetNativeLisIntArgument(Dart_NativeArguments args, int index,
     LIS_INT* value) {
   int64_t v;
@@ -1341,6 +1357,532 @@ void LIS_MatVecT(Dart_NativeArguments arguments) {
 }
 
 
+void LIS_SolverCreate(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_SOLVER solver;
+
+  Dart_EnterScope();
+
+  err = lis_solver_create(&solver); CHKERR(err);
+
+  Dart_SetUint64ReturnValue(arguments, (uint64_t) solver);
+  Dart_ExitScope();
+}
+
+
+void LIS_SolverDestroy(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_SOLVER solver;
+
+  Dart_EnterScope();
+  Dart_GetNativeSolverArgument(arguments, 1, &solver);
+
+  err = lis_solver_destroy(solver); CHKERR(err);
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
+
+void LIS_SolverGetIter(Dart_NativeArguments arguments) {
+  LIS_INT err, iter;
+  LIS_SOLVER solver;
+
+  Dart_EnterScope();
+  Dart_GetNativeSolverArgument(arguments, 1, &solver);
+
+  err = lis_solver_get_iter(solver, &iter); CHKERR(err);
+
+  Dart_SetIntegerReturnValue(arguments, (int64_t) iter);
+  Dart_ExitScope();
+}
+
+
+void LIS_SolverGetIterEx(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_SOLVER solver;
+  LIS_INT iter, iter_double, iter_quad;
+  Dart_Handle url, lib, klass, result;
+
+  Dart_EnterScope();
+  Dart_GetNativeSolverArgument(arguments, 1, &solver);
+
+  err = lis_solver_get_iterex(solver, &iter, &iter_double, &iter_quad);
+  CHKERR(err);
+
+  url = Dart_NewStringFromCString("package:lis/src/lis.dart");
+  lib = HandleError(Dart_LookupLibrary(url));
+  klass = HandleError(Dart_GetClass(lib, Dart_NewStringFromCString("Iter")));
+  Dart_Handle arg[3] = {
+    HandleError(Dart_NewInteger(iter)),
+    HandleError(Dart_NewInteger(iter_double)),
+    HandleError(Dart_NewInteger(iter_quad))
+  };
+  result = HandleError(Dart_New(klass, Dart_Null(), 3, arg));
+
+  Dart_SetReturnValue(arguments, result);
+  Dart_ExitScope();
+}
+
+
+void LIS_SolverGetTime(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_SOLVER solver;
+  double time;
+
+  Dart_EnterScope();
+  Dart_GetNativeSolverArgument(arguments, 1, &solver);
+
+  err = lis_solver_get_time(solver, &time); CHKERR(err);
+
+  Dart_SetDoubleReturnValue(arguments, time);
+  Dart_ExitScope();
+}
+
+
+void LIS_SolverGetTimeEx(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_SOLVER solver;
+  double time, itime, ptime, p_c_time, p_i_time;
+  Dart_Handle url, lib, klass, result;
+
+  Dart_EnterScope();
+  Dart_GetNativeSolverArgument(arguments, 1, &solver);
+
+  err = lis_solver_get_timeex(solver, &time, &itime, &ptime,
+      &p_c_time, &p_i_time);
+  CHKERR(err);
+
+  url = Dart_NewStringFromCString("package:lis/src/lis.dart");
+  lib = HandleError(Dart_LookupLibrary(url));
+  klass = HandleError(Dart_GetClass(lib, Dart_NewStringFromCString("Time")));
+  Dart_Handle arg[5] = {
+    HandleError(Dart_NewDouble(time)),
+    HandleError(Dart_NewDouble(itime)),
+    HandleError(Dart_NewDouble(ptime)),
+    HandleError(Dart_NewDouble(p_c_time)),
+    HandleError(Dart_NewDouble(p_i_time)),
+  };
+  result = HandleError(Dart_New(klass, Dart_Null(), 5, arg));
+
+  Dart_SetReturnValue(arguments, result);
+  Dart_ExitScope();
+}
+
+
+void LIS_SolverGetResidualNorm(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_SOLVER solver;
+  LIS_REAL residual;
+
+  Dart_EnterScope();
+  Dart_GetNativeSolverArgument(arguments, 1, &solver);
+
+  err = lis_solver_get_residualnorm(solver, &residual); CHKERR(err);
+
+  Dart_SetDoubleReturnValue(arguments, residual);
+  Dart_ExitScope();
+}
+
+
+void LIS_SolverGetSolver(Dart_NativeArguments arguments) {
+  LIS_INT err, nsol;
+  LIS_SOLVER solver;
+
+  Dart_EnterScope();
+  Dart_GetNativeSolverArgument(arguments, 1, &solver);
+
+  err = lis_solver_get_solver(solver, &nsol); CHKERR(err);
+
+  Dart_SetIntegerReturnValue(arguments, (int64_t) nsol);
+  Dart_ExitScope();
+}
+
+
+void LIS_SolverGetPrecon(Dart_NativeArguments arguments) {
+  LIS_INT err, precon;
+  LIS_SOLVER solver;
+
+  Dart_EnterScope();
+  Dart_GetNativeSolverArgument(arguments, 1, &solver);
+
+  err = lis_solver_get_precon(solver, &precon); CHKERR(err);
+
+  Dart_SetIntegerReturnValue(arguments, (int64_t) precon);
+  Dart_ExitScope();
+}
+
+
+void LIS_SolverGetStatus(Dart_NativeArguments arguments) {
+  LIS_INT err, status;
+  LIS_SOLVER solver;
+
+  Dart_EnterScope();
+  Dart_GetNativeSolverArgument(arguments, 1, &solver);
+
+  err = lis_solver_get_status(solver, &status); CHKERR(err);
+
+  Dart_SetIntegerReturnValue(arguments, (int64_t) status);
+  Dart_ExitScope();
+}
+
+
+void LIS_SolverGetRHistory(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_SOLVER solver;
+  LIS_VECTOR vec;
+
+  Dart_EnterScope();
+  Dart_GetNativeSolverArgument(arguments, 1, &solver);
+  Dart_GetNativeVectorArgument(arguments, 2, &vec);
+
+  err = lis_solver_get_rhistory(solver, vec); CHKERR(err);
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
+
+void LIS_SolverSetOption(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_SOLVER solver;
+  Dart_Handle text_obj;
+  const char *text;
+
+  Dart_EnterScope();
+  text_obj = HandleError(Dart_GetNativeArgument(arguments, 1));
+  Dart_GetNativeSolverArgument(arguments, 2, &solver);
+
+  HandleError(Dart_StringToCString(text_obj, &text));
+
+  err = lis_solver_set_option((char *) text, solver); CHKERR(err);
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
+
+void LIS_SolverSetOptionC(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_SOLVER solver;
+
+  Dart_EnterScope();
+  Dart_GetNativeSolverArgument(arguments, 1, &solver);
+
+  err = lis_solver_set_optionC(solver); CHKERR(err);
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
+
+void LIS_Solve(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_MATRIX A;
+  LIS_VECTOR b, x;
+  LIS_SOLVER solver;
+
+  Dart_EnterScope();
+  Dart_GetNativeMatrixArgument(arguments, 1, &A);
+  Dart_GetNativeVectorArgument(arguments, 2, &b);
+  Dart_GetNativeVectorArgument(arguments, 3, &x);
+  Dart_GetNativeSolverArgument(arguments, 4, &solver);
+
+  err = lis_solve(A, b, x, solver); CHKERR(err);
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
+
+void LIS_EsolverCreate(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_ESOLVER esolver;
+
+  Dart_EnterScope();
+
+  err = lis_esolver_create(&esolver); CHKERR(err);
+
+  Dart_SetUint64ReturnValue(arguments, (uint64_t) esolver);
+  Dart_ExitScope();
+}
+
+
+void LIS_EsolverDestroy(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_ESOLVER esolver;
+
+  Dart_EnterScope();
+  Dart_GetNativeEsolverArgument(arguments, 1, &esolver);
+
+  err = lis_esolver_destroy(esolver); CHKERR(err);
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
+
+void LIS_EsolverSetOption(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_ESOLVER esolver;
+  Dart_Handle text_obj;
+  const char *text;
+
+  Dart_EnterScope();
+  text_obj = HandleError(Dart_GetNativeArgument(arguments, 1));
+  Dart_GetNativeEsolverArgument(arguments, 2, &esolver);
+
+  HandleError(Dart_StringToCString(text_obj, &text));
+
+  err = lis_esolver_set_option((char *) text, esolver); CHKERR(err);
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
+
+void LIS_EsolverSetOptionC(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_ESOLVER esolver;
+
+  Dart_EnterScope();
+  Dart_GetNativeEsolverArgument(arguments, 1, &esolver);
+
+  err = lis_esolver_set_optionC(esolver); CHKERR(err);
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
+
+void LIS_Esolve(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_MATRIX A;
+  LIS_VECTOR x;
+  LIS_SCALAR evalue0;
+  LIS_ESOLVER esolver;
+
+  Dart_EnterScope();
+  Dart_GetNativeMatrixArgument(arguments, 1, &A);
+  Dart_GetNativeVectorArgument(arguments, 2, &x);
+  Dart_GetNativeEsolverArgument(arguments, 3, &esolver);
+
+  err = lis_esolve(A, x, &evalue0, esolver); CHKERR(err);
+
+  Dart_SetLisScalarReturnValue(arguments, evalue0);
+  Dart_ExitScope();
+}
+
+
+void LIS_EsolverGetIter(Dart_NativeArguments arguments) {
+  LIS_INT err, iter;
+  LIS_ESOLVER esolver;
+
+  Dart_EnterScope();
+  Dart_GetNativeEsolverArgument(arguments, 1, &esolver);
+
+  err = lis_esolver_get_iter(esolver, &iter); CHKERR(err);
+
+  Dart_SetIntegerReturnValue(arguments, (int64_t) iter);
+  Dart_ExitScope();
+}
+
+
+void LIS_EsolverGetIterEx(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_ESOLVER esolver;
+  LIS_INT iter, iter_double, iter_quad;
+  Dart_Handle url, lib, klass, result;
+
+  Dart_EnterScope();
+  Dart_GetNativeEsolverArgument(arguments, 1, &esolver);
+
+  err = lis_esolver_get_iterex(esolver, &iter, &iter_double, &iter_quad);
+  CHKERR(err);
+
+  url = Dart_NewStringFromCString("package:lis/src/lis.dart");
+  lib = HandleError(Dart_LookupLibrary(url));
+  klass = HandleError(Dart_GetClass(lib, Dart_NewStringFromCString("Iter")));
+  Dart_Handle arg[3] = {
+    HandleError(Dart_NewInteger(iter)),
+    HandleError(Dart_NewInteger(iter_double)),
+    HandleError(Dart_NewInteger(iter_quad))
+  };
+  result = HandleError(Dart_New(klass, Dart_Null(), 3, arg));
+
+  Dart_SetReturnValue(arguments, result);
+  Dart_ExitScope();
+}
+
+
+void LIS_EsolverGetTime(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_ESOLVER esolver;
+  double time;
+
+  Dart_EnterScope();
+  Dart_GetNativeEsolverArgument(arguments, 1, &esolver);
+
+  err = lis_esolver_get_time(esolver, &time); CHKERR(err);
+
+  Dart_SetDoubleReturnValue(arguments, time);
+  Dart_ExitScope();
+}
+
+
+void LIS_EsolverGetTimeEx(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_ESOLVER esolver;
+  double time, itime, ptime, p_c_time, p_i_time;
+  Dart_Handle url, lib, klass, result;
+
+  Dart_EnterScope();
+  Dart_GetNativeEsolverArgument(arguments, 1, &esolver);
+
+  err = lis_esolver_get_timeex(esolver, &time, &itime, &ptime,
+      &p_c_time, &p_i_time);
+  CHKERR(err);
+
+  url = Dart_NewStringFromCString("package:lis/src/lis.dart");
+  lib = HandleError(Dart_LookupLibrary(url));
+  klass = HandleError(Dart_GetClass(lib, Dart_NewStringFromCString("Time")));
+  Dart_Handle arg[5] = {
+    HandleError(Dart_NewDouble(time)),
+    HandleError(Dart_NewDouble(itime)),
+    HandleError(Dart_NewDouble(ptime)),
+    HandleError(Dart_NewDouble(p_c_time)),
+    HandleError(Dart_NewDouble(p_i_time)),
+  };
+  result = HandleError(Dart_New(klass, Dart_Null(), 5, arg));
+
+  Dart_SetReturnValue(arguments, result);
+  Dart_ExitScope();
+}
+
+
+void LIS_EsolverGetResidualNorm(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_ESOLVER esolver;
+  LIS_REAL residual;
+
+  Dart_EnterScope();
+  Dart_GetNativeEsolverArgument(arguments, 1, &esolver);
+
+  err = lis_esolver_get_residualnorm(esolver, &residual); CHKERR(err);
+
+  Dart_SetDoubleReturnValue(arguments, (double) residual);
+  Dart_ExitScope();
+}
+
+
+void LIS_EsolverGetStatus(Dart_NativeArguments arguments) {
+  LIS_INT err, status;
+  LIS_ESOLVER esolver;
+
+  Dart_EnterScope();
+  Dart_GetNativeEsolverArgument(arguments, 1, &esolver);
+
+  err = lis_esolver_get_status(esolver, &status); CHKERR(err);
+
+  Dart_SetIntegerReturnValue(arguments, (int64_t) status);
+  Dart_ExitScope();
+}
+
+
+void LIS_EsolverGetRHistory(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_ESOLVER esolver;
+  LIS_VECTOR vec;
+
+  Dart_EnterScope();
+  Dart_GetNativeEsolverArgument(arguments, 1, &esolver);
+  Dart_GetNativeVectorArgument(arguments, 2, &vec);
+
+  err = lis_esolver_get_rhistory(esolver, vec); CHKERR(err);
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
+
+void LIS_EsolverGetEvalues(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_ESOLVER esolver;
+  LIS_VECTOR vec;
+
+  Dart_EnterScope();
+  Dart_GetNativeEsolverArgument(arguments, 1, &esolver);
+  Dart_GetNativeVectorArgument(arguments, 2, &vec);
+
+  err = lis_esolver_get_evalues(esolver, vec); CHKERR(err);
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
+
+void LIS_EsolverGetEvectors(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_ESOLVER esolver;
+  LIS_MATRIX M;
+
+  Dart_EnterScope();
+  Dart_GetNativeEsolverArgument(arguments, 1, &esolver);
+  Dart_GetNativeMatrixArgument(arguments, 2, &M);
+
+  err = lis_esolver_get_evectors(esolver, M); CHKERR(err);
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
+
+void LIS_EsolverGetResidualNorms(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_ESOLVER esolver;
+  LIS_VECTOR vec;
+
+  Dart_EnterScope();
+  Dart_GetNativeEsolverArgument(arguments, 1, &esolver);
+  Dart_GetNativeVectorArgument(arguments, 2, &vec);
+
+  err = lis_esolver_get_residualnorms(esolver, vec); CHKERR(err);
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
+
+void LIS_EsolverGetIters(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_ESOLVER esolver;
+  LIS_VECTOR vec;
+
+  Dart_EnterScope();
+  Dart_GetNativeEsolverArgument(arguments, 1, &esolver);
+  Dart_GetNativeVectorArgument(arguments, 2, &vec);
+
+  err = lis_esolver_get_iters(esolver, vec); CHKERR(err);
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
+
+void LIS_EsolverGetEsolver(Dart_NativeArguments arguments) {
+  LIS_INT err, nesol;
+  LIS_ESOLVER esolver;
+
+  Dart_EnterScope();
+  Dart_GetNativeEsolverArgument(arguments, 1, &esolver);
+
+  err = lis_esolver_get_esolver(esolver, &nesol); CHKERR(err);
+
+  Dart_SetIntegerReturnValue(arguments, (int64_t) nesol);
+  Dart_ExitScope();
+}
+
+
 Dart_NativeFunction ResolveName(Dart_Handle name, int argc,
     bool* auto_setup_scope) {
   if (!Dart_IsString(name)) {
@@ -1423,6 +1965,39 @@ Dart_NativeFunction ResolveName(Dart_Handle name, int argc,
 
   if (strcmp("LIS_MatVec", cname) == 0) result = LIS_MatVec;
   if (strcmp("LIS_MatVecT", cname) == 0) result = LIS_MatVecT;
+
+  if (strcmp("LIS_SolverCreate", cname) == 0) result = LIS_SolverCreate;
+  if (strcmp("LIS_SolverDestroy", cname) == 0) result = LIS_SolverDestroy;
+  if (strcmp("LIS_SolverGetIter", cname) == 0) result = LIS_SolverGetIter;
+  if (strcmp("LIS_SolverGetIterEx", cname) == 0) result = LIS_SolverGetIterEx;
+  if (strcmp("LIS_SolverGetTime", cname) == 0) result = LIS_SolverGetTime;
+  if (strcmp("LIS_SolverGetTimeEx", cname) == 0) result = LIS_SolverGetTimeEx;
+  if (strcmp("LIS_SolverGetResidualNorm", cname) == 0) result = LIS_SolverGetResidualNorm;
+  if (strcmp("LIS_SolverGetSolver", cname) == 0) result = LIS_SolverGetSolver;
+  if (strcmp("LIS_SolverGetPrecon", cname) == 0) result = LIS_SolverGetPrecon;
+  if (strcmp("LIS_SolverGetStatus", cname) == 0) result = LIS_SolverGetStatus;
+  if (strcmp("LIS_SolverGetRHistory", cname) == 0) result = LIS_SolverGetRHistory;
+  if (strcmp("LIS_SolverSetOption", cname) == 0) result = LIS_SolverSetOption;
+  if (strcmp("LIS_SolverSetOptionC", cname) == 0) result = LIS_SolverSetOptionC;
+  if (strcmp("LIS_Solve", cname) == 0) result = LIS_Solve;
+
+  if (strcmp("LIS_EsolverCreate", cname) == 0) result = LIS_EsolverCreate;
+  if (strcmp("LIS_EsolverDestroy", cname) == 0) result = LIS_EsolverDestroy;
+  if (strcmp("LIS_EsolverSetOption", cname) == 0) result = LIS_EsolverSetOption;
+  if (strcmp("LIS_EsolverSetOptionC", cname) == 0) result = LIS_EsolverSetOptionC;
+  if (strcmp("LIS_Esolve", cname) == 0) result = LIS_Esolve;
+  if (strcmp("LIS_EsolverGetIter", cname) == 0) result = LIS_EsolverGetIter;
+  if (strcmp("LIS_EsolverGetIterEx", cname) == 0) result = LIS_EsolverGetIterEx;
+  if (strcmp("LIS_EsolverGetTime", cname) == 0) result = LIS_EsolverGetTime;
+  if (strcmp("LIS_EsolverGetTimeEx", cname) == 0) result = LIS_EsolverGetTimeEx;
+  if (strcmp("LIS_EsolverGetResidualNorm", cname) == 0) result = LIS_EsolverGetResidualNorm;
+  if (strcmp("LIS_EsolverGetStatus", cname) == 0) result = LIS_EsolverGetStatus;
+  if (strcmp("LIS_EsolverGetRHistory", cname) == 0) result = LIS_EsolverGetRHistory;
+  if (strcmp("LIS_EsolverGetEvalues", cname) == 0) result = LIS_EsolverGetEvalues;
+  if (strcmp("LIS_EsolverGetEvectors", cname) == 0) result = LIS_EsolverGetEvectors;
+  if (strcmp("LIS_EsolverGetResidualNorms", cname) == 0) result = LIS_EsolverGetResidualNorms;
+  if (strcmp("LIS_EsolverGetIters", cname) == 0) result = LIS_EsolverGetIters;
+  if (strcmp("LIS_EsolverGetEsolver", cname) == 0) result = LIS_EsolverGetEsolver;
 
   Dart_ExitScope();
   return result;

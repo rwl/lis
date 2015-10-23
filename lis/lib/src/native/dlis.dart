@@ -119,9 +119,9 @@ class DLIS<double> implements lis.LIS<double> {
   int solverCreate() native "LIS_SolverCreate";
   void solverDestroy(int solver) native "LIS_SolverDestroy";
   int solverGetIter(int solver) native "LIS_SolverGetIter";
-  int solverGetIterEx(int solver) native "LIS_SolverGetIterEx";
+  lis.Iter solverGetIterEx(int solver) native "LIS_SolverGetIterEx";
   double solverGetTime(int solver) native "LIS_SolverGetTime";
-  int solverGetTimeEx(int solver) native "LIS_SolverGetTimeEx";
+  lis.Time solverGetTimeEx(int solver) native "LIS_SolverGetTimeEx";
   double solverGetResidualNorm(int solver) native "LIS_SolverGetResidualNorm";
   int solverGetSolver(int solver) native "LIS_SolverGetSolver";
   int solverGetPrecon(int solver) native "LIS_SolverGetPrecon";
@@ -139,9 +139,9 @@ class DLIS<double> implements lis.LIS<double> {
   int esolverSetOptionC(int esolver) native "LIS_EsolverSetOptionC";
   double esolve(int A, int x, int esolver) native "LIS_Esolve";
   int esolverGetIter(int esolver) native "LIS_EsolverGetIter";
-  int esolverGetIterEx(int esolver) native "LIS_EsolverGetIterEx";
+  lis.Iter esolverGetIterEx(int esolver) native "LIS_EsolverGetIterEx";
   double esolverGetTime(int esolver) native "LIS_EsolverGetTime";
-  int esolverGetTimeEx(int esolver) native "LIS_EsolverGetTimeEx";
+  lis.Time esolverGetTimeEx(int esolver) native "LIS_EsolverGetTimeEx";
   double esolverGetResidualNorm(int esolver)
       native "LIS_EsolverGetResidualNorm";
   int esolverGetStatus(int esolver) native "LIS_EsolverGetStatus";
