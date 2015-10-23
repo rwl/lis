@@ -627,7 +627,7 @@ LIS_INT lis_output_mm_csr(LIS_MATRIX A, LIS_VECTOR b, LIS_VECTOR x, LIS_INT form
 #else
 LIS_INT lis_output_mm_csr(LIS_MATRIX A, LIS_VECTOR b, LIS_VECTOR x, LIS_INT format, char *path)
 {
-	LIS_INT	n,nnz;
+	LIS_INT	n;
 	LIS_INT	i,j,jj;
 	LIS_INT	err;
 	FILE *file;
@@ -636,7 +636,6 @@ LIS_INT lis_output_mm_csr(LIS_MATRIX A, LIS_VECTOR b, LIS_VECTOR x, LIS_INT form
 	LIS_DEBUG_FUNC_IN;
 
 	n   = A->n;
-	nnz = A->nnz;
 
 	err = lis_output_mm_header(A,b,x,format,path,&file);
 	if( err ) return err;

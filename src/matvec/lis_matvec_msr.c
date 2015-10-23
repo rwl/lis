@@ -103,15 +103,17 @@ void lis_matvec_msr(LIS_MATRIX A, LIS_SCALAR x[], LIS_SCALAR y[])
 void lis_matvect_msr(LIS_MATRIX A, LIS_SCALAR x[], LIS_SCALAR y[])
 {
 	LIS_INT i,j,js,je,jj;
-	LIS_INT n,np;
+	LIS_INT n;
 	LIS_SCALAR t;
 	#ifdef _OPENMP
-		LIS_INT k,nprocs;
+		LIS_INT k,nprocs,np;
 		LIS_SCALAR *w;
 	#endif
 
 	n    = A->n;
-	np   = A->np;
+	#ifdef _OPENMP
+		np   = A->np;
+	#endif
 
 	if( A->is_splited )
 	{

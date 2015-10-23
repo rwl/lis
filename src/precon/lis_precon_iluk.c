@@ -867,7 +867,7 @@ LIS_INT lis_psolve_iluk_csr(LIS_SOLVER solver, LIS_VECTOR B, LIS_VECTOR X)
 	return LIS_SUCCESS;
 #else
 	LIS_INT i,j,jj,n;
-	LIS_SCALAR *b,*x;
+	LIS_SCALAR *x;
 	LIS_MATRIX_ILU L,U;
 	LIS_VECTOR D;
 	LIS_PRECON precon;
@@ -887,7 +887,6 @@ LIS_INT lis_psolve_iluk_csr(LIS_SOLVER solver, LIS_VECTOR B, LIS_VECTOR X)
 	L = precon->L;
 	U = precon->U;
 	D = precon->D;
-	b = B->value;
 	x = X->value;
 	#ifdef USE_QUAD_PRECISION
 		xl = X->value_lo;
@@ -1073,7 +1072,7 @@ LIS_INT lis_psolvet_iluk_csr(LIS_SOLVER solver, LIS_VECTOR B, LIS_VECTOR X)
 	return LIS_SUCCESS;
 #else
 	LIS_INT i,j,jj,n;
-	LIS_SCALAR *b,*x;
+	LIS_SCALAR *x;
 	LIS_MATRIX_ILU L,U;
 	LIS_VECTOR D;
 	LIS_PRECON precon;
@@ -1089,7 +1088,6 @@ LIS_INT lis_psolvet_iluk_csr(LIS_SOLVER solver, LIS_VECTOR B, LIS_VECTOR X)
 	L = precon->L;
 	U = precon->U;
 	D = precon->D;
-	b = B->value;
 	x = X->value;
 	#ifdef USE_QUAD_PRECISION
 		xl = X->value_lo;
@@ -1922,7 +1920,7 @@ LIS_INT lis_psolve_iluk_bsr(LIS_SOLVER solver, LIS_VECTOR B, LIS_VECTOR X)
 #else
 	LIS_INT i,j,jj,nr,bnr,bs;
 	LIS_SCALAR w[9];
-	LIS_SCALAR *b,*x;
+	LIS_SCALAR *x;
 	LIS_MATRIX_ILU L,U;
 	LIS_MATRIX_DIAG D;
 	LIS_PRECON precon;
@@ -1938,7 +1936,6 @@ LIS_INT lis_psolve_iluk_bsr(LIS_SOLVER solver, LIS_VECTOR B, LIS_VECTOR X)
 	L = precon->L;
 	U = precon->U;
 	D = precon->WD;
-	b = B->value;
 	x = X->value;
 	nr = solver->A->nr;
 	bnr = solver->A->bnr;
@@ -2046,7 +2043,7 @@ LIS_INT lis_psolvet_iluk_bsr(LIS_SOLVER solver, LIS_VECTOR B, LIS_VECTOR X)
 #else
 	LIS_INT i,j,jj,nr,bnr,bs;
 	LIS_SCALAR w[9];
-	LIS_SCALAR *b,*x;
+	LIS_SCALAR *x;
 	LIS_MATRIX_ILU L,U;
 	LIS_MATRIX_DIAG D;
 	LIS_PRECON precon;
@@ -2062,7 +2059,6 @@ LIS_INT lis_psolvet_iluk_bsr(LIS_SOLVER solver, LIS_VECTOR B, LIS_VECTOR X)
 	L = precon->L;
 	U = precon->U;
 	D = precon->WD;
-	b = B->value;
 	x = X->value;
 	nr = solver->A->nr;
 	bnr = solver->A->bnr;
@@ -2306,7 +2302,7 @@ LIS_INT lis_symbolic_fact_vbr(LIS_SOLVER solver, LIS_PRECON precon)
 	return LIS_SUCCESS;
 #else
 	LIS_INT	err;
-	LIS_INT	i,j,k,bnr,bs;
+	LIS_INT	i,j,k,bnr;
 	LIS_INT	n,nr,levfill;
 	LIS_INT	col,ip,it,jpiv,incl,incu,jmin,kmin;
 	LIS_INT	*levls,*jbuf,*iw,**ulvl;
@@ -2321,7 +2317,6 @@ LIS_INT lis_symbolic_fact_vbr(LIS_SOLVER solver, LIS_PRECON precon)
 	n      = A->n;
 	nr     = A->nr;
 	bnr    = A->bnr;
-	bs     = bnr*bnr;
 	levfill = solver->options[LIS_OPTIONS_FILL];
 
 	L      = NULL;
@@ -2846,7 +2841,7 @@ LIS_INT lis_psolve_iluk_vbr(LIS_SOLVER solver, LIS_VECTOR B, LIS_VECTOR X)
 #else
 	LIS_INT i,j,jj,nr,bnr,dim,sz,*bsz;
 	LIS_SCALAR w[1024];
-	LIS_SCALAR *b,*x;
+	LIS_SCALAR *x;
 	LIS_MATRIX_ILU L,U;
 	LIS_MATRIX_DIAG D;
 	LIS_PRECON precon;
@@ -2862,7 +2857,6 @@ LIS_INT lis_psolve_iluk_vbr(LIS_SOLVER solver, LIS_VECTOR B, LIS_VECTOR X)
 	L = precon->L;
 	U = precon->U;
 	D = precon->WD;
-	b = B->value;
 	x = X->value;
 	nr = solver->A->nr;
 	bsz = L->bsz;

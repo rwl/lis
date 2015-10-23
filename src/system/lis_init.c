@@ -385,9 +385,9 @@ LIS_INT lis_ranges_create(LIS_Comm comm, LIS_INT *local_n, LIS_INT *global_n, LI
 {
 	#ifdef USE_MPI
 		LIS_INT	i;
+		int int_nprocs,int_my_rank;
 	#endif
 	LIS_INT	*tranges;
-	int int_nprocs,int_my_rank;
 
 	LIS_DEBUG_FUNC_IN;
 

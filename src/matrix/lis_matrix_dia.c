@@ -367,10 +367,10 @@ LIS_INT lis_matrix_get_diagonal_dia(LIS_MATRIX A, LIS_SCALAR d[])
 #define __FUNC__ "lis_matrix_shift_diagonal_dia"
 LIS_INT lis_matrix_shift_diagonal_dia(LIS_MATRIX A, LIS_SCALAR alpha)
 {
-	LIS_INT i,j,k;
+	LIS_INT i,j;
 	LIS_INT n,nnd;
 	#ifdef _OPENMP
-		LIS_INT is,ie,my_rank,nprocs;
+		LIS_INT is,ie,my_rank,nprocs,k;
 	#endif
 
 	LIS_DEBUG_FUNC_IN;
@@ -427,17 +427,22 @@ LIS_INT lis_matrix_shift_diagonal_dia(LIS_MATRIX A, LIS_SCALAR alpha)
 LIS_INT lis_matrix_scale_dia(LIS_MATRIX A, LIS_SCALAR d[])
 {
 	LIS_INT i,j,js,je,jj;
-	LIS_INT n,np,nnd;
+	LIS_INT n,nnd;
 	#ifdef _OPENMP
 		LIS_INT k,is,ie,ii;
 		LIS_INT my_rank,nprocs;
+	#endif
+	#ifdef USE_MPI
+		LIS_INT np;
 	#endif
 
 
 	LIS_DEBUG_FUNC_IN;
 
 	n      = A->n;
-	np     = A->np;
+	#ifdef USE_MPI
+		np     = A->np;
+	#endif
 	if( A->is_splited )
 	{
 		#ifdef _OPENMP
@@ -571,16 +576,21 @@ LIS_INT lis_matrix_scale_dia(LIS_MATRIX A, LIS_SCALAR d[])
 LIS_INT lis_matrix_scale_symm_dia(LIS_MATRIX A, LIS_SCALAR d[])
 {
 	LIS_INT i,j,js,je,jj;
-	LIS_INT n,np,nnd;
+	LIS_INT n,nnd;
 	#ifdef _OPENMP
 		LIS_INT k,is,ie,ii;
 		LIS_INT my_rank,nprocs;
+	#endif
+	#ifdef USE_MPI
+		LIS_INT np;
 	#endif
 
 	LIS_DEBUG_FUNC_IN;
 
 	n      = A->n;
-	np     = A->np;
+	#ifdef USE_MPI
+		np     = A->np;
+	#endif
 	nnd  = A->nnd;
 	if( A->is_splited )
 	{
@@ -926,9 +936,9 @@ LIS_INT lis_matrix_split_dia(LIS_MATRIX A)
 #define __FUNC__ "lis_matrix_merge_dia"
 LIS_INT lis_matrix_merge_dia(LIS_MATRIX A)
 {
-        LIS_INT i,j,k,n,is;
+        LIS_INT i,j,k,n;
 	#ifdef _OPENMP
-		LIS_INT nprocs,my_rank,ie;
+		LIS_INT nprocs,my_rank,ie,is;
 	#endif
 	LIS_INT nnd;
 	LIS_INT err;
@@ -939,7 +949,9 @@ LIS_INT lis_matrix_merge_dia(LIS_MATRIX A)
 
 
 	n       = A->n;
-	is      = A->is;
+	#ifdef _OPENMP
+		is      = A->is;
+	#endif
 	index   = NULL;
 	value   = NULL;
 	nnd     = A->L->nnd + A->U->nnd + 1;
@@ -1306,7 +1318,10 @@ LIS_INT lis_matrix_convert_dia2csr(LIS_MATRIX Ain, LIS_MATRIX Aout)
 {
 	LIS_INT i,j,jj,k,l;
 	LIS_INT err,js,je;
-	LIS_INT n,np,nnz,nnd,is,ie,nprocs,my_rank;
+	LIS_INT n,nnz,nnd,is,ie,nprocs,my_rank;
+	#ifdef USE_MPI
+		LIS_INT np;
+	#endif
 	LIS_INT *iw;
 	LIS_INT *ptr,*index;
 	LIS_SCALAR *value;
@@ -1314,7 +1329,9 @@ LIS_INT lis_matrix_convert_dia2csr(LIS_MATRIX Ain, LIS_MATRIX Aout)
 	LIS_DEBUG_FUNC_IN;
 
 	n       = Ain->n;
-	np      = Ain->np;
+	#ifdef USE_MPI
+		np      = Ain->np;
+	#endif
 	nnd     = Ain->nnd;
 	is      = Ain->is;
 	ie      = Ain->ie;

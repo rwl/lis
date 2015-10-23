@@ -1074,6 +1074,7 @@ LIS_INT lis_matrix_normf_bsr(LIS_MATRIX A, LIS_SCALAR *nrm)
 	LIS_DEBUG_FUNC_IN;
 
 	bnr  = A->bnr;
+	nr   = A->nr;
 	bnc  = A->bnc;
 	bs   = bnr*bnc;
 	sum  = (LIS_SCALAR)0;

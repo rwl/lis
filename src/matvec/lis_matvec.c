@@ -355,11 +355,14 @@ LIS_INT lis_matvect(LIS_MATRIX A, LIS_VECTOR X, LIS_VECTOR Y)
 LIS_INT lis_matvec_optimize(LIS_MATRIX A, LIS_INT *matrix_type_maxperf)
 {
   LIS_INT	   nprocs,my_rank;
-  int    	   int_nprocs,int_my_rank;
   LIS_INT	   err,iter,i,matrix_type,ss,se;
-  double	   time,time2,convtime;
+  double	   time2;
   LIS_REAL	   val;
-  double	   commtime,comptime,flops,flops_maxperf;
+  double	   comptime,flops,flops_maxperf;
+#ifdef USE_MPI
+  int    	   int_nprocs,int_my_rank;
+  double	   time,commtime;
+#endif
   LIS_MATRIX       A1;
   LIS_VECTOR       X, Y;
   char             *lis_storagename2[]   = {"CSR", "CSC", "MSR", "DIA", "ELL", "JAD", "BSR", "BSC", "VBR", "COO", "DNS"};
@@ -400,7 +403,9 @@ LIS_INT lis_matvec_optimize(LIS_MATRIX A, LIS_INT *matrix_type_maxperf)
 	    if( err ) CHKERR(err);
 		    
 	    comptime = 0.0;
+#ifdef USE_MPI
 	    commtime = 0.0;
+#endif
 
 	    for(i=0;i<iter;i++)
 	      {

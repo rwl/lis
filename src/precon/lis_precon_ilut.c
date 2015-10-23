@@ -365,7 +365,7 @@ LIS_INT lis_precon_create_ilut_csr(LIS_SOLVER solver, LIS_PRECON precon)
 	LIS_INT	err;
 	LIS_INT	i,j,k;
 	LIS_INT	n,lfil,len;
-	LIS_SCALAR gamma,t,tol,m;
+	LIS_SCALAR t,tol,m;
 	LIS_MATRIX A;
 	LIS_MATRIX_ILU L,U;
 	LIS_VECTOR D;
@@ -382,7 +382,6 @@ LIS_INT lis_precon_create_ilut_csr(LIS_SOLVER solver, LIS_PRECON precon)
 	n      = A->n;
 	tol    = solver->params[LIS_PARAMS_DROP-LIS_OPTIONS_LEN];
 	m      = solver->params[LIS_PARAMS_RATE-LIS_OPTIONS_LEN];
-	gamma  = solver->params[LIS_PARAMS_GAMMA-LIS_OPTIONS_LEN];
 	lfil   = (LIS_INT)(((double)A->nnz/(2.0*n))*m);
 
 	L      = NULL;
@@ -733,7 +732,7 @@ LIS_INT lis_psolve_ilut_csr(LIS_SOLVER solver, LIS_VECTOR B, LIS_VECTOR X)
 	return LIS_SUCCESS;
 #else
 	LIS_INT i,j,jj,n;
-	LIS_SCALAR *b,*x;
+	LIS_SCALAR *x;
 	LIS_MATRIX_ILU L,U;
 	LIS_VECTOR D;
 	LIS_PRECON precon;
@@ -753,7 +752,6 @@ LIS_INT lis_psolve_ilut_csr(LIS_SOLVER solver, LIS_VECTOR B, LIS_VECTOR X)
 	L = precon->L;
 	U = precon->U;
 	D = precon->D;
-	b = B->value;
 	x = X->value;
 	#ifdef USE_QUAD_PRECISION
 		xl = X->value_lo;
@@ -939,7 +937,7 @@ LIS_INT lis_psolvet_ilut_csr(LIS_SOLVER solver, LIS_VECTOR B, LIS_VECTOR X)
 	return LIS_SUCCESS;
 #else
 	LIS_INT i,j,jj,n;
-	LIS_SCALAR *b,*x;
+	LIS_SCALAR *x;
 	LIS_MATRIX_ILU L,U;
 	LIS_VECTOR D;
 	LIS_PRECON precon;
@@ -955,7 +953,6 @@ LIS_INT lis_psolvet_ilut_csr(LIS_SOLVER solver, LIS_VECTOR B, LIS_VECTOR X)
 	L = precon->L;
 	U = precon->U;
 	D = precon->D;
-	b = B->value;
 	x = X->value;
 	#ifdef USE_QUAD_PRECISION
 		xl = X->value_lo;

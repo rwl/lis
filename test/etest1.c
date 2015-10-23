@@ -42,7 +42,9 @@
 LIS_INT main(LIS_INT argc, char* argv[])
 {
   LIS_INT nprocs,my_rank;
+#ifdef USE_MPI
   int int_nprocs,int_my_rank;
+#endif
   LIS_INT nsol;
   LIS_MATRIX A;
   LIS_VECTOR x;

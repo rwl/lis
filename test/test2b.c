@@ -48,7 +48,9 @@ LIS_INT main(LIS_INT argc, char* argv[])
 	LIS_INT	i,j,si,sj,ii,jj,ctr;
 	LIS_INT	is,ie;
 	LIS_INT	nprocs,my_rank;
+#ifdef USE_MPI
 	int int_nprocs,int_my_rank;
+#endif
 	LIS_INT	nsol;
 	LIS_INT	err,iter,mtype,iter_double,iter_quad;
 	double time,itime,ptime,p_c_time,p_i_time;

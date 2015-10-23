@@ -238,10 +238,9 @@ LIS_INT lis_matrix_diag_destroy(LIS_MATRIX_DIAG D)
 LIS_INT lis_matrix_diag_duplicate(LIS_MATRIX_DIAG Din, LIS_MATRIX_DIAG *Dout)
 {
 	LIS_INT err,nr,bnmax,t;
-	LIS_INT nprocs;
 	LIS_INT i;
 	#ifdef USE_MPI
-		LIS_INT *ranges;
+		LIS_INT *ranges, nprocs;
 	#endif
 
 	LIS_DEBUG_FUNC_IN;
@@ -249,7 +248,9 @@ LIS_INT lis_matrix_diag_duplicate(LIS_MATRIX_DIAG Din, LIS_MATRIX_DIAG *Dout)
 	err = lis_matrix_diag_check(Din,LIS_MATRIX_CHECK_ALL);
 	if( err ) return err;
 
-	nprocs = Din->nprocs;
+	#ifdef USE_MPI
+		nprocs = Din->nprocs;
+	#endif
 	*Dout = NULL;
 
 	*Dout = (LIS_MATRIX_DIAG)lis_malloc( sizeof(struct LIS_MATRIX_DIAG_STRUCT),"lis_matrix_diag_duplicate::Dout" );
@@ -338,10 +339,9 @@ LIS_INT lis_matrix_diag_duplicate(LIS_MATRIX_DIAG Din, LIS_MATRIX_DIAG *Dout)
 LIS_INT lis_matrix_diag_duplicateM(LIS_MATRIX Ain, LIS_MATRIX_DIAG *Dout)
 {
 	LIS_INT nr,err;
-	LIS_INT nprocs;
 	LIS_INT i,k,t,bnmax;
 	#ifdef USE_MPI
-		LIS_INT *ranges;
+		LIS_INT *ranges, nprocs;
 	#endif
 
 	LIS_DEBUG_FUNC_IN;
@@ -349,7 +349,9 @@ LIS_INT lis_matrix_diag_duplicateM(LIS_MATRIX Ain, LIS_MATRIX_DIAG *Dout)
 	err = lis_matrix_check(Ain,LIS_MATRIX_CHECK_ALL);
 	if( err ) return err;
 
-	nprocs = Ain->nprocs;
+	#ifdef USE_MPI
+		nprocs = Ain->nprocs;
+	#endif
 	*Dout = NULL;
 
 	*Dout = (LIS_MATRIX_DIAG)lis_malloc( sizeof(struct LIS_MATRIX_DIAG_STRUCT),"lis_matrix_diag_duplicateM::Dout" );

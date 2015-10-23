@@ -2041,14 +2041,14 @@ LIS_INT lis_matrix_convert_csr2jad(LIS_MATRIX Ain, LIS_MATRIX Aout)
 #define __FUNC__ "lis_matrix_convert_jad2csr"
 LIS_INT lis_matrix_convert_jad2csr(LIS_MATRIX Ain, LIS_MATRIX Aout)
 {
-	LIS_INT i,j,jj,k,is,ie;
+	LIS_INT i,j,jj,k;
 	LIS_INT err;
 	LIS_INT n,nnz,maxnzr;
 	LIS_INT *iw;
 	LIS_INT *ptr,*index;
 	LIS_SCALAR *value;
 	#ifdef _OPENMP
-		LIS_INT	nprocs,my_rank;
+		LIS_INT	nprocs,my_rank,is,ie;
 	#endif
 
 	LIS_DEBUG_FUNC_IN;
@@ -2056,8 +2056,10 @@ LIS_INT lis_matrix_convert_jad2csr(LIS_MATRIX Ain, LIS_MATRIX Aout)
 	n       = Ain->n;
 	nnz     = Ain->nnz;
 	maxnzr  = Ain->maxnzr;
-	is      = Ain->is;
-	ie      = Ain->ie;
+	#ifdef _OPENMP
+		is      = Ain->is;
+		ie      = Ain->ie;
+	#endif
 
 	ptr     = NULL;
 	index   = NULL;

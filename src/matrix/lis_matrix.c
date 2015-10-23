@@ -441,8 +441,8 @@ LIS_INT lis_matrix_destroy(LIS_MATRIX Amat)
 LIS_INT lis_matrix_duplicate(LIS_MATRIX Ain, LIS_MATRIX *Aout)
 {
 	LIS_INT err;
-	LIS_INT nprocs;
 	#ifdef USE_MPI
+		LIS_INT nprocs;
 		LIS_INT i;
 		LIS_INT *ranges;
 		LIS_INT *l2g_map;
@@ -453,7 +453,6 @@ LIS_INT lis_matrix_duplicate(LIS_MATRIX Ain, LIS_MATRIX *Aout)
 	err = lis_matrix_check(Ain,LIS_MATRIX_CHECK_ALL);
 	if( err ) return err;
 
-	nprocs = Ain->nprocs;
 	*Aout = NULL;
 
 	*Aout = (LIS_MATRIX)lis_malloc( sizeof(struct LIS_MATRIX_STRUCT),"lis_matrix_duplicate::Aout" );
@@ -465,6 +464,7 @@ LIS_INT lis_matrix_duplicate(LIS_MATRIX Ain, LIS_MATRIX *Aout)
 	lis_matrix_init(Aout);
 
 	#ifdef USE_MPI
+		nprocs = Ain->nprocs;
 		l2g_map = (LIS_INT *)lis_malloc( (Ain->np-Ain->n)*sizeof(LIS_INT),"lis_matrix_duplicate::l2g_map" );
 		if( l2g_map==NULL )
 		{

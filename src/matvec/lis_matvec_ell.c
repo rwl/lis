@@ -128,15 +128,17 @@ void lis_matvec_ell(LIS_MATRIX A, LIS_SCALAR x[], LIS_SCALAR y[])
 void lis_matvect_ell(LIS_MATRIX A, LIS_SCALAR x[], LIS_SCALAR y[])
 {
 	LIS_INT i,j,jj;
-	LIS_INT n,np,maxnzr;
+	LIS_INT n,maxnzr;
 	#ifdef _OPENMP
-		LIS_INT k,is,ie,nprocs;
+		LIS_INT k,is,ie,nprocs,np;
 		LIS_SCALAR t;
 		LIS_SCALAR *w;
 	#endif
 
 	n      = A->n;
-	np     = A->np;
+	#ifdef _OPENMP
+		np     = A->np;
+	#endif
 	if( A->is_splited )
 	{
 		#ifdef USE_VEC_COMP

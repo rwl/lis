@@ -958,7 +958,9 @@ LIS_INT lis_matrix_convert_csr2ell(LIS_MATRIX Ain, LIS_MATRIX Aout)
 	LIS_INT err;
 	LIS_INT n,maxnzr,nprocs,my_rank;
 	LIS_INT is,ie,count;
-	LIS_INT *iw;
+	#ifdef _OPENMP
+		LIS_INT *iw;
+	#endif
 	LIS_INT *index;
 	LIS_SCALAR *value;
 
@@ -968,7 +970,9 @@ LIS_INT lis_matrix_convert_csr2ell(LIS_MATRIX Ain, LIS_MATRIX Aout)
 
 	index   = NULL;
 	value   = NULL;
-	iw      = NULL;
+	#ifdef _OPENMP
+		iw      = NULL;
+	#endif
 
 
 	/* check maxnzr */

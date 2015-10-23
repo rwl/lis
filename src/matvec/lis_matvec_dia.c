@@ -50,13 +50,18 @@
 void lis_matvec_dia(LIS_MATRIX A, LIS_SCALAR x[], LIS_SCALAR y[])
 {
 	LIS_INT i,j,is,ie,js,je,jj,ii;
-	LIS_INT n,np,nnd,k;
+	LIS_INT n,nnd,k;
 	LIS_INT my_rank,nprocs;
+	#ifdef USE_MPI
+		LIS_INT np;
+	#endif
 
 	if( A->is_splited )
 	{
 		n      = A->n;
-		np     = A->np;
+		#ifdef USE_MPI
+			np     = A->np;
+		#endif
 		#ifdef _OPENMP
 		#pragma omp parallel private(i,j,k,is,ie,jj,js,je,ii,my_rank)
 		#endif
@@ -122,7 +127,9 @@ void lis_matvec_dia(LIS_MATRIX A, LIS_SCALAR x[], LIS_SCALAR y[])
 	else
 	{
 		n      = A->n;
-		np     = A->np;
+		#ifdef USE_MPI
+			np     = A->np;
+		#endif
 		nnd    = A->nnd;
 
 		#ifdef _OPENMP

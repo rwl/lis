@@ -277,7 +277,7 @@ LIS_INT lis_matrix_ilu_realloc(LIS_INT row, LIS_INT nnz, LIS_MATRIX_ILU A)
 LIS_INT lis_matvect_ilu(LIS_MATRIX A, LIS_MATRIX_ILU LU, LIS_VECTOR X, LIS_VECTOR Y)
 {
 	LIS_INT i,j,jj,n;
-	LIS_SCALAR t,*x;
+	LIS_SCALAR t;
 	LIS_QUAD_DECLAR;
 	#ifdef USE_QUAD_PRECISION
 		LIS_INT	j0,j1;
@@ -287,7 +287,6 @@ LIS_INT lis_matvect_ilu(LIS_MATRIX A, LIS_MATRIX_ILU LU, LIS_VECTOR X, LIS_VECTO
 	LIS_DEBUG_FUNC_IN;
 
 	n = LU->n;
-	x = X->value;
 
 	#ifdef USE_QUAD_PRECISION
 	if( X->precision==LIS_PRECISION_DEFAULT )
@@ -378,7 +377,6 @@ LIS_INT lis_matvect_ilu(LIS_MATRIX A, LIS_MATRIX_ILU LU, LIS_VECTOR X, LIS_VECTO
 LIS_INT lis_matvec_ilu(LIS_MATRIX A, LIS_MATRIX_ILU LU, LIS_VECTOR X, LIS_VECTOR Y)
 {
 	LIS_INT i,j,jj,n,np;
-	LIS_SCALAR *x;
 	#ifdef _OPENMP
 		LIS_INT nprocs,k;
 		LIS_SCALAR t,*w;
@@ -395,7 +393,6 @@ LIS_INT lis_matvec_ilu(LIS_MATRIX A, LIS_MATRIX_ILU LU, LIS_VECTOR X, LIS_VECTOR
 
 	np = A->np;
 	n  = LU->n;
-	x  = X->value;
 
 	#ifdef USE_QUAD_PRECISION
 	if( X->precision==LIS_PRECISION_DEFAULT )

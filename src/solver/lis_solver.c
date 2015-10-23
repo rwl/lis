@@ -912,9 +912,10 @@ LIS_INT lis_solver_get_initial_residual(LIS_SOLVER solver, LIS_PRECON M, LIS_VEC
 	LIS_INT	output,conv;
 	#ifdef USE_QUAD_PRECISION
 		LIS_INT	i;
+		LIS_VECTOR xx;
 	#endif
 	LIS_MATRIX A;
-	LIS_VECTOR x,xx,b,p;
+	LIS_VECTOR x,b,p;
 	LIS_REAL nrm2;
 	LIS_REAL tol,tol_w,tol_switch;
 	

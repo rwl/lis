@@ -52,16 +52,22 @@ LIS_INT main(LIS_INT argc, char* argv[])
   LIS_MATRIX A,A0;
   LIS_VECTOR b,x;
   LIS_INT nprocs,my_rank;
+#ifdef _OPENMP
   int int_nprocs,int_my_rank;
-  LIS_INT nthreads, maxthreads;
+  LIS_INT nthreads,maxthreads;
+#endif
   LIS_INT nnz;
-  LIS_INT i,n,np;
+  LIS_INT i,n;
   LIS_INT block;
   LIS_INT is,ie;
   LIS_INT err,iter,matrix_type;
-  double time,time2,nnzs,nnzap,nnzt;
+  double time2;
   LIS_REAL val;
-  double commtime,comptime,flops;
+  double comptime,flops;
+#ifdef USE_MPI
+  LIS_INT np;
+  double commtime,time,nnzs,nnzap,nnzt;
+#endif
   char path[1024];
   FILE *file;
   
@@ -133,9 +139,6 @@ LIS_INT main(LIS_INT argc, char* argv[])
       printf("number of threads = %d\n", maxthreads);
 #endif
     }
-#else
-      nthreads = 1;
-      maxthreads = 1;
 #endif
 
   /* create matrix and vectors */
@@ -152,8 +155,9 @@ LIS_INT main(LIS_INT argc, char* argv[])
 
       n   = A0->n;
       nnz = A0->nnz;
-      np  = A0->np-n;
 #ifdef USE_MPI
+      np  = A0->np-n;
+
       MPI_Allreduce(&nnz,&i,1,LIS_MPI_INT,MPI_SUM,A0->comm);
       nnzap = (double)i / (double)nprocs;
       nnzt  = ((double)nnz -nnzap)*((double)nnz -nnzap);
@@ -209,7 +213,9 @@ LIS_INT main(LIS_INT argc, char* argv[])
 	    }
 
 	  comptime = 0.0;
+#ifdef USE_MPI
 	  commtime = 0.0;
+#endif
 
 	  for(i=0;i<iter;i++)
 	    {

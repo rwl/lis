@@ -460,14 +460,15 @@ void lis_matvect_jad(LIS_MATRIX A, LIS_SCALAR x[], LIS_SCALAR y[])
 	LIS_INT n,np,maxnzr;
 	#ifdef _OPENMP
 		LIS_INT is,ie,my_rank,nprocs;
-		LIS_SCALAR t;
+		LIS_SCALAR t, *w;
 	#endif
-	LIS_SCALAR *w;
 
 	n      = A->n;
 	np     = A->np;
 	maxnzr = A->maxnzr;
-	w      = A->work;
+	#ifdef _OPENMP
+		w      = A->work;
+	#endif
 
 	if( A->is_splited )
 	{

@@ -724,15 +724,17 @@ void lis_matvect_bsc(LIS_MATRIX A, LIS_SCALAR x[], LIS_SCALAR y[])
 	LIS_INT i,j,k;
 	LIS_INT bi,bj,bc,bs;
 	LIS_INT nr,nc,bnr,bnc;
-	LIS_INT n,np;
+	LIS_INT n;
 	#ifdef _OPENMP
-		LIS_INT nprocs;
+		LIS_INT nprocs,np;
 		LIS_SCALAR t;
 		LIS_SCALAR *w;
 	#endif
 
 	n   = A->n;
-	np  = A->np;
+	#ifdef _OPENMP
+		np  = A->np;
+	#endif
 	nr  = A->nr;
 	nc  = A->nc;
 	bnr = A->bnr;

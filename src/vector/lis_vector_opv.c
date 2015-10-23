@@ -562,11 +562,14 @@ LIS_INT lis_vector_cgs(LIS_INT n, LIS_VECTOR *x, LIS_VECTOR *q, LIS_VECTOR *r)
 LIS_INT lis_vector_real(LIS_VECTOR vx)
 {
 	LIS_INT i,n;
+#if defined(_COMPLEX)
 	LIS_SCALAR *x;
-
+#endif
 	LIS_DEBUG_FUNC_IN;
 
+#if defined(_COMPLEX)
 	x = vx->value;
+#endif
 	n = vx->n;
 	#ifdef USE_VEC_COMP
     #pragma cdir nodep
@@ -663,11 +666,15 @@ LIS_INT lis_vector_argument(LIS_VECTOR vx)
 LIS_INT lis_vector_conjugate(LIS_VECTOR vx)
 {
 	LIS_INT i,n;
+#if defined(_COMPLEX)
 	LIS_SCALAR *x;
+#endif
 
 	LIS_DEBUG_FUNC_IN;
 
+#if defined(_COMPLEX)
 	x = vx->value;
+#endif
 	n = vx->n;
 	#ifdef USE_VEC_COMP
     #pragma cdir nodep

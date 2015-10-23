@@ -104,7 +104,9 @@ void *lis_malloc( size_t size, char *tag )
 		unsigned long l;
 	} addr;
 	malloc_address *ma;
-	LIS_INT sz;
+	#ifdef USE_MALLOC_TAG
+		LIS_INT sz;
+	#endif
 
 	addr.ptr = malloc(size + 16);
 	ma = (malloc_address *)malloc(sizeof(malloc_address));
@@ -129,12 +131,14 @@ void *lis_malloc( size_t size, char *tag )
 
 void *lis_calloc( size_t size, char *tag )
 {
-  union {
-    void *ptr;
-    unsigned long l;
-  } addr;
-  malloc_address *ma;
-  LIS_INT sz;
+	union {
+		void *ptr;
+		unsigned long l;
+	} addr;
+	malloc_address *ma;
+	#ifdef USE_MALLOC_TAG
+		LIS_INT sz;
+	#endif
 
 	addr.ptr = malloc(size + 16);
 	ma = (malloc_address *)malloc(sizeof(malloc_address));

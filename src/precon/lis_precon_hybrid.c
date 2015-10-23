@@ -60,7 +60,10 @@ extern LIS_SOLVER_EXECUTE lis_solver_execute[];
 #define __FUNC__ "lis_precon_create_hybrid"
 LIS_INT lis_precon_create_hybrid(LIS_SOLVER solver, LIS_PRECON precon)
 {
-        LIS_INT	nsolver, maxiter, precision;
+        LIS_INT	nsolver, maxiter;
+        #ifdef USE_QUAD_PRECISION
+        	LIS_INT precision;
+	#endif
 	LIS_INT	err;
 	LIS_SCALAR *rhistory;
 	LIS_VECTOR xx;
@@ -95,7 +98,9 @@ LIS_INT lis_precon_create_hybrid(LIS_SOLVER solver, LIS_PRECON precon)
 
 	nsolver     = psolver->options[LIS_OPTIONS_SOLVER];
 	maxiter     = psolver->options[LIS_OPTIONS_MAXITER];
-	precision   = psolver->options[LIS_OPTIONS_PRECISION];
+        #ifdef USE_QUAD_PRECISION
+		precision   = psolver->options[LIS_OPTIONS_PRECISION];
+	#endif
 	A           = psolver->A;
 
 

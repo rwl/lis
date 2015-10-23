@@ -66,14 +66,13 @@
 #define __FUNC__ "lis_precon_create_iluc"
 LIS_INT lis_precon_create_iluc(LIS_SOLVER solver, LIS_PRECON precon)
 {
-	LIS_INT	storage,block,err;
+	LIS_INT	storage,err;
 	LIS_MATRIX A,B;
 
 	LIS_DEBUG_FUNC_IN;
 
 #ifdef BSR_ENABLE
 	storage     = solver->options[LIS_OPTIONS_STORAGE];
-	block       = solver->options[LIS_OPTIONS_STORAGE_BLOCK];
 
 	if( storage==LIS_MATRIX_BSR )
 	{
@@ -560,7 +559,7 @@ LIS_INT lis_precon_create_iluc_csr(LIS_SOLVER solver, LIS_PRECON precon)
 #else
 	LIS_INT	err;
 	LIS_INT	i,j,k,l,ii,jj,kk,ll;
-	LIS_INT	n,nnz,annz,lfil,len;
+	LIS_INT	n,nnz,lfil,len;
 	LIS_INT	cz,cw;
 	LIS_INT	*iw,*wc,*wl,*iz,*zc,*zl;
 	LIS_INT	*index,*ptr;
@@ -581,7 +580,6 @@ LIS_INT lis_precon_create_iluc_csr(LIS_SOLVER solver, LIS_PRECON precon)
 	tol    = solver->params[LIS_PARAMS_DROP-LIS_OPTIONS_LEN];
 	m      = solver->params[LIS_PARAMS_RATE-LIS_OPTIONS_LEN];
 	gamma  = solver->params[LIS_PARAMS_GAMMA-LIS_OPTIONS_LEN];
-	annz   = 10+A->nnz / A->n;
 	lfil   = (LIS_INT)(((double)A->nnz/(2.0*n))*m);
 
 	L      = NULL;
@@ -2167,7 +2165,7 @@ LIS_INT lis_psolve_iluc(LIS_SOLVER solver, LIS_VECTOR B, LIS_VECTOR X)
 #else
 	LIS_INT i,j,jj,n;
 	LIS_SCALAR w;
-	LIS_SCALAR *b,*x;
+	LIS_SCALAR *x;
 	LIS_MATRIX_ILU L,U;
 	LIS_VECTOR D;
 	LIS_PRECON precon;
@@ -2189,7 +2187,6 @@ LIS_INT lis_psolve_iluc(LIS_SOLVER solver, LIS_VECTOR B, LIS_VECTOR X)
 	U = precon->U;
 	D = precon->D;
 	n = L->n;
-	b = B->value;
 	x = X->value;
 	#ifdef USE_QUAD_PRECISION
 		xl = X->value_lo;
@@ -2515,7 +2512,7 @@ LIS_INT lis_psolvet_iluc(LIS_SOLVER solver, LIS_VECTOR B, LIS_VECTOR X)
 #else
 	LIS_INT i,j,jj,n;
 	LIS_SCALAR w;
-	LIS_SCALAR *b,*x;
+	LIS_SCALAR *x;
 	LIS_MATRIX_ILU L,U;
 	LIS_VECTOR D;
 	LIS_PRECON precon;
@@ -2539,7 +2536,6 @@ LIS_INT lis_psolvet_iluc(LIS_SOLVER solver, LIS_VECTOR B, LIS_VECTOR X)
 	U = precon->U;
 	D = precon->D;
 	n = L->n;
-	b = B->value;
 	x = X->value;
 	#ifdef USE_QUAD_PRECISION
 		xl = X->value_lo;

@@ -40,7 +40,9 @@ LIS_INT main(LIS_INT argc, char* argv[])
     LIS_VECTOR b,x,u;
     LIS_SOLVER solver;
     LIS_INT my_rank;
+#ifdef USE_MPI
     int int_nprocs,int_my_rank;
+#endif
     LIS_INT err,i,n,gn,is,ie,iter;
     n  = 12;
     lis_initialize(&argc, &argv);

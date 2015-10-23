@@ -733,7 +733,7 @@ LIS_INT lis_matrix_split_msr(LIS_MATRIX A)
 #define __FUNC__ "lis_matrix_merge_msr"
 LIS_INT lis_matrix_merge_msr(LIS_MATRIX A)
 {
-	LIS_INT i,j,n,is;
+	LIS_INT i,j,n;
 	LIS_INT nnz,ndz;
 	LIS_INT err;
 	LIS_INT *index;
@@ -745,7 +745,6 @@ LIS_INT lis_matrix_merge_msr(LIS_MATRIX A)
 	n       = A->n;
 	nnz     = 0;
 	ndz     = 0;
-	is      = A->is;
 	index   = NULL;
 	value   = NULL;
 	nnz     = A->L->nnz + A->U->nnz + n;

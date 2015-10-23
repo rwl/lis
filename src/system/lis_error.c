@@ -68,9 +68,9 @@ LIS_INT lis_debug_trace_func(LIS_INT flag, char *func)
 {
 	static int lis_tr_func = 0;
 	char buf[1024];
-	LIS_INT argc=0;
-
 	#ifdef USE_MPI
+		LIS_INT argc=0;
+
 		MPI_Initialized(&lis_mpi_initialized);
 		if (!lis_mpi_initialized) MPI_Init(&argc, NULL);
 	#endif

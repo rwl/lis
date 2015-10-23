@@ -384,10 +384,9 @@ LIS_INT lis_vector_duplicate(void *vin, LIS_VECTOR *vout)
 LIS_INT lis_vector_duplicateex(LIS_INT precision, void *A, LIS_VECTOR *vout)
 {
 	LIS_INT np,pad;
-	LIS_INT nprocs;
 	LIS_INT i;
 	#ifdef USE_MPI
-		LIS_INT *ranges;
+		LIS_INT *ranges, nprocs;
 	#endif
 	LIS_SCALAR *value;
 
@@ -398,7 +397,9 @@ LIS_INT lis_vector_duplicateex(LIS_INT precision, void *A, LIS_VECTOR *vout)
 		LIS_SETERR(LIS_ERR_ILL_ARG, "Second argument is not LIS_VECTOR or LIS_MATRIX\n");
 		return LIS_ERR_ILL_ARG;
 	}
-	nprocs = ((LIS_VECTOR)A)->nprocs;
+	#ifdef USE_MPI
+		nprocs = ((LIS_VECTOR)A)->nprocs;
+	#endif
 	np     = ((LIS_VECTOR)A)->np;
 	pad    = ((LIS_VECTOR)A)->pad;
 	*vout  = NULL;

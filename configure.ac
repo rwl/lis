@@ -374,7 +374,7 @@ if test "$TARGET" = ""; then
 	AC_MSG_RESULT($[ax_cv_]_AC_LANG_ABBREV[_compiler_vendor])
 	  case $ax_cv_c_compiler_vendor in
 	    dec) CFLAGS="-newc -w0 -O5 -ansi_alias -ansi_args -fp_reorder -tune host $CFLAGS" ;;
-	    gnu) CFLAGS="-O0 -Werror -fomit-frame-pointer $CFLAGS" ;;
+	    gnu) CFLAGS="-O0 -Wall -Werror -fomit-frame-pointer $CFLAGS" ;;
 	    intel) CFLAGS="-O3 -ansi_alias $CFLAGS" ;;
 	    portland) CFLAGS="-O3 -B -fastsse $CFLAGS" ;;
 	    pathscale) CFLAGS="-O3 $CFLAGS" ;;

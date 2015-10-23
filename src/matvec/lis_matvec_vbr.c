@@ -151,15 +151,17 @@ void lis_matvect_vbr(LIS_MATRIX A, LIS_SCALAR x[], LIS_SCALAR y[])
 	LIS_INT i,j,k;
 	LIS_INT bi,bj,bc,bn;
 	LIS_INT nr;
-	LIS_INT n,np;
+	LIS_INT n;
 	#ifdef _OPENMP
-		LIS_INT nprocs,my_rank;
+		LIS_INT nprocs,my_rank,np;
 		LIS_SCALAR t;
 		LIS_SCALAR *w;
 	#endif
 
 	n   = A->n;
-	np  = A->np;
+	#ifdef _OPENMP
+		np  = A->np;
+	#endif
 	nr  = A->nr;
 
   	if( A->is_splited )

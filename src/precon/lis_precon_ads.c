@@ -116,7 +116,10 @@ LIS_INT lis_precon_create_adds(LIS_SOLVER solver, LIS_PRECON precon)
 LIS_INT lis_psolve_adds(LIS_SOLVER solver, LIS_VECTOR B, LIS_VECTOR X)
 {
 	LIS_INT i,k,n,np,iter,ptype;
-	LIS_SCALAR *b,*x,*w,*r,*rl;
+	LIS_SCALAR *b,*x,*w,*r;
+	#ifdef USE_QUAD_PRECISION
+		LIS_SCALAR *rl;
+	#endif
 	LIS_VECTOR W,R;
 	LIS_PRECON precon;
 	LIS_QUAD_DECLAR;
@@ -132,7 +135,9 @@ LIS_INT lis_psolve_adds(LIS_SOLVER solver, LIS_VECTOR B, LIS_VECTOR X)
 	x     = X->value;
 	w     = W->value;
 	r     = R->value;
-	rl    = R->value_lo;
+	#ifdef USE_QUAD_PRECISION
+		rl    = R->value_lo;
+	#endif
 	iter  = solver->options[LIS_OPTIONS_ADDS_ITER];
 	ptype = solver->options[LIS_OPTIONS_PRECON];
 

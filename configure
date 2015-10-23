@@ -4923,7 +4923,7 @@ $as_echo_n "checking for C compiler vendor... " >&6; }
 $as_echo "$ax_cv_c_compiler_vendor" >&6; }
 	  case $ax_cv_c_compiler_vendor in
 	    dec) CFLAGS="-newc -w0 -O5 -ansi_alias -ansi_args -fp_reorder -tune host $CFLAGS" ;;
-	    gnu) CFLAGS="-O0 -Werror -fomit-frame-pointer $CFLAGS" ;;
+	    gnu) CFLAGS="-O0 -Wall -Werror -fomit-frame-pointer $CFLAGS" ;;
 	    intel) CFLAGS="-O3 -ansi_alias $CFLAGS" ;;
 	    portland) CFLAGS="-O3 -B -fastsse $CFLAGS" ;;
 	    pathscale) CFLAGS="-O3 $CFLAGS" ;;

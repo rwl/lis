@@ -47,7 +47,9 @@ LIS_INT main(LIS_INT argc, char* argv[])
 	LIS_VECTOR x,b,u;
 	LIS_SOLVER solver;
 	LIS_INT	nprocs,my_rank;
-	int int_nprocs,int_my_rank;
+	#ifdef USE_MPI
+		int int_nprocs,int_my_rank;
+	#endif
 	LIS_INT nsol,rhs,len;
 	LIS_INT	err,iter,iter_double,iter_quad;
 	double time,itime,ptime,p_c_time,p_i_time;

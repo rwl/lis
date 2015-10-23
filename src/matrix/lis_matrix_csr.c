@@ -1145,11 +1145,11 @@ LIS_INT lis_matrix_sort_csr(LIS_MATRIX A)
 #define __FUNC__ "lis_matrix_solve_csr"
 LIS_INT lis_matrix_solve_csr(LIS_MATRIX A, LIS_VECTOR B, LIS_VECTOR X, LIS_INT flag)
 {
-	LIS_INT i,j,n,jj;
+	LIS_INT i,j,n;
 	LIS_SCALAR t;
 	LIS_SCALAR *b,*x;
 	#ifdef _OPENMP
-		LIS_INT is,ie,my_rank,nprocs;
+		LIS_INT is,ie,my_rank,nprocs,jj;
 	#endif
 	#ifdef USE_QUAD_PRECISION
 		LIS_QUAD w1,w2;
@@ -1368,11 +1368,11 @@ LIS_INT lis_matrix_solve_csr(LIS_MATRIX A, LIS_VECTOR B, LIS_VECTOR X, LIS_INT f
 #define __FUNC__ "lis_matrix_solvet_csr"
 LIS_INT lis_matrix_solvet_csr(LIS_MATRIX A, LIS_VECTOR B, LIS_VECTOR X, LIS_INT flag)
 {
-	LIS_INT i,j,jj,n;
+	LIS_INT i,j,n;
 	LIS_SCALAR t;
 	LIS_SCALAR *x;
 	#ifdef _OPENMP
-		LIS_INT is,ie,my_rank,nprocs;
+		LIS_INT is,ie,my_rank,nprocs,jj;
 	#endif
 	#ifdef USE_QUAD_PRECISION
 		LIS_QUAD w1,w2;

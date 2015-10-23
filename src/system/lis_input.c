@@ -67,8 +67,6 @@ LIS_INT lis_input_option(LIS_MATRIX_INPUT_OPTION *option, char *path);
 LIS_INT lis_input(LIS_MATRIX A, LIS_VECTOR b, LIS_VECTOR x, char *filename)
 {
 	LIS_INT	err;
-	LIS_INT	fileformat;
-	char buf[256],banner[128];
 	FILE *file;
 
 	LIS_DEBUG_FUNC_IN;
@@ -85,7 +83,7 @@ LIS_INT lis_input(LIS_MATRIX A, LIS_VECTOR b, LIS_VECTOR x, char *filename)
 
 	if( filename==NULL )
 	{
-		LIS_SETERR(LIS_ERR_ILL_ARG,"filname is NULL\n");
+		LIS_SETERR(LIS_ERR_ILL_ARG,"filename is NULL\n");
 		return LIS_ERR_ILL_ARG;
 	}
 	file = fopen(filename, "r");
@@ -94,11 +92,27 @@ LIS_INT lis_input(LIS_MATRIX A, LIS_VECTOR b, LIS_VECTOR x, char *filename)
 		LIS_SETERR1(LIS_ERR_FILE_IO,"cannot open file %s\n",filename);
 		return LIS_ERR_FILE_IO;
 	}
+	err = lis_input_file(A, b, x, file);
+	fclose(file);
+
+	LIS_DEBUG_FUNC_OUT;
+	return err;
+}
+
+
+#undef __FUNC__
+#define __FUNC__ "lis_input_file"
+LIS_INT lis_input_file(LIS_MATRIX A, LIS_VECTOR b, LIS_VECTOR x, FILE *file)
+{
+	LIS_INT err;
+	LIS_INT fileformat;
+	char buf[256],banner[128];
+
+	LIS_DEBUG_FUNC_IN;
 
 	/* file format check */
 	if( fgets(buf, 256, file) == NULL )
 	{
-		fclose(file);
 		return LIS_ERR_FILE_IO;
 	}
 	sscanf(buf, "%s", banner);
@@ -156,10 +170,8 @@ LIS_INT lis_input(LIS_MATRIX A, LIS_VECTOR b, LIS_VECTOR x, char *filename)
 		break;
 */
 	default:
-		fclose(file);
-		return err;
+		return LIS_ERR_NOT_IMPLEMENTED;
 	}
-	fclose(file);
 #ifdef USE_MPI
 	MPI_Barrier(A->comm);
 #endif
@@ -170,12 +182,10 @@ LIS_INT lis_input(LIS_MATRIX A, LIS_VECTOR b, LIS_VECTOR x, char *filename)
 
 
 #undef __FUNC__
-#define __FUNC__ "lis_input"
+#define __FUNC__ "lis_input_matrix"
 LIS_INT lis_input_matrix(LIS_MATRIX A, char *filename)
 {
 	LIS_INT	err;
-	LIS_INT	fileformat;
-	char buf[256],banner[128];
 	FILE *file;
 
 	LIS_DEBUG_FUNC_IN;
@@ -185,7 +195,7 @@ LIS_INT lis_input_matrix(LIS_MATRIX A, char *filename)
 
 	if( filename==NULL )
 	{
-		LIS_SETERR(LIS_ERR_ILL_ARG,"filname is NULL\n");
+		LIS_SETERR(LIS_ERR_ILL_ARG,"filename is NULL\n");
 		return LIS_ERR_ILL_ARG;
 	}
 	file = fopen(filename, "r");
@@ -194,11 +204,27 @@ LIS_INT lis_input_matrix(LIS_MATRIX A, char *filename)
 		LIS_SETERR1(LIS_ERR_FILE_IO,"cannot open file %s\n",filename);
 		return LIS_ERR_FILE_IO;
 	}
+	err = lis_input_matrix_file(A, file);
+	fclose(file);
+
+	LIS_DEBUG_FUNC_OUT;
+	return err;
+}
+
+
+#undef __FUNC__
+#define __FUNC__ "lis_input_matrix_file"
+LIS_INT lis_input_matrix_file(LIS_MATRIX A, FILE *file)
+{
+	LIS_INT err;
+	LIS_INT fileformat;
+	char buf[256],banner[128];
+
+	LIS_DEBUG_FUNC_IN;
 
 	/* file format check */
 	if( fgets(buf, 256, file) == NULL )
 	{
-		fclose(file);
 		return LIS_ERR_FILE_IO;
 	}
 	sscanf(buf, "%s", banner);
@@ -256,10 +282,8 @@ LIS_INT lis_input_matrix(LIS_MATRIX A, char *filename)
 		break;
 */
 	default:
-		fclose(file);
-		return err;
+		return LIS_ERR_NOT_IMPLEMENTED;
 	}
-	fclose(file);
 #ifdef USE_MPI
 	MPI_Barrier(A->comm);
 #endif
@@ -273,16 +297,14 @@ LIS_INT lis_input_matrix(LIS_MATRIX A, char *filename)
 #define __FUNC__ "lis_input_vector"
 LIS_INT lis_input_vector(LIS_VECTOR v, char *filename)
 {
-	LIS_INT	fileformat;
-	char buf[256],banner[128];
 	LIS_INT err;
 	FILE *file;
-	LIS_Comm comm;
 
-	comm = v->comm;
+	LIS_DEBUG_FUNC_IN;
+
 	if( filename==NULL )
 	{
-		LIS_SETERR(LIS_ERR_ILL_ARG,"filname is NULL\n");
+		LIS_SETERR(LIS_ERR_ILL_ARG,"filename is NULL\n");
 		return LIS_ERR_ILL_ARG;
 	}
 	file = fopen(filename, "r");
@@ -291,10 +313,26 @@ LIS_INT lis_input_vector(LIS_VECTOR v, char *filename)
 		LIS_SETERR1(LIS_ERR_FILE_IO,"cannot open file %s\n",filename);
 		return LIS_ERR_FILE_IO;
 	}
+	err = lis_input_vector_file(v, file);
+	fclose(file);
+
+	LIS_DEBUG_FUNC_OUT;
+	return err;
+}
+
+
+#undef __FUNC__
+#define __FUNC__ "lis_input_vector_file"
+LIS_INT lis_input_vector_file(LIS_VECTOR v, FILE *file)
+{
+	LIS_INT err;
+	LIS_INT fileformat;
+	char buf[256],banner[128];
+
+	LIS_DEBUG_FUNC_IN;
 
 	if( fgets(buf, 256, file) == NULL )
 	{
-		fclose(file);
 		return LIS_ERR_FILE_IO;
 	}
 	sscanf(buf, "%s", banner);
@@ -317,17 +355,18 @@ LIS_INT lis_input_vector(LIS_VECTOR v, char *filename)
 	case LIS_FMT_MM:
 		err = lis_input_vector_mm(v,file);
 		break;
-	case LIS_FMT_LIS:
-		err = lis_input_vector_lis(v,filename,file);
-		break;
+//	case LIS_FMT_LIS:
+//		err = lis_input_vector_lis(v,filename,file);
+//		break;
 	case LIS_FMT_PLAIN:
 		err = lis_input_vector_plain(v,file);
 		break;
 	}
-	fclose(file);
 #ifdef USE_MPI
 	MPI_Barrier(comm);
 #endif
+
+	LIS_DEBUG_FUNC_OUT;
 	return err;
 }
 
@@ -574,10 +613,10 @@ LIS_INT lis_input_vector_lis_ascii(LIS_VECTOR v, FILE *file)
 	LIS_INT	ibuf[10];
 	char cbuf[BUFSIZE];
 	char c;
+#ifdef USE_MPI
 	LIS_Comm comm;
 
 	comm = v->comm;
-#ifdef USE_MPI
 	MPI_Comm_size(comm,&nprocs);
 	MPI_Comm_rank(comm,&my_rank);
 #else

@@ -45,7 +45,9 @@ LIS_INT main(LIS_INT argc, char* argv[])
     LIS_INT err,nnz,is,ie;
     LIS_INT l,m,n,nn,i,j,k,ii,jj,ctr;
     LIS_INT nprocs,mtype,my_rank;
+#ifdef USE_MPI
     int int_nprocs,int_my_rank;
+#endif
     LIS_INT nesol;
     LIS_MATRIX A,A0;
     LIS_VECTOR x;
