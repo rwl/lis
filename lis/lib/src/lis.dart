@@ -142,11 +142,20 @@ abstract class LIS<S> {
   void input(int A, int b, int x, String s);
   void inputMatrix(int A, String s);
   void inputVector(int v, String s);
-  String output(int A, int b, int x, int mode, [String path]);
-  String outputMatrix(int A, int mode, [String path]);
-  String outputVector(int v, int format, [String filename]);
-  String solverOutputRHistory(int solver, [String filename]);
-  String esolverOutputRHistory(int esolver, [String filename]);
+  String output(int A, int b, int x, int mode);
+  String outputMatrix(int A, int mode);
+  String outputVector(int v, int format);
+  String solverOutputRHistory(int solver);
+  String esolverOutputRHistory(int esolver);
+
+  /*void read(int A, int b, int x, String filename);
+  void readMatrix(int A, String filename);
+  void readVector(int v, String filename);
+  void write(int A, int b, int x, int mode, String path);
+  void writeMatrix(int A, int mode, String path);
+  void writeVector(int v, int format, String filename);
+  void solverWriteRHistory(int solver, String filename);
+  void esolverWriteRHistory(int esolver, String filename);*/
 
   // Utilities
   void initialize(List<String> args);

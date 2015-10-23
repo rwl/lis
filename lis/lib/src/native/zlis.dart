@@ -157,15 +157,11 @@ class ZLIS implements lis.LIS<Complex> {
   void input(int A, int b, int x, String s) native "LIS_Input";
   void inputMatrix(int A, String s) native "LIS_InputMatrix";
   void inputVector(int v, String s) native "LIS_InputVector";
-  String output(int A, int b, int x, int mode, [String path])
-      native "LIS_Output";
-  String outputMatrix(int A, int mode, [String path]) native "LIS_OutputMatrix";
-  String outputVector(int v, int format, [String filename])
-      native "LIS_OutputVector";
-  String solverOutputRHistory(int solver, [String filename])
-      native "LIS_SolverOutputRHistory";
-  String esolverOutputRHistory(int esolver, [String filename])
-      native "LIS_EsolverOutputRHistory";
+  String output(int A, int b, int x, int mode) native "LIS_Output";
+  String outputMatrix(int A, int mode) native "LIS_OutputMatrix";
+  String outputVector(int v, int format) native "LIS_OutputVector";
+  String solverOutputRHistory(int solver) native "LIS_SolverOutputRHistory";
+  String esolverOutputRHistory(int esolver) native "LIS_EsolverOutputRHistory";
 
   // Utilities
   void initialize(List<String> args) native "LIS_Initialize";

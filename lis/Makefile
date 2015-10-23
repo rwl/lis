@@ -166,20 +166,21 @@ EMPOST = $(EMDIR)/post.js
 ZEXT = $(EMDIR)/complex.c
 ZLIS = $(LIBDIR)/src/web/zlis.c
 
-EMFLAGS = $(DEXP_NAME) $(DEXP_FUNC) --post-js $(EMPOST)
+DEMFLAGS = $(DEXP_NAME) $(DEXP_FUNC) --post-js $(EMPOST)
 ZEMFLAGS = $(ZEXP_NAME) $(ZEXP_FUNC) --post-js $(EMPOST)
 
 DLIBS = $(WEBDIR)/dlis/lib/liblis.a
 ZLIBS = $(WEBDIR)/zlis/lib/liblis.a
 ZINC  = -I$(WEBDIR)/zlis/include
-ZDEFS = -D_COMPLEX -DHAVE_COMPLEX_H
+DDEFS = -Wall -Werror -DHAVE_CONFIG_H -D_GNU_SOURCE
+ZDEFS = -Wall -Werror -DHAVE_CONFIG_H -D_GNU_SOURCE -D_COMPLEX
 
 #all: web native
 
 web: cleanweb $(WEBDIR)/dlis.js $(WEBDIR)/zlis.js
 
 $(WEBDIR)/dlis.js: $(DLIBS) Makefile $(EMPOST)
-	$(CC) $(CFLAGS) $(DLIBS) $(EMFLAGS) -o $@
+	$(CC) $(CFLAGS) $(DLIBS) $(DEMFLAGS) -o $@
 
 $(WEBDIR)/zlis.js: $(ZLIBS) Makefile $(ZEXT) $(ZLIS) $(EMPOST)
 	$(CC) $(CFLAGS) $(ZLIBS) $(ZINC) $(ZDEFS) $(ZEXT) $(ZLIS) $(ZEMFLAGS) -o $@
@@ -192,17 +193,17 @@ NSRCDIR = $(LIBDIR)/src/native
 native: cleannative $(NSRCDIR)/libdlis_extension.so $(NSRCDIR)/libzlis_extension.so
 
 $(NSRCDIR)/dlis_extension.o: $(NSRCDIR)/lis_extension.c
-	$(CC) -fPIC -std=c99 -Wall -I/usr/lib/dart/include -I$(DNATDIR)/include -DDART_SHARED_LIB -o $@ -c $<
+	$(CC) -fPIC -std=c99 $(DDEFS) -I/usr/lib/dart/include -I$(DNATDIR)/include -DDART_SHARED_LIB -o $@ -c $<
 
 $(NSRCDIR)/libdlis_extension.so: $(NSRCDIR)/dlis_extension.o
-	$(CC) -L$(DNATDIR)/lib -Wall -shared -Wl,-rpath=$(DNATDIR)/lib,-soname,libdlis_extension.so -o $@ $< -llis
+	$(CC) -L$(DNATDIR)/lib $(DDEFS) -shared -Wl,-rpath=$(DNATDIR)/lib,-soname,libdlis_extension.so -o $@ $< -llis
 
 
 $(NSRCDIR)/zlis_extension.o: $(NSRCDIR)/lis_extension.c
-	$(CC) -fPIC -std=c99 -Wall $(ZDEFS) -I/usr/lib/dart/include -I$(ZNATDIR)/include -DDART_SHARED_LIB -o $@ -c $<
+	$(CC) -fPIC -std=c99 $(ZDEFS) -I/usr/lib/dart/include -I$(ZNATDIR)/include -DDART_SHARED_LIB -o $@ -c $<
 
 $(NSRCDIR)/libzlis_extension.so: $(NSRCDIR)/zlis_extension.o
-	$(CC) -L$(ZNATDIR)/lib $(ZDEFS) -Wall -shared -Wl,-rpath=$(ZNATDIR)/lib,-soname,libzlis_extension.so -o $@ $< -llis
+	$(CC) -L$(ZNATDIR)/lib $(ZDEFS) -shared -Wl,-rpath=$(ZNATDIR)/lib,-soname,libzlis_extension.so -o $@ $< -llis
 
 #$(DLIBS):
 #	( cd .. ; $(MAKE) all )

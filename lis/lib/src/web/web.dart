@@ -709,35 +709,35 @@ abstract class WebLIS<S> implements lis.LIS<S> {
     _lis.removeFile(p_path);
   }
 
-  String output(int A, int b, int x, int mode, [String path]) {
+  String output(int A, int b, int x, int mode) {
     int p_path = _lis.heapPath();
     int err = _lis.callFunc('lis_output', [A, b, x, mode, p_path]);
     CHKERR(err);
     return _lis.readFile(p_path);
   }
 
-  String outputMatrix(int A, int mode, [String path]) {
+  String outputMatrix(int A, int mode) {
     int p_path = _lis.heapPath();
     int err = _lis.callFunc('lis_output_matrix', [A, mode, p_path]);
     CHKERR(err);
     return _lis.readFile(p_path);
   }
 
-  String outputVector(int v, int format, [String filename]) {
+  String outputVector(int v, int format) {
     int p_path = _lis.heapPath();
     int err = _lis.callFunc('lis_output_vector', [v, format, p_path]);
     CHKERR(err);
     return _lis.readFile(p_path);
   }
 
-  String solverOutputRHistory(int solver, [String filename]) {
+  String solverOutputRHistory(int solver) {
     int p_path = _lis.heapPath();
     int err = _lis.callFunc('lis_solver_output_rhistory', [solver, p_path]);
     CHKERR(err);
     return _lis.readFile(p_path);
   }
 
-  String esolverOutputRHistory(int esolver, [String filename]) {
+  String esolverOutputRHistory(int esolver) {
     int p_path = _lis.heapPath();
     int err = _lis.callFunc('lis_esolver_output_rhistory', [esolver, p_path]);
     CHKERR(err);

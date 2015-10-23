@@ -157,15 +157,22 @@ class DLIS<double> implements lis.LIS<double> {
   void input(int A, int b, int x, String s) native "LIS_Input";
   void inputMatrix(int A, String s) native "LIS_InputMatrix";
   void inputVector(int v, String s) native "LIS_InputVector";
-  String output(int A, int b, int x, int mode, [String path])
-      native "LIS_Output";
-  String outputMatrix(int A, int mode, [String path]) native "LIS_OutputMatrix";
-  String outputVector(int v, int format, [String filename])
-      native "LIS_OutputVector";
-  String solverOutputRHistory(int solver, [String filename])
-      native "LIS_SolverOutputRHistory";
-  String esolverOutputRHistory(int esolver, [String filename])
-      native "LIS_EsolverOutputRHistory";
+  String output(int A, int b, int x, int mode) native "LIS_Output";
+  String outputMatrix(int A, int mode) native "LIS_OutputMatrix";
+  String outputVector(int v, int format) native "LIS_OutputVector";
+  String solverOutputRHistory(int solver) native "LIS_SolverOutputRHistory";
+  String esolverOutputRHistory(int esolver) native "LIS_EsolverOutputRHistory";
+
+  /*void read(int A, int b, int x, String filename) native "LIS_Read";
+  void readMatrix(int A, String filename) native "LIS_ReadMatrix";
+  void readVector(int v, String filename) native "LIS_ReadVector";
+  void write(int A, int b, int x, int mode, String path) native "LIS_Write";
+  void writeMatrix(int A, int mode, String path) native "LIS_WriteMatrix";
+  void writeVector(int v, int format, String filename) native "LIS_WriteVector";
+  void solverWriteRHistory(int solver, String filename)
+      native "LIS_SolverWriteRHistory";
+  void esolverWriteRHistory(int esolver, String filename)
+      native "LIS_EsolverWriteRHistory";*/
 
   // Utilities
   void initialize(List<String> args) native "LIS_Initialize";

@@ -1,9 +1,19 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <inttypes.h>
 
+#ifdef HAVE_CONFIG_H
+        #include "lis_config.h"
+#else
+#ifdef HAVE_CONFIG_WIN_H
+        #include "lis_config_win.h"
+#endif
+#endif
+
 #include "lis.h"
 #include "dart_api.h"
+
 
 Dart_NativeFunction ResolveName(Dart_Handle name, int argc,
     bool* auto_setup_scope);
@@ -1883,6 +1893,140 @@ void LIS_EsolverGetEsolver(Dart_NativeArguments arguments) {
 }
 
 
+void LIS_Input(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_MATRIX A;
+  LIS_VECTOR b, x;
+  Dart_Handle text_obj;
+  const char *text;
+  FILE *file;
+
+  Dart_EnterScope();
+  Dart_GetNativeMatrixArgument(arguments, 1, &A);
+  Dart_GetNativeVectorArgument(arguments, 2, &b);
+  Dart_GetNativeVectorArgument(arguments, 3, &x);
+  text_obj = HandleError(Dart_GetNativeArgument(arguments, 4));
+
+  HandleError(Dart_StringToCString(text_obj, &text));
+
+  file = fmemopen((void*) text, strlen(text), "r");
+  if (file == NULL) {
+    HandleError(Dart_NewApiError("fmemopen error"));
+  }
+
+  err = lis_input_file(A, b, x, file); CHKERR(err);
+
+  fclose(file);
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
+
+void LIS_InputMatrix(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_MATRIX A;
+  Dart_Handle text_obj;
+  const char *text;
+  FILE *file;
+
+  Dart_EnterScope();
+  Dart_GetNativeMatrixArgument(arguments, 1, &A);
+  text_obj = HandleError(Dart_GetNativeArgument(arguments, 2));
+
+  HandleError(Dart_StringToCString(text_obj, &text));
+
+  file = fmemopen((void*) text, strlen(text), "r");
+  if (file == NULL) {
+    HandleError(Dart_NewApiError("fmemopen error"));
+  }
+
+  err = lis_input_matrix_file(A, file); CHKERR(err);
+
+  fclose(file);
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
+
+void LIS_InputVector(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_VECTOR vec;
+  Dart_Handle text_obj;
+  const char *text;
+  FILE *file;
+
+  Dart_EnterScope();
+  Dart_GetNativeVectorArgument(arguments, 1, &vec);
+  text_obj = HandleError(Dart_GetNativeArgument(arguments, 2));
+
+  HandleError(Dart_StringToCString(text_obj, &text));
+
+  file = fmemopen((void*) text, strlen(text), "r");
+  if (file == NULL) {
+    HandleError(Dart_NewApiError("fmemopen error"));
+  }
+
+  err = lis_input_vector_file(vec, file); CHKERR(err);
+
+  fclose(file);
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
+
+void LIS_Output(Dart_NativeArguments arguments) {
+  LIS_INT err;
+
+  Dart_EnterScope();
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
+
+void LIS_OutputMatrix(Dart_NativeArguments arguments) {
+  LIS_INT err;
+
+  Dart_EnterScope();
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
+
+void LIS_OutputVector(Dart_NativeArguments arguments) {
+  LIS_INT err;
+
+  Dart_EnterScope();
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
+
+void LIS_SolverOutputRHistory(Dart_NativeArguments arguments) {
+  LIS_INT err;
+
+  Dart_EnterScope();
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
+
+void LIS_EsolverOutputRHistory(Dart_NativeArguments arguments) {
+  LIS_INT err;
+
+  Dart_EnterScope();
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
+
 Dart_NativeFunction ResolveName(Dart_Handle name, int argc,
     bool* auto_setup_scope) {
   if (!Dart_IsString(name)) {
@@ -1998,6 +2142,15 @@ Dart_NativeFunction ResolveName(Dart_Handle name, int argc,
   if (strcmp("LIS_EsolverGetResidualNorms", cname) == 0) result = LIS_EsolverGetResidualNorms;
   if (strcmp("LIS_EsolverGetIters", cname) == 0) result = LIS_EsolverGetIters;
   if (strcmp("LIS_EsolverGetEsolver", cname) == 0) result = LIS_EsolverGetEsolver;
+
+  if (strcmp("LIS_Input", cname) == 0) result = LIS_Input;
+  if (strcmp("LIS_InputMatrix", cname) == 0) result = LIS_InputMatrix;
+  if (strcmp("LIS_InputVector", cname) == 0) result = LIS_InputVector;
+  if (strcmp("LIS_Output", cname) == 0) result = LIS_Output;
+  if (strcmp("LIS_OutputMatrix", cname) == 0) result = LIS_OutputMatrix;
+  if (strcmp("LIS_OutputVector", cname) == 0) result = LIS_OutputVector;
+  if (strcmp("LIS_SolverOutputRHistory", cname) == 0) result = LIS_SolverOutputRHistory;
+  if (strcmp("LIS_EsolverOutputRHistory", cname) == 0) result = LIS_EsolverOutputRHistory;
 
   Dart_ExitScope();
   return result;
