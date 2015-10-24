@@ -1978,51 +1978,153 @@ void LIS_InputVector(Dart_NativeArguments arguments) {
 
 
 void LIS_Output(Dart_NativeArguments arguments) {
-//  LIS_INT err;
+  LIS_INT err, format;
+  LIS_MATRIX A;
+  LIS_VECTOR b, x;
+  FILE *file;
+  char *buf;
+  size_t len;
+  Dart_Handle text;
 
   Dart_EnterScope();
+  Dart_GetNativeMatrixArgument(arguments, 1, &A);
+  Dart_GetNativeVectorArgument(arguments, 2, &b);
+  Dart_GetNativeVectorArgument(arguments, 3, &x);
+  Dart_GetNativeLisIntArgument(arguments, 4, &format);
 
-  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  file = open_memstream(&buf, &len);
+  if (file == NULL) {
+    HandleError(Dart_NewApiError("open_memstream error"));
+  }
+
+  err = lis_output_file(A, b, x, format, file); CHKERR(err);
+  fflush (file);
+
+  text = HandleError(Dart_NewStringFromCString((const char*) buf));
+
+  Dart_SetReturnValue(arguments, text);
+
+  fclose (file);
+  free (buf);
+
   Dart_ExitScope();
 }
 
 
 void LIS_OutputMatrix(Dart_NativeArguments arguments) {
-//  LIS_INT err;
+  LIS_INT err, format;
+  LIS_MATRIX A;
+  FILE *file;
+  char *buf;
+  size_t len;
+  Dart_Handle text;
 
   Dart_EnterScope();
+  Dart_GetNativeMatrixArgument(arguments, 1, &A);
+  Dart_GetNativeLisIntArgument(arguments, 2, &format);
 
-  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  file = open_memstream(&buf, &len);
+  if (file == NULL) {
+    HandleError(Dart_NewApiError("open_memstream error"));
+  }
+
+  err = lis_output_matrix_file(A, format, file); CHKERR(err);
+  fflush (file);
+
+  text = HandleError(Dart_NewStringFromCString((const char*) buf));
+
+  Dart_SetReturnValue(arguments, text);
+
+  fclose (file);
+  free (buf);
   Dart_ExitScope();
 }
 
 
 void LIS_OutputVector(Dart_NativeArguments arguments) {
-//  LIS_INT err;
+  LIS_INT err, format;
+  LIS_VECTOR x;
+  FILE *file;
+  char *buf;
+  size_t len;
+  Dart_Handle text;
 
   Dart_EnterScope();
+  Dart_GetNativeVectorArgument(arguments, 1, &x);
+  Dart_GetNativeLisIntArgument(arguments, 2, &format);
 
-  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  file = open_memstream(&buf, &len);
+  if (file == NULL) {
+    HandleError(Dart_NewApiError("open_memstream error"));
+  }
+
+  err = lis_output_vector_file(x, format, file); CHKERR(err);
+  fflush (file);
+
+  text = HandleError(Dart_NewStringFromCString((const char*) buf));
+
+  Dart_SetReturnValue(arguments, text);
+
+  fclose (file);
+  free (buf);
   Dart_ExitScope();
 }
 
 
 void LIS_SolverOutputRHistory(Dart_NativeArguments arguments) {
-//  LIS_INT err;
+  LIS_INT err;
+  LIS_SOLVER solver;
+  FILE *file;
+  char *buf;
+  size_t len;
+  Dart_Handle text;
 
   Dart_EnterScope();
+  Dart_GetNativeSolverArgument(arguments, 1, &solver);
 
-  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  file = open_memstream(&buf, &len);
+  if (file == NULL) {
+    HandleError(Dart_NewApiError("open_memstream error"));
+  }
+
+  err = lis_solver_output_rhistory_file(solver, file); CHKERR(err);
+  fflush (file);
+
+  text = HandleError(Dart_NewStringFromCString((const char*) buf));
+
+  Dart_SetReturnValue(arguments, text);
+
+  fclose (file);
+  free (buf);
   Dart_ExitScope();
 }
 
 
 void LIS_EsolverOutputRHistory(Dart_NativeArguments arguments) {
-//  LIS_INT err;
+  LIS_INT err;
+  LIS_ESOLVER esolver;
+  FILE *file;
+  char *buf;
+  size_t len;
+  Dart_Handle text;
 
   Dart_EnterScope();
+  Dart_GetNativeEsolverArgument(arguments, 1, &esolver);
 
-  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  file = open_memstream(&buf, &len);
+  if (file == NULL) {
+    HandleError(Dart_NewApiError("open_memstream error"));
+  }
+
+  err = lis_esolver_output_rhistory_file(esolver, file); CHKERR(err);
+  fflush (file);
+
+  text = HandleError(Dart_NewStringFromCString((const char*) buf));
+
+  Dart_SetReturnValue(arguments, text);
+
+  fclose (file);
+  free (buf);
   Dart_ExitScope();
 }
 
