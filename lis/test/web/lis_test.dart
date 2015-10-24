@@ -8,13 +8,13 @@ import 'package:complex/complex.dart';
 import 'package:lis/src/web/dlis.dart';
 import 'package:lis/src/web/zlis.dart';
 
-import 'vector_test.dart';
-import 'matrix_test.dart';
-import 'module_test.dart';
-import 'solver_test.dart';
-import 'esolver_test.dart';
+import '../vector_test.dart';
+import '../matrix_test.dart';
+import '../module_test.dart';
+import '../solver_test.dart';
+import '../esolver_test.dart';
 
-import 'random.dart';
+import '../random.dart';
 
 main() {
   group('lis', () {
@@ -38,6 +38,7 @@ main() {
       group('vector', () => vectorTest(lis, rcmplx));
       group('matrix', () => matrixTest(lis, rcmplx, (i) => new Complex(i)));
 //      group('solver', () => solverTest(lis, rcmplx));
+//      group('esolver', () => esolverTest(lis));
       lis.finalize();
     });
   });

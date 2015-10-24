@@ -36,7 +36,11 @@ solverTest(LIS lis, rscal()) {
 
     var b2 = A * x;
     for (var i = 0; i < n; i++) {
-      expect(b2[i], closeTo(b[i], 1e-9));
+      if (cmplx) {
+        expect(b2[i].abs(), closeTo(b[i].abs(), 1e-9));
+      } else {
+        expect(b2[i], closeTo(b[i], 1e-9));
+      }
     }
 
     A.destroy();
@@ -47,10 +51,6 @@ solverTest(LIS lis, rscal()) {
   });
 
   test('solve', () {
-    if (cmplx) {
-      return;
-    }
-
     // read matrix and vectors
     var lp = new LinearProblem(lis, testmat);
     Matrix A = lp.A;
@@ -68,7 +68,11 @@ solverTest(LIS lis, rscal()) {
 
     var b2 = A.mult(x);
     for (var i = 0; i < b2.size; i++) {
-      expect(b2[i], closeTo(b[i], 1e-9));
+      if (cmplx) {
+        expect(b2[i].abs(), closeTo(b[i].abs(), 1e-9));
+      } else {
+        expect(b2[i], closeTo(b[i], 1e-9));
+      }
     }
 
     solver.destroy();
@@ -78,17 +82,19 @@ solverTest(LIS lis, rscal()) {
     A.destroy();
   });
 
-  test('duplicate', () {
-    if (cmplx) {
-      return;
+  cmplxify(List list) {
+    for (var i = 0; i < list.length; i++) {
+      list[i] = new Complex(list[i]);
     }
+  }
 
+  test('duplicate', () {
     var n = 5;
     var nnz = 12;
     var row = [0, 1, 0, 2, 4, 1, 2, 3, 4, 2, 1, 4];
     var col = [0, 0, 1, 1, 1, 2, 2, 2, 2, 3, 4, 4];
     var value = [2.0, 3.0, 3.0, -1.0, 4.0, 4.0, -3.0, 1.0, 2.0, 2.0, 6.0, 1.0];
-    var b = new Vector.from(lis, [8.0, 45.0, -3.0, 3.0, 19.0]);
+    var b = [8.0, 45.0, -3.0, 3.0, 19.0];
     var expected = [1.0, 2.0, 3.0, 4.0, 5.0];
 
     // add a duplicate entry
@@ -98,20 +104,36 @@ solverTest(LIS lis, rscal()) {
     value.add(value[0] / 2);
     value[0] /= 2;
 
+    if (cmplx) {
+      cmplxify(value);
+      cmplxify(b);
+      cmplxify(expected);
+    }
+
     var A = new Matrix.coo(lis, n, nnz, row, col, value);
 
     var B = A.copy();
     var b0 = B * new Vector.from(lis, expected);
     for (var i = 0; i < n; i++) {
-      expect(b0[i], closeTo(b[i], 1e-9));
+      if (cmplx) {
+        expect(b0[i].abs(), closeTo(b[i].abs(), 1e-9));
+      } else {
+        expect(b0[i], closeTo(b[i], 1e-9));
+      }
     }
+
+    b = new Vector.from(lis, b);
 
     var solver = new LinearSolver(lis);
 
     var x = solver.solve(A, b);
 
     for (var i = 0; i < n; i++) {
-      expect(x[i], closeTo(expected[i], 1e-9));
+      if (cmplx) {
+        expect(x[i].abs(), closeTo(expected[i].abs(), 1e-9));
+      } else {
+        expect(x[i], closeTo(expected[i], 1e-9));
+      }
     }
 
     solver.destroy();

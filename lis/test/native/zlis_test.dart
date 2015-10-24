@@ -6,7 +6,7 @@ import 'package:complex/complex.dart';
 
 import '../vector_test.dart';
 import '../matrix_test.dart';
-//import 'solver_test.dart';
+import '../solver_test.dart';
 
 import '../random.dart';
 
@@ -17,7 +17,7 @@ main() {
       var lis = new ZLIS();
       group('vector', () => vectorTest(lis, rcmplx));
       group('matrix', () => matrixTest(lis, rcmplx, (i) => new Complex(i)));
-//      group('solver', () => solverTest(lis, rcmplx));
+      group('solver', () => solverTest(lis, rcmplx));
       lis.finalize();
     });
   });
