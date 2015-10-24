@@ -410,7 +410,7 @@ LIS_INT lis_output_mm_header(LIS_MATRIX A, LIS_VECTOR b, LIS_VECTOR x, LIS_INT f
 	return LIS_SUCCESS;
 }
 #else
-LIS_INT lis_output_mm_header(LIS_MATRIX A, LIS_VECTOR b, LIS_VECTOR x, LIS_INT format, char *path, FILE **file)
+LIS_INT lis_output_mm_header(LIS_MATRIX A, LIS_VECTOR b, LIS_VECTOR x, LIS_INT format, FILE *file)
 {
 	LIS_INT	nnz;
 	LIS_INT	isb,isx,endian;
@@ -425,46 +425,33 @@ LIS_INT lis_output_mm_header(LIS_MATRIX A, LIS_VECTOR b, LIS_VECTOR x, LIS_INT f
 	endian = 1;
 	endian = *(char *)&endian;
 
-	if( format==LIS_FMT_MM )
-	{
-		*file = fopen(path, "w");
-	}
-	else
-	{
-		*file = fopen(path, "wb");
-	}
-	if( file==NULL )
-	{
-		LIS_SETERR1(LIS_ERR_FILE_IO,"cannot open file %s\n",path);
-		return LIS_ERR_FILE_IO;
-	}
-	fprintf(*file, "%%%%MatrixMarket matrix coordinate real general\n");
+	fprintf(file, "%%%%MatrixMarket matrix coordinate real general\n");
 
 	if( format==LIS_FMT_MM )
 	{
 		if( isb==0 && isx==0 )
 		{
 #ifdef _LONGLONG
-			fprintf(*file, "%lld %lld %lld\n", A->gn, A->gn, nnz);
+			fprintf(file, "%lld %lld %lld\n", A->gn, A->gn, nnz);
 #else
-			fprintf(*file, "%d %d %d\n", A->gn, A->gn, nnz);
+			fprintf(file, "%d %d %d\n", A->gn, A->gn, nnz);
 #endif
 		}
 		else
 		{
 #ifdef _LONGLONG
-			fprintf(*file, "%lld %lld %lld %lld %lld\n", A->gn, A->gn, nnz, isb, isx);
+			fprintf(file, "%lld %lld %lld %lld %lld\n", A->gn, A->gn, nnz, isb, isx);
 #else
-			fprintf(*file, "%d %d %d %d %d\n", A->gn, A->gn, nnz, isb, isx);
+			fprintf(file, "%d %d %d %d %d\n", A->gn, A->gn, nnz, isb, isx);
 #endif
 		}
 	}
 	else
 	{
 #ifdef _LONGLONG
-		fprintf(*file, "%lld %lld %lld %lld %lld %lld\n", A->gn, A->gn, nnz, isb, isx, endian+1);
+		fprintf(file, "%lld %lld %lld %lld %lld %lld\n", A->gn, A->gn, nnz, isb, isx, endian+1);
 #else
-		fprintf(*file, "%d %d %d %d %d %d\n", A->gn, A->gn, nnz, isb, isx, endian+1);
+		fprintf(file, "%d %d %d %d %d %d\n", A->gn, A->gn, nnz, isb, isx, endian+1);
 #endif
 	}
 
@@ -625,19 +612,18 @@ LIS_INT lis_output_mm_csr(LIS_MATRIX A, LIS_VECTOR b, LIS_VECTOR x, LIS_INT form
 	return LIS_SUCCESS;
 }
 #else
-LIS_INT lis_output_mm_csr(LIS_MATRIX A, LIS_VECTOR b, LIS_VECTOR x, LIS_INT format, char *path)
+LIS_INT lis_output_mm_csr(LIS_MATRIX A, LIS_VECTOR b, LIS_VECTOR x, LIS_INT format, FILE *file)
 {
 	LIS_INT	n;
 	LIS_INT	i,j,jj;
 	LIS_INT	err;
-	FILE *file;
 	LIS_MM_MATFMT fmt;
 
 	LIS_DEBUG_FUNC_IN;
 
 	n   = A->n;
 
-	err = lis_output_mm_header(A,b,x,format,path,&file);
+	err = lis_output_mm_header(A,b,x,format,file);
 	if( err ) return err;
 
 	if( A->matrix_type==LIS_MATRIX_CSR )
@@ -729,7 +715,6 @@ LIS_INT lis_output_mm_csr(LIS_MATRIX A, LIS_VECTOR b, LIS_VECTOR x, LIS_INT form
 		}
 	}
 	lis_output_mm_vec(A,b,x,format,file);
-	fclose(file);
 	
 	LIS_DEBUG_FUNC_OUT;
 	return LIS_SUCCESS;
@@ -738,13 +723,13 @@ LIS_INT lis_output_mm_csr(LIS_MATRIX A, LIS_VECTOR b, LIS_VECTOR x, LIS_INT form
 
 #undef __FUNC__
 #define __FUNC__ "lis_output_mm_csc"
-LIS_INT lis_output_mm_csc(LIS_MATRIX A, LIS_VECTOR b, LIS_VECTOR x, LIS_INT format, char *path)
+LIS_INT lis_output_mm_csc(LIS_MATRIX A, LIS_VECTOR b, LIS_VECTOR x, LIS_INT format, FILE *file)
 {
 	LIS_INT err;
 
 	LIS_DEBUG_FUNC_IN;
 
-	err = lis_output_mm_csr(A,b,x,format,path);
+	err = lis_output_mm_csr(A,b,x,format,file);
 
 	LIS_DEBUG_FUNC_OUT;
 	return err;

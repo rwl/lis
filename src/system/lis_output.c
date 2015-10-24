@@ -63,6 +63,37 @@
 LIS_INT lis_output(LIS_MATRIX A, LIS_VECTOR b, LIS_VECTOR x, LIS_INT format, char *path)
 {
 	LIS_INT	err;
+	FILE *file;
+
+	LIS_DEBUG_FUNC_IN;
+
+	if( format==LIS_FMT_MM )
+	{
+		file = fopen(path, "w");
+	}
+	else
+	{
+		file = fopen(path, "wb");
+	}
+	if( file==NULL )
+	{
+		LIS_SETERR1(LIS_ERR_FILE_IO,"cannot open file %s\n",path);
+		return LIS_ERR_FILE_IO;
+	}
+
+	err = lis_output_file(A, b, x, format, file);
+	fclose(file);
+
+	LIS_DEBUG_FUNC_OUT;
+	return err;
+}
+
+
+#undef __FUNC__
+#define __FUNC__ "lis_output_file"
+LIS_INT lis_output_file(LIS_MATRIX A, LIS_VECTOR b, LIS_VECTOR x, LIS_INT format, FILE *file)
+{
+	LIS_INT	err;
 	LIS_MATRIX B;
 
 	LIS_DEBUG_FUNC_IN;
@@ -78,7 +109,7 @@ LIS_INT lis_output(LIS_MATRIX A, LIS_VECTOR b, LIS_VECTOR x, LIS_INT format, cha
 		switch( A->matrix_type )
 		{
 		case LIS_MATRIX_CSR:
-			err = lis_output_mm_csr(A,b,x,format,path);
+			err = lis_output_mm_csr(A,b,x,format,file);
 			break;
 		default:
 			err = lis_matrix_duplicate(A,&B);
@@ -86,7 +117,7 @@ LIS_INT lis_output(LIS_MATRIX A, LIS_VECTOR b, LIS_VECTOR x, LIS_INT format, cha
 			lis_matrix_set_type(B,LIS_MATRIX_CSR);
 			err = lis_matrix_convert(A,B);
 			if( err ) return err;
-			err = lis_output_mm_csr(B,b,x,format,path);
+			err = lis_output_mm_csr(B,b,x,format,file);
 			lis_matrix_destroy(B);
 			break;
 		}
@@ -96,9 +127,40 @@ LIS_INT lis_output(LIS_MATRIX A, LIS_VECTOR b, LIS_VECTOR x, LIS_INT format, cha
 	return err;
 }
 
+
 #undef __FUNC__
 #define __FUNC__ "lis_output"
 LIS_INT lis_output_matrix(LIS_MATRIX A, LIS_INT format, char *path)
+{
+	LIS_INT err;
+	FILE *file;
+
+	LIS_DEBUG_FUNC_IN;
+
+	if( format==LIS_FMT_MM )
+	{
+		file = fopen(path, "w");
+	}
+	else
+	{
+		file = fopen(path, "wb");
+	}
+	if( file==NULL )
+	{
+		LIS_SETERR1(LIS_ERR_FILE_IO,"cannot open file %s\n",path);
+		return LIS_ERR_FILE_IO;
+	}
+	err = lis_output_matrix_file(A, format, file);
+	fclose(file);
+
+	LIS_DEBUG_FUNC_OUT;
+	return err;
+}
+
+
+#undef __FUNC__
+#define __FUNC__ "lis_output_matrix_file"
+LIS_INT lis_output_matrix_file(LIS_MATRIX A, LIS_INT format, FILE *file)
 {
 	LIS_INT err;
 	LIS_MATRIX B;
@@ -120,7 +182,7 @@ LIS_INT lis_output_matrix(LIS_MATRIX A, LIS_INT format, char *path)
 		switch( A->matrix_type )
 		{
 		case LIS_MATRIX_CSR:
-			err = lis_output_mm_csr(A,b,x,format,path);
+			err = lis_output_mm_csr(A,b,x,format,file);
 			break;
 		default:
 			err = lis_matrix_duplicate(A,&B);
@@ -128,7 +190,7 @@ LIS_INT lis_output_matrix(LIS_MATRIX A, LIS_INT format, char *path)
 			lis_matrix_set_type(B,LIS_MATRIX_CSR);
 			err = lis_matrix_convert(A,B);
 			if( err ) return err;
-			err = lis_output_mm_csr(B,b,x,format,path);
+			err = lis_output_mm_csr(B,b,x,format,file);
 			lis_matrix_destroy(B);
 			break;
 		}
@@ -146,6 +208,29 @@ LIS_INT lis_output_matrix(LIS_MATRIX A, LIS_INT format, char *path)
 LIS_INT lis_output_vector(LIS_VECTOR v, LIS_INT format, char *filename)
 {
 	LIS_INT err;
+	FILE *file;
+
+	LIS_DEBUG_FUNC_IN;
+
+	file = fopen(filename, "w");
+	if( file==NULL )
+	{
+		LIS_SETERR1(LIS_ERR_FILE_IO,"cannot open file %s\n", filename);
+		return LIS_ERR_FILE_IO;
+	}
+	err = lis_output_vector_file(v, format, file);
+	fclose(file);
+
+	LIS_DEBUG_FUNC_OUT;
+	return err;
+}
+
+
+#undef __FUNC__
+#define __FUNC__ "lis_output_vector_file"
+LIS_INT lis_output_vector_file(LIS_VECTOR v, LIS_INT format, FILE *file)
+{
+	LIS_INT err;
 
 	LIS_DEBUG_FUNC_IN;
 
@@ -158,13 +243,13 @@ LIS_INT lis_output_vector(LIS_VECTOR v, LIS_INT format, char *filename)
 	switch( format )
 	{
 	case LIS_FMT_PLAIN:
-		err = lis_output_vector_plain(v,filename);
+		err = lis_output_vector_plain(v,file);
 		break;
 	case LIS_FMT_MM:
-		err = lis_output_vector_mm(v,filename);
+		err = lis_output_vector_mm(v,file);
 		break;
 	case LIS_FMT_LIS:
-		err = lis_output_vector_lis_ascii(v,filename);
+		err = lis_output_vector_lis_ascii(v,file);
 		break;
 	default:
 		LIS_SETERR(LIS_ERR_ILL_ARG,"ill format option\n");
@@ -176,16 +261,16 @@ LIS_INT lis_output_vector(LIS_VECTOR v, LIS_INT format, char *filename)
 	return err;
 }
 
+
 #undef __FUNC__
 #define __FUNC__ "lis_output_vector_plain"
-LIS_INT lis_output_vector_plain(LIS_VECTOR v, char *path)
+LIS_INT lis_output_vector_plain(LIS_VECTOR v, FILE *file)
 {
 	LIS_INT	n,i;
 	#ifdef USE_MPI
 		LIS_INT pe,nprocs,my_rank;
 		LIS_INT	err,ret;
 	#endif
-	FILE *file;
 
 	LIS_DEBUG_FUNC_IN;
 
@@ -244,12 +329,6 @@ LIS_INT lis_output_vector_plain(LIS_VECTOR v, char *path)
 #else
 	n         = v->n;
 
-	file = fopen(path, "w");
-	if( file==NULL )
-	{
-		LIS_SETERR1(LIS_ERR_FILE_IO,"cannot open file %s\n", path);
-		return LIS_ERR_FILE_IO;
-	}
 	for(i=0;i<n;i++)
 	{
 	  if (v->intvalue)
@@ -273,22 +352,21 @@ LIS_INT lis_output_vector_plain(LIS_VECTOR v, char *path)
 #endif
 	    }
 	}
-	fclose(file);
 	LIS_DEBUG_FUNC_OUT;
 	return LIS_SUCCESS;
 #endif
 }
 
+
 #undef __FUNC__
 #define __FUNC__ "lis_output_vector_mm"
-LIS_INT lis_output_vector_mm(LIS_VECTOR v, char *path)
+LIS_INT lis_output_vector_mm(LIS_VECTOR v, FILE *file)
 {
 	LIS_INT	i,n,is;
 	#ifdef USE_MPI
 		LIS_INT	pe,nprocs,my_rank;
 		LIS_INT	err,ret;
 	#endif
-	FILE *file;
 
 	LIS_DEBUG_FUNC_IN;
 #ifdef USE_MPI
@@ -383,13 +461,6 @@ LIS_INT lis_output_vector_mm(LIS_VECTOR v, char *path)
 	n         = v->n;
 	is        = v->is; 
 
-	file = fopen(path, "w");
-	if( file==NULL )
-	{
-		LIS_SETERR1(LIS_ERR_FILE_IO,"cannot open file %s\n", path);
-		return LIS_ERR_FILE_IO;
-	}
-
 	if (v->intvalue) 
 	  {
 	    fprintf(file, "%%%%MatrixMarket vector coordinate integer general\n");
@@ -436,7 +507,6 @@ LIS_INT lis_output_vector_mm(LIS_VECTOR v, char *path)
 	     }
 	  /* fprintf(file, "%d %28.20e\n", i+1, v->value[i]); */
 	}
-	fclose(file);
 
 	LIS_DEBUG_FUNC_OUT;
 	return LIS_SUCCESS;
@@ -446,14 +516,13 @@ LIS_INT lis_output_vector_mm(LIS_VECTOR v, char *path)
 
 #undef __FUNC__
 #define __FUNC__ "lis_output_vector_lis_ascii"
-LIS_INT lis_output_vector_lis_ascii(LIS_VECTOR v, char *path)
+LIS_INT lis_output_vector_lis_ascii(LIS_VECTOR v, FILE *file)
 {
 	LIS_INT	i,n;
 	#ifdef USE_MPI
 		LIS_INT	pe,nprocs,my_rank;
 		LIS_INT	err,ret;
 	#endif
-	FILE *file;
 
 	LIS_DEBUG_FUNC_IN;
 #ifdef USE_MPI
@@ -538,13 +607,6 @@ LIS_INT lis_output_vector_lis_ascii(LIS_VECTOR v, char *path)
 #else
 	n         = v->n;
 
-	file = fopen(path, "w");
-	if( file==NULL )
-	{
-		LIS_SETERR1(LIS_ERR_FILE_IO,"cannot open file %s\n", path);
-		return LIS_ERR_FILE_IO;
-	}
-
 	fprintf(file, "#LIS A vec\n");
 	fprintf(file, "1\n");
 
@@ -578,22 +640,44 @@ LIS_INT lis_output_vector_lis_ascii(LIS_VECTOR v, char *path)
 		if( (i+1)%3==0 ) fprintf(file, "\n");
 	}
 	if( n%3!=0 ) fprintf(file, "\n");
-	fclose(file);
 
 	LIS_DEBUG_FUNC_OUT;
 	return LIS_SUCCESS;
 #endif
 }
 
+
 #undef __FUNC__
 #define __FUNC__ "lis_solver_output_rhistory"
 LIS_INT lis_solver_output_rhistory(LIS_SOLVER solver, char *filename)
+{
+	LIS_INT	err;
+	FILE *file;
+
+	LIS_DEBUG_FUNC_IN;
+
+	file = fopen(filename, "w");
+	if( file==NULL )
+	{
+		LIS_SETERR1(LIS_ERR_FILE_IO,"cannot open file %s\n", filename);
+		return LIS_ERR_FILE_IO;
+	}
+	err = lis_solver_output_rhistory_file(solver, file);
+	fclose(file);
+
+	LIS_DEBUG_FUNC_OUT;
+	return err;
+}
+
+
+#undef __FUNC__
+#define __FUNC__ "lis_solver_output_rhistory_file"
+LIS_INT lis_solver_output_rhistory_file(LIS_SOLVER solver, FILE *file)
 {
 	LIS_INT	i,maxiter;
 	#ifdef USE_MPI
 		LIS_INT	my_rank;
 	#endif
-	FILE *file;
 
 	LIS_DEBUG_FUNC_IN;
 
@@ -646,12 +730,6 @@ LIS_INT lis_solver_output_rhistory(LIS_SOLVER solver, char *filename)
 		LIS_SETERR(LIS_FAILS,"residual history is empty\n");
 		return LIS_FAILS;
 	}
-	file = fopen(filename, "w");
-	if( file==NULL )
-	{
-		LIS_SETERR1(LIS_ERR_FILE_IO,"cannot open file %s\n", filename);
-		return LIS_ERR_FILE_IO;
-	}
 	for(i=0;i<maxiter;i++)
 	{
 #ifdef _LONG__DOUBLE
@@ -664,21 +742,42 @@ LIS_INT lis_solver_output_rhistory(LIS_SOLVER solver, char *filename)
 #endif
 #endif
 	}
-	fclose(file);
 	LIS_DEBUG_FUNC_OUT;
 	return LIS_SUCCESS;
 #endif
 }
 
+
 #undef __FUNC__
 #define __FUNC__ "lis_esolver_output_rhistory"
 LIS_INT lis_esolver_output_rhistory(LIS_ESOLVER esolver, char *filename)
+{
+	LIS_INT err;
+	FILE *file;
+
+	LIS_DEBUG_FUNC_IN;
+
+	file = fopen(filename, "w");
+	if( file==NULL )
+	{
+		LIS_SETERR1(LIS_ERR_FILE_IO,"cannot open file %s\n", filename);
+		return LIS_ERR_FILE_IO;
+	}
+	err = lis_esolver_output_rhistory_file(esolver, file);
+
+	LIS_DEBUG_FUNC_OUT;
+	return err;
+}
+
+
+#undef __FUNC__
+#define __FUNC__ "lis_esolver_output_rhistory_file"
+LIS_INT lis_esolver_output_rhistory_file(LIS_ESOLVER esolver, FILE *file)
 {
 	LIS_INT	i,maxiter;
 	#ifdef USE_MPI
 		LIS_INT	my_rank;
 	#endif
-	FILE *file;
 
 	LIS_DEBUG_FUNC_IN;
 
@@ -731,12 +830,6 @@ LIS_INT lis_esolver_output_rhistory(LIS_ESOLVER esolver, char *filename)
 		LIS_SETERR(LIS_FAILS,"eigensolver's residual history is empty\n");
 		return LIS_FAILS;
 	}
-	file = fopen(filename, "w");
-	if( file==NULL )
-	{
-		LIS_SETERR1(LIS_ERR_FILE_IO,"cannot open file %s\n", filename);
-		return LIS_ERR_FILE_IO;
-	}
 	for(i=0;i<maxiter;i++)
 	{
 #ifdef _LONG__DOUBLE
@@ -749,7 +842,6 @@ LIS_INT lis_esolver_output_rhistory(LIS_ESOLVER esolver, char *filename)
 #endif
 #endif
 	}
-	fclose(file);
 	LIS_DEBUG_FUNC_OUT;
 	return LIS_SUCCESS;
 #endif

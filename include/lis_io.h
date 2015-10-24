@@ -125,8 +125,8 @@ extern "C"
 /* Matrix Output            */
 /****************************/
 
-	extern LIS_INT lis_output_mm_csr(LIS_MATRIX A, LIS_VECTOR b, LIS_VECTOR x, LIS_INT format, char *path);
-	extern LIS_INT lis_output_mm_csc(LIS_MATRIX A, LIS_VECTOR b, LIS_VECTOR x, LIS_INT format, char *path);
+	extern LIS_INT lis_output_mm_csr(LIS_MATRIX A, LIS_VECTOR b, LIS_VECTOR x, LIS_INT format, FILE *file);
+	extern LIS_INT lis_output_mm_csc(LIS_MATRIX A, LIS_VECTOR b, LIS_VECTOR x, LIS_INT format, FILE *file);
 
 /****************************/
 /* Vector Input             */
@@ -143,9 +143,9 @@ extern "C"
 /* Vector Output            */
 /****************************/
 
-	extern LIS_INT lis_output_vector_plain(LIS_VECTOR v, char *path);
-	extern LIS_INT lis_output_vector_mm(LIS_VECTOR v, char *path);
-	extern LIS_INT lis_output_vector_lis_ascii(LIS_VECTOR v, char *path);
+	extern LIS_INT lis_output_vector_plain(LIS_VECTOR v, FILE *file);
+	extern LIS_INT lis_output_vector_mm(LIS_VECTOR v, FILE *file);
+	extern LIS_INT lis_output_vector_lis_ascii(LIS_VECTOR v, FILE *file);
 
 
 #ifdef __cplusplus

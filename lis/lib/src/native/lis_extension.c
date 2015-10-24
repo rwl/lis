@@ -1978,7 +1978,7 @@ void LIS_InputVector(Dart_NativeArguments arguments) {
 
 
 void LIS_Output(Dart_NativeArguments arguments) {
-  LIS_INT err;
+//  LIS_INT err;
 
   Dart_EnterScope();
 
@@ -1988,7 +1988,7 @@ void LIS_Output(Dart_NativeArguments arguments) {
 
 
 void LIS_OutputMatrix(Dart_NativeArguments arguments) {
-  LIS_INT err;
+//  LIS_INT err;
 
   Dart_EnterScope();
 
@@ -1998,7 +1998,7 @@ void LIS_OutputMatrix(Dart_NativeArguments arguments) {
 
 
 void LIS_OutputVector(Dart_NativeArguments arguments) {
-  LIS_INT err;
+//  LIS_INT err;
 
   Dart_EnterScope();
 
@@ -2008,7 +2008,7 @@ void LIS_OutputVector(Dart_NativeArguments arguments) {
 
 
 void LIS_SolverOutputRHistory(Dart_NativeArguments arguments) {
-  LIS_INT err;
+//  LIS_INT err;
 
   Dart_EnterScope();
 
@@ -2018,7 +2018,7 @@ void LIS_SolverOutputRHistory(Dart_NativeArguments arguments) {
 
 
 void LIS_EsolverOutputRHistory(Dart_NativeArguments arguments) {
-  LIS_INT err;
+//  LIS_INT err;
 
   Dart_EnterScope();
 

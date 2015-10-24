@@ -917,9 +917,15 @@ extern "C"
 	extern LIS_INT lis_output_vector(LIS_VECTOR v, LIS_INT format, char *filename);
 	extern LIS_INT lis_solver_output_rhistory(LIS_SOLVER solver, char *filename);
 	extern LIS_INT lis_esolver_output_rhistory(LIS_ESOLVER esolver, char *filename);
+
 	extern LIS_INT lis_input_file(LIS_MATRIX A, LIS_VECTOR b, LIS_VECTOR x, FILE *file);
 	extern LIS_INT lis_input_matrix_file(LIS_MATRIX A, FILE *file);
 	extern LIS_INT lis_input_vector_file(LIS_VECTOR v, FILE *file);
+	extern LIS_INT lis_output_file(LIS_MATRIX A, LIS_VECTOR b, LIS_VECTOR x, LIS_INT mode, FILE *file);
+	extern LIS_INT lis_output_matrix_file(LIS_MATRIX A, LIS_INT mode, FILE *file);
+	extern LIS_INT lis_output_vector_file(LIS_VECTOR v, LIS_INT format, FILE *file);
+	extern LIS_INT lis_solver_output_rhistory_file(LIS_SOLVER solver, FILE *file);
+	extern LIS_INT lis_esolver_output_rhistory_file(LIS_ESOLVER esolver, FILE *file);
 
 /****************************/
 /* Utilities                */
