@@ -18,37 +18,81 @@ class Matrix<S> {
     return m;
   }
 
-  factory Matrix.csr(LIS lis, CSR csr) {
-    var m = new Matrix(lis)..size = csr.n;
-    lis.matrixSetCsr(csr.nnz, csr.ptr, csr.index, csr.value, m._p_mat);
+  factory Matrix.csr(
+      LIS lis, int n, int nnz, List<int> ptr, List<int> index, List<S> value) {
+    if (ptr.length != n + 1) {
+      throw new ArgumentError('ptr.length != n + 1');
+    }
+    if (index.length != nnz) {
+      throw new ArgumentError('index.length != nnz');
+    }
+    if (value.length != nnz) {
+      throw new ArgumentError('value.length != nnz');
+    }
+
+    var m = new Matrix(lis, n);
+    lis.matrixSetCsr(nnz, ptr, index, value, m._p_mat);
     m.assemble();
     return m;
   }
 
-  factory Matrix.csc(LIS lis, CSC csc) {
-    var m = new Matrix(lis)..size = csc.n;
-    lis.matrixSetCsc(csc.nnz, csc.ptr, csc.index, csc.value, m._p_mat);
+  factory Matrix.csc(
+      LIS lis, int n, int nnz, List<int> ptr, List<int> index, List<S> value) {
+    if (ptr.length != n + 1) {
+      throw new ArgumentError('ptr.length != n + 1');
+    }
+    if (index.length != nnz) {
+      throw new ArgumentError('index.length != nnz');
+    }
+    if (value.length != nnz) {
+      throw new ArgumentError('value.length != nnz');
+    }
+    var m = new Matrix(lis, n);
+    lis.matrixSetCsc(nnz, ptr, index, value, m._p_mat);
     m.assemble();
     return m;
   }
 
-  factory Matrix.dia(LIS lis, Dia dia) {
-    var m = new Matrix(lis)..size = dia.n;
-    lis.matrixSetDia(dia.nnd, dia.index, dia.value, m._p_mat);
+  factory Matrix.dia(LIS lis, int n, int nnd, List<int> index, List<S> value) {
+    if (index.length != nnd) {
+      throw new ArgumentError('index.length != nnz');
+    }
+    if (value.length != n * nnd) {
+      throw new ArgumentError('value.length != n*nnd');
+    }
+    var m = new Matrix(lis, n);
+    lis.matrixSetDia(nnd, index, value, m._p_mat);
     m.assemble();
     return m;
   }
 
-  factory Matrix.coo(LIS lis, Coo coo) {
-    var m = new Matrix(lis)..size = coo.n;
-    lis.matrixSetCoo(coo.nnz, coo.row, coo.col, coo.value, m._p_mat);
+  factory Matrix.coo(
+      LIS lis, int n, int nnz, List<int> row, List<int> col, List<S> value) {
+    if (row.length != nnz) {
+      throw new ArgumentError('row.length != nnz');
+    }
+    if (col.length != nnz) {
+      throw new ArgumentError('col.length != nnz');
+    }
+    if (value.length != nnz) {
+      throw new ArgumentError('value.length != nnz');
+    }
+
+    var m = new Matrix(lis, n);
+    lis.matrixSetCoo(nnz, row, col, value, m._p_mat);
     m.assemble();
     return m;
   }
 
-  factory Matrix.dense(LIS lis, Dense dense) {
-    var m = new Matrix(lis)..size = dense.n;
-    lis.matrixSetDns(dense.value, m._p_mat);
+  factory Matrix.dense(LIS lis, int n, List<S> value, [int np]) {
+    if (np == null) {
+      np = n;
+    }
+    if (value.length != n * np) {
+      throw new ArgumentError('value.length != n * np');
+    }
+    var m = new Matrix(lis, n);
+    lis.matrixSetDns(value, m._p_mat);
     m.assemble();
     return m;
   }
@@ -150,83 +194,6 @@ class Matrix<S> {
     _lis.matrixTranspose(_p_mat, Aout._p_mat);
     return Aout;
   }
-}
-
-class CSR<S> {
-  final int n;
-  final int nnz;
-  final List<int> ptr;
-  final List<int> index;
-  final List<S> value;
-
-  CSR(int n_, int nnz_)
-      : n = n_,
-        nnz = nnz_,
-        ptr = new List<int>(n_ + 1),
-        index = new List<int>(nnz_),
-        value = new List<S>(nnz_);
-
-  CSR.from(this.n, this.nnz, this.ptr, this.index, this.value);
-}
-
-class CSC<S> {
-  final int n;
-  final int nnz;
-  final List<int> ptr;
-  final List<int> index;
-  final List<S> value;
-
-  CSC(int n_, int nnz_)
-      : n = n_,
-        nnz = nnz_,
-        ptr = new List<int>(n_ + 1),
-        index = new List<int>(nnz_),
-        value = new List<S>(nnz_);
-
-  CSC.from(this.n, this.nnz, this.ptr, this.index, this.value);
-}
-
-class Dia<S> {
-  final int n;
-  final int nnd;
-  final List<int> index;
-  final List<S> value;
-
-  Dia(int n_, int nnd_)
-      : n = n_,
-        nnd = nnd_,
-        index = new List<int>(nnd_), // TODO: n*nnd
-        value = new List<S>(n_ * nnd_);
-
-  Dia.from(this.n, this.nnd, this.index, this.value);
-}
-
-class Coo<S> {
-  final int n;
-  final int nnz;
-  final List<int> row, col;
-  final List<S> value;
-
-  Coo(this.n, int nnz_)
-      : nnz = nnz_,
-        row = new List<int>(nnz_),
-        col = new List<int>(nnz_),
-        value = new List<S>(nnz_);
-
-  Coo.from(this.n, this.nnz, this.row, this.col, this.value);
-}
-
-class Dense<S> {
-  final int n;
-  final int np;
-  final List<S> value;
-
-  Dense(int n_, [int np_])
-      : n = n_,
-        np = (np_ == null ? n_ : np_),
-        value = new List<S>(n_ * (np_ == null ? n_ : np_));
-
-  Dense.from(this.n, this.np, this.value);
 }
 
 class MatrixType {

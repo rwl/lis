@@ -149,17 +149,20 @@ matrixTest(LIS lis, rscal(), toScalar(int i)) {
     Vector ones;
     setUp(() {
       int n = rint();
-      var coo = new Coo(n, 2 * n);
+      var nnz = 2 * n;
+      var row = new Int32List(nnz);
+      var col = new Int32List(nnz);
+      var value = new List(nnz);
       for (int i = 0; i < n; i++) {
-        coo.row[2 * i] = i;
-        coo.col[2 * i] = i;
-        coo.value[2 * i] = lis.one;
+        row[2 * i] = i;
+        col[2 * i] = i;
+        value[2 * i] = lis.one;
 
-        coo.row[2 * i + 1] = i;
-        coo.col[2 * i + 1] = n - 1 - i;
-        coo.value[2 * i + 1] = toScalar(i + 1);
+        row[2 * i + 1] = i;
+        col[2 * i + 1] = n - 1 - i;
+        value[2 * i + 1] = toScalar(i + 1);
       }
-      A = new Matrix.coo(lis, coo);
+      A = new Matrix.coo(lis, n, nnz, row, col, value);
       ones = new Vector(lis, n)..fill(lis.one);
     });
     tearDown(() {
@@ -199,160 +202,167 @@ matrixTest(LIS lis, rscal(), toScalar(int i)) {
 
     test('csr', () {
       var n = 4, nnz = 8;
-      var csr = new CSR(n, nnz);
+      var ptr = new Int32List(n + 1);
+      var index = new Int32List(nnz);
+      var value = new List(nnz);
 
-      csr.ptr[0] = 0;
-      csr.ptr[1] = 1;
-      csr.ptr[2] = 3;
-      csr.ptr[3] = 5;
-      csr.ptr[4] = 8;
-      csr.index[0] = 0;
-      csr.index[1] = 0;
-      csr.index[2] = 1;
-      csr.index[3] = 1;
-      csr.index[4] = 2;
-      csr.index[5] = 0;
-      csr.index[6] = 2;
-      csr.index[7] = 3;
-      csr.value[0] = 11.0;
-      csr.value[1] = 21.0;
-      csr.value[2] = 22.0;
-      csr.value[3] = 32.0;
-      csr.value[4] = 33.0;
-      csr.value[5] = 41.0;
-      csr.value[6] = 43.0;
-      csr.value[7] = 44.0;
+      ptr[0] = 0;
+      ptr[1] = 1;
+      ptr[2] = 3;
+      ptr[3] = 5;
+      ptr[4] = 8;
+      index[0] = 0;
+      index[1] = 0;
+      index[2] = 1;
+      index[3] = 1;
+      index[4] = 2;
+      index[5] = 0;
+      index[6] = 2;
+      index[7] = 3;
+      value[0] = 11.0;
+      value[1] = 21.0;
+      value[2] = 22.0;
+      value[3] = 32.0;
+      value[4] = 33.0;
+      value[5] = 41.0;
+      value[6] = 43.0;
+      value[7] = 44.0;
 
       if (complex) {
-        cmplxify(csr.value);
+        cmplxify(value);
       }
 
-      var A = new Matrix.csr(lis, csr);
+      var A = new Matrix.csr(lis, n, nnz, ptr, index, value);
       expect(A.diagonal().values(), equals(diagonal));
     });
     test('csc', () {
       var n = 4, nnz = 8;
-      var csc = new CSC(n, nnz);
+      var ptr = new Int32List(n + 1);
+      var index = new Int32List(nnz);
+      var value = new List(nnz);
 
-      csc.ptr[0] = 0;
-      csc.ptr[1] = 3;
-      csc.ptr[2] = 5;
-      csc.ptr[3] = 7;
-      csc.ptr[4] = 8;
-      csc.index[0] = 0;
-      csc.index[1] = 1;
-      csc.index[2] = 3;
-      csc.index[3] = 1;
-      csc.index[4] = 2;
-      csc.index[5] = 2;
-      csc.index[6] = 3;
-      csc.index[7] = 3;
-      csc.value[0] = 11.0;
-      csc.value[1] = 21.0;
-      csc.value[2] = 41.0;
-      csc.value[3] = 22.0;
-      csc.value[4] = 32.0;
-      csc.value[5] = 33.0;
-      csc.value[6] = 43.0;
-      csc.value[7] = 44.0;
+      ptr[0] = 0;
+      ptr[1] = 3;
+      ptr[2] = 5;
+      ptr[3] = 7;
+      ptr[4] = 8;
+      index[0] = 0;
+      index[1] = 1;
+      index[2] = 3;
+      index[3] = 1;
+      index[4] = 2;
+      index[5] = 2;
+      index[6] = 3;
+      index[7] = 3;
+      value[0] = 11.0;
+      value[1] = 21.0;
+      value[2] = 41.0;
+      value[3] = 22.0;
+      value[4] = 32.0;
+      value[5] = 33.0;
+      value[6] = 43.0;
+      value[7] = 44.0;
 
       if (complex) {
-        cmplxify(csc.value);
+        cmplxify(value);
       }
 
-      var A = new Matrix.csc(lis, csc);
+      var A = new Matrix.csc(lis, n, nnz, ptr, index, value);
       expect(A.diagonal().values(), equals(diagonal));
     });
     test('dia', () {
       var n = 4, nnd = 3;
-      var dia = new Dia(n, nnd);
+      var index = new Int32List(nnd);
+      var value = new List(n * nnd);
 
-      dia.index[0] = -3;
-      dia.index[1] = -1;
-      dia.index[2] = 0;
-      dia.value[0] = 0.0;
-      dia.value[1] = 0.0;
-      dia.value[2] = 0.0;
-      dia.value[3] = 41.0;
-      dia.value[4] = 0.0;
-      dia.value[5] = 21.0;
-      dia.value[6] = 32.0;
-      dia.value[7] = 43.0;
-      dia.value[8] = 11.0;
-      dia.value[9] = 22.0;
-      dia.value[10] = 33.0;
-      dia.value[11] = 44.0;
+      index[0] = -3;
+      index[1] = -1;
+      index[2] = 0;
+      value[0] = 0.0;
+      value[1] = 0.0;
+      value[2] = 0.0;
+      value[3] = 41.0;
+      value[4] = 0.0;
+      value[5] = 21.0;
+      value[6] = 32.0;
+      value[7] = 43.0;
+      value[8] = 11.0;
+      value[9] = 22.0;
+      value[10] = 33.0;
+      value[11] = 44.0;
 
       if (complex) {
-        cmplxify(dia.value);
+        cmplxify(value);
       }
 
-      var A = new Matrix.dia(lis, dia);
+      var A = new Matrix.dia(lis, n, nnd, index, value);
       expect(A.diagonal().values(), equals(diagonal));
     });
     test('coo', () {
       int n = 4, nnz = 8;
-      var coo = new Coo(n, nnz);
+      var row = new Int32List(nnz);
+      var col = new Int32List(nnz);
+      var value = new List(nnz);
 
-      coo.row[0] = 0;
-      coo.row[1] = 1;
-      coo.row[2] = 3;
-      coo.row[3] = 1;
-      coo.row[4] = 2;
-      coo.row[5] = 2;
-      coo.row[6] = 3;
-      coo.row[7] = 3;
-      coo.col[0] = 0;
-      coo.col[1] = 0;
-      coo.col[2] = 0;
-      coo.col[3] = 1;
-      coo.col[4] = 1;
-      coo.col[5] = 2;
-      coo.col[6] = 2;
-      coo.col[7] = 3;
-      coo.value[0] = 11.0;
-      coo.value[1] = 21.0;
-      coo.value[2] = 41.0;
-      coo.value[3] = 22.0;
-      coo.value[4] = 32.0;
-      coo.value[5] = 33.0;
-      coo.value[6] = 43.0;
-      coo.value[7] = 44.0;
+      row[0] = 0;
+      row[1] = 1;
+      row[2] = 3;
+      row[3] = 1;
+      row[4] = 2;
+      row[5] = 2;
+      row[6] = 3;
+      row[7] = 3;
+      col[0] = 0;
+      col[1] = 0;
+      col[2] = 0;
+      col[3] = 1;
+      col[4] = 1;
+      col[5] = 2;
+      col[6] = 2;
+      col[7] = 3;
+      value[0] = 11.0;
+      value[1] = 21.0;
+      value[2] = 41.0;
+      value[3] = 22.0;
+      value[4] = 32.0;
+      value[5] = 33.0;
+      value[6] = 43.0;
+      value[7] = 44.0;
 
       if (complex) {
-        cmplxify(coo.value);
+        cmplxify(value);
       }
 
-      var A = new Matrix.coo(lis, coo);
+      var A = new Matrix.coo(lis, n, nnz, row, col, value);
       expect(A.diagonal().values(), equals(diagonal));
     });
 
     test('dense', () {
       var n = 4;
-      var dense = new Dense(n);
+      var value = new List(n * n);
 
-      dense.value[0] = 11.0;
-      dense.value[1] = 21.0;
-      dense.value[2] = 0.0;
-      dense.value[3] = 41.0;
-      dense.value[4] = 0.0;
-      dense.value[5] = 22.0;
-      dense.value[6] = 32.0;
-      dense.value[7] = 0.0;
-      dense.value[8] = 0.0;
-      dense.value[9] = 0.0;
-      dense.value[10] = 33.0;
-      dense.value[11] = 43.0;
-      dense.value[12] = 0.0;
-      dense.value[13] = 0.0;
-      dense.value[14] = 0.0;
-      dense.value[15] = 44.0;
+      value[0] = 11.0;
+      value[1] = 21.0;
+      value[2] = 0.0;
+      value[3] = 41.0;
+      value[4] = 0.0;
+      value[5] = 22.0;
+      value[6] = 32.0;
+      value[7] = 0.0;
+      value[8] = 0.0;
+      value[9] = 0.0;
+      value[10] = 33.0;
+      value[11] = 43.0;
+      value[12] = 0.0;
+      value[13] = 0.0;
+      value[14] = 0.0;
+      value[15] = 44.0;
 
       if (complex) {
-        cmplxify(dense.value);
+        cmplxify(value);
       }
 
-      var A = new Matrix.dense(lis, dense);
+      var A = new Matrix.dense(lis, n, value);
       expect(A.diagonal().values(), equals(diagonal));
     });
   });

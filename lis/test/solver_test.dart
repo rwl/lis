@@ -2,12 +2,13 @@ library lis.test1;
 
 import 'package:test/test.dart';
 import 'package:lis/lis.dart';
-import 'package:lis/web/zlis.dart';
+import 'package:complex/complex.dart';
 
 import 'random.dart' show rand;
 import 'testmat.dart';
 
 solverTest(LIS lis, rscal()) {
+  bool cmplx = rscal() is Complex;
   test('basic', () {
     var n = 30;
     var row = <int>[];
@@ -27,12 +28,7 @@ solverTest(LIS lis, rscal()) {
       }
     }
 
-    var coo = new Coo(n, value.length)
-      ..value.setAll(0, value)
-      ..row.setAll(0, row)
-      ..col.setAll(0, col);
-
-    var A = new Matrix.coo(lis, coo);
+    var A = new Matrix.coo(lis, n, value.length, row, col, value);
     var b = new Vector(lis, n)..fill(lis.one);
 
     var solver = new LinearSolver(lis);
@@ -51,7 +47,7 @@ solverTest(LIS lis, rscal()) {
   });
 
   test('solve', () {
-    if (lis is ZLIS) {
+    if (cmplx) {
       return;
     }
 
@@ -83,7 +79,7 @@ solverTest(LIS lis, rscal()) {
   });
 
   test('duplicate', () {
-    if (lis is ZLIS) {
+    if (cmplx) {
       return;
     }
 
@@ -102,12 +98,7 @@ solverTest(LIS lis, rscal()) {
     value.add(value[0] / 2);
     value[0] /= 2;
 
-    var coo = new Coo(n, nnz);
-    coo.value.setAll(0, value);
-    coo.row.setAll(0, row);
-    coo.col.setAll(0, col);
-
-    var A = new Matrix.coo(lis, coo);
+    var A = new Matrix.coo(lis, n, nnz, row, col, value);
 
     var B = A.copy();
     var b0 = B * new Vector.from(lis, expected);

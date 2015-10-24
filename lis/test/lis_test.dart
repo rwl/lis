@@ -12,6 +12,7 @@ import 'vector_test.dart';
 import 'matrix_test.dart';
 import 'module_test.dart';
 import 'solver_test.dart';
+import 'esolver_test.dart';
 
 import 'random.dart';
 
@@ -25,6 +26,7 @@ main() {
       group('vector', () => vectorTest(lis, rand));
       group('matrix', () => matrixTest(lis, rand, (i) => i.toDouble()));
       group('solver', () => solverTest(lis, rand));
+      group('esolver', () => esolverTest(lis));
       lis.finalize();
     });
     group('complex', () {

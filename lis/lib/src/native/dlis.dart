@@ -2,8 +2,6 @@ library lis.internal.native.lis;
 
 import "dart-ext:dlis_extension";
 
-import 'package:complex/complex.dart';
-
 import '../lis.dart' as lis;
 
 class DLIS<double> implements lis.LIS<double> {
