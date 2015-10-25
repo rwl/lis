@@ -50,7 +50,7 @@
 
 #undef __FUNC__
 #define __FUNC__ "lis_matmat"
-LIS_INT lis_matvec(LIS_MATRIX A, LIS_MATRIX B, LIS_MATRIX C)
+LIS_INT lis_matmat(LIS_MATRIX A, LIS_MATRIX B, LIS_MATRIX C)
 {
 	LIS_DEBUG_FUNC_IN;
 

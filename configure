@@ -20064,7 +20064,7 @@ LIBS="-lm $LIBS"
 
 # Output
 
-ac_config_files="$ac_config_files Makefile src/Makefile src/vector/Makefile src/matrix/Makefile src/matvec/Makefile src/array/Makefile src/solver/Makefile src/esolver/Makefile src/precon/Makefile src/system/Makefile src/precision/Makefile src/fortran/Makefile src/fortran/amg/Makefile include/Makefile test/Makefile include/lisf.h"
+ac_config_files="$ac_config_files Makefile src/Makefile src/vector/Makefile src/matrix/Makefile src/matvec/Makefile src/matmat/Makefile src/array/Makefile src/solver/Makefile src/esolver/Makefile src/precon/Makefile src/system/Makefile src/precision/Makefile src/fortran/Makefile src/fortran/amg/Makefile include/Makefile test/Makefile include/lisf.h"
 
 
 DEFS="$DEFSADD $DEFS"
@@ -21264,6 +21264,7 @@ do
     "src/vector/Makefile") CONFIG_FILES="$CONFIG_FILES src/vector/Makefile" ;;
     "src/matrix/Makefile") CONFIG_FILES="$CONFIG_FILES src/matrix/Makefile" ;;
     "src/matvec/Makefile") CONFIG_FILES="$CONFIG_FILES src/matvec/Makefile" ;;
+    "src/matmat/Makefile") CONFIG_FILES="$CONFIG_FILES src/matmat/Makefile" ;;
     "src/array/Makefile") CONFIG_FILES="$CONFIG_FILES src/array/Makefile" ;;
     "src/solver/Makefile") CONFIG_FILES="$CONFIG_FILES src/solver/Makefile" ;;
     "src/esolver/Makefile") CONFIG_FILES="$CONFIG_FILES src/esolver/Makefile" ;;

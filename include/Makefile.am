@@ -6,6 +6,7 @@ EXTRA_DIST = lis_config_win.h \
 	lis_io.h \
 	lis_matrix.h \
 	lis_matvec.h \
+	lis_matmat.h \
 	lis_mpi.h \
 	lis_precision.h \
 	lis_precon.h \

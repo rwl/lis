@@ -37,7 +37,7 @@ extern "C"
 /* CSR             */
 /*******************/
 
-	extern void lis_matmat_csr(LIS_MATRIX A, LIS_MATRIX B, LIS_MATRIX C);
+	extern LIS_INT lis_matmat_csr(LIS_MATRIX A, LIS_MATRIX B, LIS_MATRIX C);
 
 #ifdef __cplusplus
 }

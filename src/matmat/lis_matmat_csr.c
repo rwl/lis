@@ -242,7 +242,7 @@ void lis_csr_matmat_pass2(const LIS_INT n_row,
 LIS_INT lis_matmat_csr(LIS_MATRIX A, LIS_MATRIX B, LIS_MATRIX C)
 {
 	LIS_INT err, n, *ptr, *index, nnz;
-	LIS_SCALAR t0, *value;
+	LIS_SCALAR *value;
 
 	LIS_DEBUG_FUNC_IN;
 
@@ -261,7 +261,7 @@ LIS_INT lis_matmat_csr(LIS_MATRIX A, LIS_MATRIX B, LIS_MATRIX C)
 			return LIS_OUT_OF_MEMORY;
 		}
 
-		lis_csr_matmat_pass1(n, n, A.ptr, A.index, B.ptr, B.index, ptr);
+		lis_csr_matmat_pass1(n, n, A->ptr, A->index, B->ptr, B->index, ptr);
 
 		nnz = ptr[n];
 
@@ -280,8 +280,8 @@ LIS_INT lis_matmat_csr(LIS_MATRIX A, LIS_MATRIX B, LIS_MATRIX C)
 			return LIS_OUT_OF_MEMORY;
 		}
 
-		lis_csr_matmat_pass2(n, n, A.ptr, A.index, A.value, B.ptr,
-				B.index, B.value, ptr, index, value);
+		lis_csr_matmat_pass2(n, n, A->ptr, A->index, A->value, B->ptr,
+				B->index, B->value, ptr, index, value);
 
 		err = lis_matrix_set_csr(nnz, ptr, index, value, C);
 	}

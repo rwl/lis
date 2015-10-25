@@ -824,6 +824,12 @@ extern "C"
 	extern LIS_INT lis_matvect(LIS_MATRIX A, LIS_VECTOR x, LIS_VECTOR y);
 
 /****************************/
+/* Matrix-Matrix Operations */
+/****************************/
+
+	extern LIS_INT lis_matmat(LIS_MATRIX A, LIS_MATRIX B, LIS_MATRIX C);
+
+/****************************/
 /* Array Operations         */
 /****************************/
 

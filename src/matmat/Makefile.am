@@ -1,5 +1,5 @@
 noinst_LTLIBRARIES = libmatmat.la
-libmatvec_la_SOURCES = lis_matmat.c \
+libmatmat_la_SOURCES = lis_matmat.c \
 lis_matmat_csr.c
 
 
