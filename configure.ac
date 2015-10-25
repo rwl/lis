@@ -1163,9 +1163,10 @@ AC_CONFIG_FILES([Makefile
                  src/vector/Makefile
                  src/matrix/Makefile
                  src/matvec/Makefile
+                 src/matmat/Makefile
                  src/array/Makefile
                  src/solver/Makefile
-		 src/esolver/Makefile
+                 src/esolver/Makefile
                  src/precon/Makefile
                  src/system/Makefile
                  src/precision/Makefile

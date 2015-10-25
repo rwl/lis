@@ -24,23 +24,61 @@
    POSSIBILITY OF SUCH DAMAGE.
 */
 
-
-#ifndef __LISLIB_H__
-#define __LISLIB_H__
-
-#include "lis.h"
-#include "lis_precision.h"
-#include "lis_system.h"
-#include "lis_vector.h"
-#include "lis_matrix.h"
-#include "lis_matvec.h"
-#include "lis_matmat.h"
-#include "lis_precon.h"
-#include "lis_solver.h"
-#include "lis_esolver.h"
-#include "lis_fortran.h"
-#include "lis_io.h"
-#include "lis_mpi.h"
-#include "mt19937ar.h"
-
+#ifdef HAVE_CONFIG_H
+	#include "lis_config.h"
+#else
+#ifdef HAVE_CONFIG_WIN_H
+	#include "lis_config_win.h"
 #endif
+#endif
+
+#include <stdio.h>
+#include <stdlib.h>
+#ifdef HAVE_MALLOC_H
+        #include <malloc.h>
+#endif
+#include <string.h>
+#include <stdarg.h>
+#ifdef _OPENMP
+	#include <omp.h>
+#endif
+#ifdef USE_MPI
+	#include <mpi.h>
+#endif
+#include "lislib.h"
+
+
+#undef __FUNC__
+#define __FUNC__ "lis_matmat"
+LIS_INT lis_matvec(LIS_MATRIX A, LIS_MATRIX B, LIS_MATRIX C)
+{
+	LIS_DEBUG_FUNC_IN;
+
+	if( A->precision==LIS_PRECISION_DEFAULT )
+	{
+		switch( A->matrix_type )
+		{
+		case LIS_MATRIX_CSR:
+			lis_matmat_csr(A, B, C);
+			break;
+		case LIS_MATRIX_CSC:
+			lis_matmat_csr(A, B, C);
+			break;
+		default:
+			LIS_SETERR_IMP;
+			return LIS_ERR_NOT_IMPLEMENTED;
+			break;
+		}
+	}
+#ifdef USE_QUAD_PRECISION
+	else
+	{
+
+		LIS_SETERR_IMP;
+		return LIS_ERR_NOT_IMPLEMENTED;
+	}
+#endif
+
+	LIS_DEBUG_FUNC_OUT;
+	return LIS_SUCCESS;
+}

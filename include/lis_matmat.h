@@ -25,22 +25,22 @@
 */
 
 
-#ifndef __LISLIB_H__
-#define __LISLIB_H__
+#ifndef __LIS_MATMAT_H__
+#define __LIS_MATMAT_H__
 
-#include "lis.h"
-#include "lis_precision.h"
-#include "lis_system.h"
-#include "lis_vector.h"
-#include "lis_matrix.h"
-#include "lis_matvec.h"
-#include "lis_matmat.h"
-#include "lis_precon.h"
-#include "lis_solver.h"
-#include "lis_esolver.h"
-#include "lis_fortran.h"
-#include "lis_io.h"
-#include "lis_mpi.h"
-#include "mt19937ar.h"
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
+/*******************/
+/* CSR             */
+/*******************/
+
+	extern void lis_matmat_csr(LIS_MATRIX A, LIS_MATRIX B, LIS_MATRIX C);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
