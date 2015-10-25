@@ -114,7 +114,11 @@ vectorTest(LIS lis, rscal()) {
   test('copy', () {
     rvec(v);
     var v2 = v.copy();
-    expect(v2.values(), equals(v.values()));
+    v[0] = rscal();
+    v2[1] = rscal();
+    expect(v2.values().sublist(2), equals(v.values().sublist(2)));
+    expect(v2.values()[0], isNot(equals(v.values()[0])));
+    expect(v2.values()[1], isNot(equals(v.values()[1])));
     v2.destroy();
   });
   test('axpy', () {
@@ -332,45 +336,141 @@ vectorTest(LIS lis, rscal()) {
     }
   });
   group('operator', () {
-    test('*', () {
-      rvec(v);
-      var v2 = v.copy();
-      rvec(v2);
-      var v3 = v * v2;
-      for (var i = 0; i < v.size; i++) {
-        expect(v3[i], equals(v[i] * v2[i]));
-      }
-    });
-    test('/', () {
-      rvec(v);
-      var v2 = v.copy();
-      rvec(v2);
-      var v3 = v / v2;
-      for (var i = 0; i < v.size; i++) {
-        if (v[i] is Complex) {
-          expect(v3[i].abs(), closeTo((v[i] / v2[i]).abs(), 1e-12));
-        } else {
-          expect(v3[i], equals(v[i] / v2[i]));
+    group('*', () {
+      test('vector', () {
+        rvec(v);
+        var v0 = v.copy();
+        var v2 = v.copy();
+        rvec(v2);
+        var v3 = v * v2;
+        for (var i = 0; i < v.size; i++) {
+          expect(v[i], equals(v0[i]));
         }
-      }
+        for (var i = 0; i < v.size; i++) {
+          expect(v3[i], equals(v[i] * v2[i]));
+        }
+      });
+      test('scalar', () {
+        rvec(v);
+        var v0 = v.copy();
+        var alpha = rscal();
+        var v2 = v * alpha;
+        for (var i = 0; i < v.size; i++) {
+          expect(v[i], equals(v0[i]));
+        }
+        for (var i = 0; i < v.size; i++) {
+          expect(v2[i], equals(alpha * v0[i]));
+        }
+        v0.destroy();
+      });
+      test('other', () {
+        rvec(v);
+        expect(() => v * "abc", throwsArgumentError);
+      });
     });
-    test('+', () {
-      rvec(v);
-      var v2 = v.copy();
-      rvec(v2);
-      var v3 = v + v2;
-      for (var i = 0; i < v.size; i++) {
-        expect(v3[i], equals(v[i] + v2[i]));
-      }
+    group('/', () {
+      test('vector', () {
+        rvec(v);
+        var v0 = v.copy();
+        var v2 = v.copy();
+        rvec(v2);
+        var v3 = v / v2;
+        for (var i = 0; i < v.size; i++) {
+          expect(v[i], equals(v0[i]));
+        }
+        for (var i = 0; i < v.size; i++) {
+          if (v[i] is Complex) {
+            expect(v3[i].abs(), closeTo((v[i] / v2[i]).abs(), 1e-12));
+          } else {
+            expect(v3[i], equals(v[i] / v2[i]));
+          }
+        }
+      });
+      test('scalar', () {
+        rvec(v);
+        var v0 = v.copy();
+        var alpha = rscal();
+        var v2 = v / alpha;
+        for (var i = 0; i < v.size; i++) {
+          expect(v[i], equals(v0[i]));
+        }
+        for (var i = 0; i < v.size; i++) {
+          if (v[i] is Complex) {
+            expect(v2[i].abs(), closeTo((v0[i] / alpha).abs(), 1e-12));
+          } else {
+            expect(v2[i], closeTo(v0[i] / alpha, 1e-12));
+          }
+        }
+        v0.destroy();
+      });
+      test('other', () {
+        rvec(v);
+        expect(() => v / "abc", throwsArgumentError);
+      });
     });
-    test('-', () {
-      rvec(v);
-      var v2 = v.copy();
-      rvec(v2);
-      var v3 = v - v2;
-      for (var i = 0; i < v.size; i++) {
-        expect(v3[i], equals(v[i] - v2[i]));
-      }
+    group('+', () {
+      test('vector', () {
+        rvec(v);
+        var v0 = v.copy();
+        var v2 = v.copy();
+        rvec(v2);
+        var v3 = v + v2;
+        for (var i = 0; i < v.size; i++) {
+          expect(v[i], equals(v0[i]));
+        }
+        for (var i = 0; i < v.size; i++) {
+          expect(v3[i], equals(v[i] + v2[i]));
+        }
+      });
+      test('scalar', () {
+        rvec(v);
+        var v0 = v.copy();
+        var alpha = rscal();
+        var v2 = v + alpha;
+        for (var i = 0; i < v.size; i++) {
+          expect(v[i], equals(v0[i]));
+        }
+        for (var i = 0; i < v.size; i++) {
+          expect(v2[i], equals(v0[i] + alpha));
+        }
+        v0.destroy();
+      });
+      test('other', () {
+        rvec(v);
+        expect(() => v + "abc", throwsArgumentError);
+      });
+    });
+    group('-', () {
+      test('vector', () {
+        rvec(v);
+        var v0 = v.copy();
+        var v2 = v.copy();
+        rvec(v2);
+        var v3 = v - v2;
+        for (var i = 0; i < v.size; i++) {
+          expect(v[i], equals(v0[i]));
+        }
+        for (var i = 0; i < v.size; i++) {
+          expect(v3[i], equals(v[i] - v2[i]));
+        }
+      });
+      test('scalar', () {
+        rvec(v);
+        var v0 = v.copy();
+        var alpha = rscal();
+        var v2 = v - alpha;
+        for (var i = 0; i < v.size; i++) {
+          expect(v[i], equals(v0[i]));
+        }
+        for (var i = 0; i < v.size; i++) {
+          expect(v2[i], equals(v0[i] - alpha));
+        }
+        v0.destroy();
+      });
+      test('other', () {
+        rvec(v);
+        expect(() => v - "abc", throwsArgumentError);
+      });
     });
   });
 }

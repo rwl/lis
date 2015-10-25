@@ -460,6 +460,12 @@ abstract class WebLIS<S> implements lis.LIS<S> {
     CHKERR(err);
   }
 
+  // Matrix-Matrix Operations
+  void matmat(int A, int B, int C) {
+    int err = _lis.callFunc('lis_matmat', [A, B, C]);
+    CHKERR(err);
+  }
+
   // Linear Solvers
 
   int solverCreate() {

@@ -1367,6 +1367,22 @@ void LIS_MatVecT(Dart_NativeArguments arguments) {
 }
 
 
+void LIS_MatMat(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_MATRIX A, B, C;
+
+  Dart_EnterScope();
+  Dart_GetNativeMatrixArgument(arguments, 1, &A);
+  Dart_GetNativeMatrixArgument(arguments, 2, &B);
+  Dart_GetNativeMatrixArgument(arguments, 3, &C);
+
+  err = lis_matmat(A, B, C); CHKERR(err);
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
+
 void LIS_SolverCreate(Dart_NativeArguments arguments) {
   LIS_INT err;
   LIS_SOLVER solver;
@@ -2211,6 +2227,8 @@ Dart_NativeFunction ResolveName(Dart_Handle name, int argc,
 
   if (strcmp("LIS_MatVec", cname) == 0) result = LIS_MatVec;
   if (strcmp("LIS_MatVecT", cname) == 0) result = LIS_MatVecT;
+
+  if (strcmp("LIS_MatMat", cname) == 0) result = LIS_MatMat;
 
   if (strcmp("LIS_SolverCreate", cname) == 0) result = LIS_SolverCreate;
   if (strcmp("LIS_SolverDestroy", cname) == 0) result = LIS_SolverDestroy;

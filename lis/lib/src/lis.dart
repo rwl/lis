@@ -1,5 +1,7 @@
 library lis.internal;
 
+import 'package:complex/complex.dart';
+
 part 'vector.dart';
 part 'matrix.dart';
 part 'solver.dart';
@@ -102,6 +104,9 @@ abstract class LIS<S> {
   // Matrix-Vector Operations
   void matvec(int A, int x, int y);
   void matvect(int A, int x, int y);
+
+  // Matrix-Matrix Operations
+  void matmat(int A, int B, int C);
 
   // Linear Solvers
   int solverCreate();

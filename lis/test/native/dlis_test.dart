@@ -17,7 +17,7 @@ main() {
       group('vector', () => vectorTest(lis, rand));
       group('matrix', () => matrixTest(lis, rand, (i) => i.toDouble()));
       group('solver', () => solverTest(lis, rand));
-      group('esolver', () => esolverTest(lis));
+//      group('esolver', () => esolverTest(lis));
       lis.finalize();
     });
   });

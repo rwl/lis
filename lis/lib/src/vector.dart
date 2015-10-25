@@ -144,13 +144,53 @@ class Vector<S> {
 
   void conj() => _lis.vectorConjugate(_p_vec);
 
-  Vector<S> operator *(Vector y) => copy()..pmul(y);
+  Vector<S> operator *(y) {
+    if (y is Vector) {
+      return copy()..pmul(y);
+    } else if (y is Complex) {
+      return copy()..scale(y as S);
+    } else if (y is num) {
+      return copy()..scale(y.toDouble() as S);
+    } else {
+      throw new ArgumentError('expected Vector or S type');
+    }
+  }
 
-  Vector<S> operator /(Vector y) => copy()..pdiv(y);
+  Vector<S> operator /(y) {
+    if (y is Vector) {
+      return copy()..pdiv(y);
+    } else if (y is Complex) {
+      return copy()..scale(y.reciprocal() as S);
+    } else if (y is num) {
+      return copy()..scale(1 / y as S);
+    } else {
+      throw new ArgumentError('expected Vector or S type');
+    }
+  }
 
-  Vector<S> operator +(Vector y) => axpyz(y);
+  Vector<S> operator +(y) {
+    if (y is Vector) {
+      return axpyz(y);
+    } else if (y is Complex) {
+      return copy()..shift(y as S);
+    } else if (y is num) {
+      return copy()..shift(y.toDouble() as S);
+    } else {
+      throw new ArgumentError('expected Vector or S type');
+    }
+  }
 
-  Vector<S> operator -(Vector y) => axpyz(y, -_lis.one);
+  Vector<S> operator -(y) {
+    if (y is Vector) {
+      return axpyz(y, -_lis.one);
+    } else if (y is Complex) {
+      return copy()..shift(-y as S);
+    } else if (y is num) {
+      return copy()..shift(-y as S);
+    } else {
+      throw new ArgumentError('expected Vector or S type');
+    }
+  }
 
   Vector<S> operator -() => copy()..scale(-_lis.one);
 }

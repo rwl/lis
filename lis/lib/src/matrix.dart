@@ -177,8 +177,6 @@ class Matrix<S> {
     return vy;
   }
 
-  Vector<S> operator *(Vector<S> vx) => mult(vx);
-
   Vector<S> multT(Vector<S> vx, [Vector<S> vy]) {
     if (vy == null) {
       vy = vx.duplicate();
@@ -193,6 +191,24 @@ class Matrix<S> {
     }
     _lis.matrixTranspose(_p_mat, Aout._p_mat);
     return Aout;
+  }
+
+  Matrix<S> multiply(Matrix<S> B, [Matrix<S> C]) {
+    if (C == null) {
+      C = duplicate();
+    }
+    _lis.matmat(_p_mat, B._p_mat, C._p_mat);
+    return C;
+  }
+
+  operator *(x) {
+    if (x is Vector) {
+      return mult(x);
+    } else if (x is Matrix) {
+      return multiply(x);
+    } else {
+      throw new ArgumentError('expected Vector or Matrix type');
+    }
   }
 }
 

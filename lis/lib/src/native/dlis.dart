@@ -113,6 +113,9 @@ class DLIS<double> implements lis.LIS<double> {
   void matvec(int A, int x, int y) native "LIS_MatVec";
   void matvect(int A, int x, int y) native "LIS_MatVecT";
 
+  // Matrix-Matrix Operations
+  void matmat(int A, int B, int C) native "LIS_MatMat";
+
   // Linear Solvers
   int solverCreate() native "LIS_SolverCreate";
   void solverDestroy(int solver) native "LIS_SolverDestroy";
