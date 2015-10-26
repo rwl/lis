@@ -4,6 +4,7 @@ import 'dart:typed_data';
 import 'package:test/test.dart';
 import 'package:lis/lis.dart';
 import 'package:complex/complex.dart';
+import 'package:quiver/iterables.dart';
 
 import 'random.dart' hide rand;
 
@@ -364,6 +365,47 @@ matrixTest(LIS lis, rscal(), toScalar(int i)) {
 
       var A = new Matrix.dense(lis, n, value);
       expect(A.diagonal().values(), equals(diagonal));
+    });
+  });
+
+  group('mult', () {
+    int n;
+    Matrix m;
+    Vector v;
+    setUp(() {
+      n = rint();
+      var index = range(n).toList();
+      var value = new List.generate(n, (i) => toScalar(i));
+
+      // add duplicate
+      var nnz = n; // + 1;
+//      var j = n - 1;
+//      index.add(j);
+//      value[j] = toScalar(j) / 2;
+//      value.add(toScalar(j) / 2);
+
+      var d = new Matrix.coo(lis, n, nnz, index, index, value);
+      m = new Matrix(lis, n, MatrixType.CSR);
+      d.convert(m);
+      d.destroy();
+
+//      print(m.output());
+
+      v = new Vector.from(lis, value);
+    });
+    test('matvec', () {
+      var vout = m.matvec(v);
+//      print(vout.output());
+      for (int i = 0; i < n; i++) {
+        expect(vout[i], equals(toScalar(i) * toScalar(i)));
+      }
+    });
+    test('matmat', () {
+      var Aout = m.matmat(m);
+      var d = Aout.diagonal();
+      for (int i = 0; i < n; i++) {
+        expect(d[i], equals(toScalar(i) * toScalar(i)));
+      }
     });
   });
 }

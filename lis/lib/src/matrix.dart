@@ -169,7 +169,7 @@ class Matrix<S> {
     return Aout;
   }
 
-  Vector<S> mult(Vector<S> vx, [Vector<S> vy]) {
+  Vector<S> matvec(Vector<S> vx, [Vector<S> vy]) {
     if (vy == null) {
       vy = vx.duplicate();
     }
@@ -177,7 +177,7 @@ class Matrix<S> {
     return vy;
   }
 
-  Vector<S> multT(Vector<S> vx, [Vector<S> vy]) {
+  Vector<S> matvect(Vector<S> vx, [Vector<S> vy]) {
     if (vy == null) {
       vy = vx.duplicate();
     }
@@ -193,7 +193,7 @@ class Matrix<S> {
     return Aout;
   }
 
-  Matrix<S> multiply(Matrix<S> B, [Matrix<S> C]) {
+  Matrix<S> matmat(Matrix<S> B, [Matrix<S> C]) {
     if (C == null) {
       C = duplicate();
     }
@@ -203,9 +203,9 @@ class Matrix<S> {
 
   operator *(x) {
     if (x is Vector) {
-      return mult(x);
+      return matvec(x);
     } else if (x is Matrix) {
-      return multiply(x);
+      return matmat(x);
     } else {
       throw new ArgumentError('expected Vector or Matrix type');
     }

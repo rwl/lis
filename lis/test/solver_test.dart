@@ -66,7 +66,7 @@ solverTest(LIS lis, rscal()) {
 
     var x = solver.solve(A, b);
 
-    var b2 = A.mult(x);
+    var b2 = A.matvec(x);
     for (var i = 0; i < b2.size; i++) {
       if (cmplx) {
         expect(b2[i].abs(), closeTo(b[i].abs(), 1e-9));
