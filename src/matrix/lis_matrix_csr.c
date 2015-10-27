@@ -1,5 +1,11 @@
 /* Copyright (C) 2005 The Scalable Software Infrastructure Project. All rights reserved.
 
+   Copyright (c) 2001, 2002 Enthought, Inc.
+   All rights reserved.
+
+   Copyright (c) 2003-2012 SciPy Developers.
+   All rights reserved.
+
    Redistribution and use in source and binary forms, with or without
    modification, are permitted provided that the following conditions are met:
    1. Redistributions of source code must retain the above copyright
@@ -1705,5 +1711,108 @@ mc21_100:
 		}
 	}
 	lis_free(pr);
+	return LIS_SUCCESS;
+}
+
+
+/*
+ * Sum together duplicate column entries in each row of CSR matrix A.
+ *
+ * Note:
+ *   The column indexes within each row must be in sorted order.
+ *   Explicit zeros are retained.
+ */
+#undef __FUNC__
+#define __FUNC__ "lis_matrix_sum_duplicates_csr"
+LIS_INT lis_matrix_sum_duplicates_csr(LIS_MATRIX A)
+{
+	LIS_INT err, nnz, row_end, i, jj, j;
+	LIS_INT n_row, n_col, *ptr, *index;
+	LIS_SCALAR *value, x;
+
+	LIS_DEBUG_FUNC_IN;
+
+	ptr = A->ptr;
+	index = A->index;
+	value = A->value;
+
+	nnz = 0;
+	row_end = 0;
+	for(i = 0; i < n_row; i++){
+		jj = row_end;
+		row_end = ptr[i+1];
+		while( jj < row_end ){
+			j = index[jj];
+			x = value[jj];
+			jj++;
+			while( jj < row_end && index[jj] == j ){
+				x += value[jj];
+				jj++;
+			}
+			index[nnz] = j;
+			value[nnz] = x;
+			nnz++;
+		}
+		ptr[i+1] = nnz;
+	}
+
+	LIS_DEBUG_FUNC_OUT;
+	return LIS_SUCCESS;
+}
+
+
+struct pair_int_scalar {
+    LIS_INT idx;
+    LIS_SCALAR val;
+};
+
+int pair_int_scalar_compare(const void *x, const void *y) {
+	struct pair_int_scalar *xx = (struct pair_int_scalar *) x;
+	struct pair_int_scalar *yy = (struct pair_int_scalar *) y;
+	if (xx.idx < yy.idx) {
+		return -1;
+	} else if (xx.idx > yy.idx) {
+		return 1;
+	} else {
+		return 0;
+	}
+}
+
+#undef __FUNC__
+#define __FUNC__ "lis_matrix_sort_indexes_csr"
+LIS_INT lis_matrix_sort_indexes_csr(LIS_MATRIX A)
+{
+	LIS_INT err, i, row_start, row_end, jj, n;
+	LIS_INT n_row, *ptr, *index;
+	LIS_SCALAR *value;
+
+	LIS_DEBUG_FUNC_IN;
+
+	ptr = A->ptr;
+	index = A->index;
+	value = A->value;
+
+	for(i = 0; i < n_row; i++){
+		row_start = ptr[i];
+		row_end   = ptr[i+1];
+
+		struct pair_int_scalar temp[row_end - row_start];
+		for (jj = row_start, n = 0; jj < row_end; jj++, n++){
+			temp[n].idx  = index[jj];
+			temp[n].val = value[jj];
+		}
+
+
+		qsort(temp, row_end - row_start,
+				sizeof(struct pair_int_scalar),
+				pair_int_scalar_compare );
+
+		for(jj = row_start, n = 0; jj < row_end; jj++, n++){
+			index[jj] = temp[n].idx;
+			value[jj] = temp[n].val;
+		}
+	}
+
+	LIS_DEBUG_FUNC_OUT;
 	return LIS_SUCCESS;
 }

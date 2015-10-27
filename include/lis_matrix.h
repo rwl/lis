@@ -139,6 +139,8 @@ extern "C"
 	extern LIS_INT lis_matrix_solve_csr(LIS_MATRIX A, LIS_VECTOR B, LIS_VECTOR X, LIS_INT flag);
 	extern LIS_INT lis_matrix_solvet_csr(LIS_MATRIX A, LIS_VECTOR B, LIS_VECTOR X, LIS_INT flag);
 	extern LIS_INT lis_matrix_split2_csr(LIS_MATRIX A);
+	extern LIS_INT lis_matrix_sum_duplicates_csr(LIS_MATRIX A);
+	extern LIS_INT lis_matrix_sort_indexes_csr(LIS_MATRIX A);
 
 /*******************/
 /* CSC             */

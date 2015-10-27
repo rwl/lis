@@ -1083,6 +1083,66 @@ LIS_INT lis_matrix_transpose(LIS_MATRIX A, LIS_MATRIX Aout)
 }
 
 
+#undef __FUNC__
+#define __FUNC__ "lis_matrix_sum_duplicates"
+LIS_INT lis_matrix_sum_duplicates(LIS_MATRIX A)
+{
+	LIS_INT err;
+
+	LIS_DEBUG_FUNC_IN;
+
+	err = lis_matrix_check(A,LIS_MATRIX_CHECK_ALL);
+	if( err ) return err;
+
+	switch( A->matrix_type )
+	{
+	case LIS_MATRIX_CSR:
+		lis_matrix_sum_duplicates_csr(A);
+		break;
+	case LIS_MATRIX_CSC:
+		lis_matrix_sum_duplicates_csr(A);
+		break;
+	default:
+		LIS_SETERR_IMP;
+		return LIS_ERR_NOT_IMPLEMENTED;
+		break;
+	}
+
+	LIS_DEBUG_FUNC_OUT;
+	return LIS_SUCCESS;
+}
+
+
+#undef __FUNC__
+#define __FUNC__ "lis_matrix_sort_indexes"
+LIS_INT lis_matrix_sort_indexes(LIS_MATRIX A)
+{
+	LIS_INT err;
+
+	LIS_DEBUG_FUNC_IN;
+
+	err = lis_matrix_check(A,LIS_MATRIX_CHECK_ALL);
+	if( err ) return err;
+
+	switch( A->matrix_type )
+	{
+	case LIS_MATRIX_CSR:
+		lis_matrix_sort_indexes_csr(A);
+		break;
+	case LIS_MATRIX_CSC:
+		lis_matrix_sort_indexes_csr(A);
+		break;
+	default:
+		LIS_SETERR_IMP;
+		return LIS_ERR_NOT_IMPLEMENTED;
+		break;
+	}
+
+	LIS_DEBUG_FUNC_OUT;
+	return LIS_SUCCESS;
+}
+
+
 
 
 
