@@ -1726,19 +1726,20 @@ mc21_100:
 #define __FUNC__ "lis_matrix_sum_duplicates_csr"
 LIS_INT lis_matrix_sum_duplicates_csr(LIS_MATRIX A)
 {
-	LIS_INT err, nnz, row_end, i, jj, j;
-	LIS_INT n_row, n_col, *ptr, *index;
+	LIS_INT nnz, row_end, i, jj, j;
+	LIS_INT n, *ptr, *index;
 	LIS_SCALAR *value, x;
 
 	LIS_DEBUG_FUNC_IN;
 
+	n = A->n;
 	ptr = A->ptr;
 	index = A->index;
 	value = A->value;
 
 	nnz = 0;
 	row_end = 0;
-	for(i = 0; i < n_row; i++){
+	for(i = 0; i < n; i++){
 		jj = row_end;
 		row_end = ptr[i+1];
 		while( jj < row_end ){
@@ -1769,9 +1770,9 @@ struct pair_int_scalar {
 int pair_int_scalar_compare(const void *x, const void *y) {
 	struct pair_int_scalar *xx = (struct pair_int_scalar *) x;
 	struct pair_int_scalar *yy = (struct pair_int_scalar *) y;
-	if (xx.idx < yy.idx) {
+	if (xx->idx < yy->idx) {
 		return -1;
-	} else if (xx.idx > yy.idx) {
+	} else if (xx->idx > yy->idx) {
 		return 1;
 	} else {
 		return 0;
@@ -1782,12 +1783,13 @@ int pair_int_scalar_compare(const void *x, const void *y) {
 #define __FUNC__ "lis_matrix_sort_indexes_csr"
 LIS_INT lis_matrix_sort_indexes_csr(LIS_MATRIX A)
 {
-	LIS_INT err, i, row_start, row_end, jj, n;
+	LIS_INT i, row_start, row_end, jj, n;
 	LIS_INT n_row, *ptr, *index;
 	LIS_SCALAR *value;
 
 	LIS_DEBUG_FUNC_IN;
 
+	n_row = A->n;
 	ptr = A->ptr;
 	index = A->index;
 	value = A->value;
