@@ -1102,6 +1102,34 @@ void LIS_MatrixTranspose(Dart_NativeArguments arguments) {
 }
 
 
+void LIS_MatrixSumDuplicates(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_MATRIX A;
+
+  Dart_EnterScope();
+  Dart_GetNativeMatrixArgument(arguments, 1, &A);
+
+  err = lis_matrix_sum_duplicates(A); CHKERR(err);
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
+
+void LIS_MatrixSortIndexes(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_MATRIX A;
+
+  Dart_EnterScope();
+  Dart_GetNativeMatrixArgument(arguments, 1, &A);
+
+  err = lis_matrix_sort_indexes(A); CHKERR(err);
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
+
 void LIS_MatrixSetCsr(Dart_NativeArguments arguments) {
   LIS_INT err;
   LIS_MATRIX A;
@@ -2212,6 +2240,8 @@ Dart_NativeFunction ResolveName(Dart_Handle name, int argc,
   if (strcmp("LIS_MatrixConvert", cname) == 0) result = LIS_MatrixConvert;
   if (strcmp("LIS_MatrixCopy", cname) == 0) result = LIS_MatrixCopy;
   if (strcmp("LIS_MatrixTranspose", cname) == 0) result = LIS_MatrixTranspose;
+  if (strcmp("LIS_MatrixSumDuplicates", cname) == 0) result = LIS_MatrixSumDuplicates;
+  if (strcmp("LIS_MatrixSortIndexes", cname) == 0) result = LIS_MatrixSortIndexes;
 
   if (strcmp("LIS_MatrixSetCsr", cname) == 0) result = LIS_MatrixSetCsr;
   if (strcmp("LIS_MatrixSetCsc", cname) == 0) result = LIS_MatrixSetCsc;

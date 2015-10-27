@@ -72,6 +72,8 @@ class DLIS<double> implements lis.LIS<double> {
   void matrixConvert(int Ain, int Aout) native "LIS_MatrixConvert";
   void matrixCopy(int Ain, int Aout) native "LIS_MatrixCopy";
   void matrixTranspose(int Ain, int Aout) native "LIS_MatrixTranspose";
+  void matrixSumDuplicates(int A) native "LIS_MatrixSumDuplicates";
+  void matrixSortIndexes(int A) native "LIS_MatrixSortIndexes";
 
   void matrixSetCsr(
       int nnz, List<int> row, List<int> index, List<double> value, int A)

@@ -85,6 +85,8 @@ EXP_MATRIX = \
 '_lis_matrix_malloc_dns',\
 \
 '_lis_matrix_transpose',\
+'_lis_matrix_sum_duplicates',\
+'_lis_matrix_sort_indexes',\
 \
 '_lis_matvec',\
 '_lis_matvect'

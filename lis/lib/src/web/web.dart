@@ -380,6 +380,16 @@ abstract class WebLIS<S> implements lis.LIS<S> {
     CHKERR(err);
   }
 
+  void matrixSumDuplicates(int A) {
+    int err = _lis.callFunc('lis_matrix_sum_duplicates', [A]);
+    CHKERR(err);
+  }
+
+  void matrixSortIndexes(int A) {
+    int err = _lis.callFunc('lis_matrix_sort_indexes', [A]);
+    CHKERR(err);
+  }
+
   void matrixSetCsr(
       int nnz, List<int> row, List<int> index, List<S> value, int A) {
     var p_ptr = _lis.heapInts(row);

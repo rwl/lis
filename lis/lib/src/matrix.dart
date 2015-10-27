@@ -193,6 +193,10 @@ class Matrix<S> {
     return Aout;
   }
 
+  void sumDuplicates() => _lis.matrixSumDuplicates(_p_mat);
+
+  void sortIndexes() => _lis.matrixSortIndexes(_p_mat);
+
   Matrix<S> matmat(Matrix<S> B, [Matrix<S> C]) {
     if (C == null) {
       C = duplicate();

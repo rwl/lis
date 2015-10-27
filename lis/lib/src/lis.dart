@@ -71,6 +71,8 @@ abstract class LIS<S> {
   void matrixConvert(int Ain, int Aout);
   void matrixCopy(int Ain, int Aout);
   void matrixTranspose(int Ain, int Aout);
+  void matrixSumDuplicates(int A);
+  void matrixSortIndexes(int A);
 
   void matrixSetCsr(
       int nnz, List<int> row, List<int> index, List<S> value, int A);
