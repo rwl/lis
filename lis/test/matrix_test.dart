@@ -377,25 +377,28 @@ matrixTest(LIS lis, rscal(), toScalar(int i)) {
       var index = range(n).toList();
       var value = new List.generate(n, (i) => toScalar(i));
 
+      v = new Vector.from(lis, value);
+
       // add duplicate
       var nnz = n; // + 1;
-//      var j = n - 1;
-//      index.add(j);
-//      value[j] = toScalar(j) / 2;
-//      value.add(toScalar(j) / 2);
+      nnz += 1;
+      var j = n - 1;
+      index.add(j);
+      value[j] = toScalar(j) / 2;
+      value.add(toScalar(j) / 2);
 
       var d = new Matrix.coo(lis, n, nnz, index, index, value);
       m = new Matrix(lis, n, MatrixType.CSR);
       d.convert(m);
       d.destroy();
 
-//      print(m.output());
+      m.sortIndexes();
+      m.sumDuplicates();
 
-      v = new Vector.from(lis, value);
+      m.assemble();
     });
     test('matvec', () {
       var vout = m.matvec(v);
-//      print(vout.output());
       for (int i = 0; i < n; i++) {
         expect(vout[i], equals(toScalar(i) * toScalar(i)));
       }
