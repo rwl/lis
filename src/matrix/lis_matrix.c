@@ -947,3 +947,119 @@ LIS_INT lis_matrix_unset(LIS_MATRIX A)
 	return LIS_SUCCESS;
 }
 
+/*
+ *     | A  B |
+ * Y = |      |
+ *     | C  D |
+ */
+#undef __FUNC__
+#define __FUNC__ "lis_matrix_compose"
+LIS_INT lis_matrix_compose(LIS_MATRIX A, LIS_MATRIX B, LIS_MATRIX C, LIS_MATRIX D, LIS_MATRIX Y)
+{
+	LIS_INT err, n, i, nnz;
+	LIS_MATRIX Acoo, Bcoo, Ccoo, Dcoo;
+	LIS_INT *row, *col;
+	LIS_SCALAR *value;
+
+	LIS_DEBUG_FUNC_IN;
+
+	err = lis_matrix_check(A,LIS_MATRIX_CHECK_SIZE);
+	if( err ) return err;
+	err = lis_matrix_check(B,LIS_MATRIX_CHECK_SIZE);
+	if( err ) return err;
+	err = lis_matrix_check(C,LIS_MATRIX_CHECK_SIZE);
+	if( err ) return err;
+	err = lis_matrix_check(D,LIS_MATRIX_CHECK_SIZE);
+	if( err ) return err;
+
+	err = lis_matrix_check(Y,LIS_MATRIX_CHECK_NULL);
+	if( err ) return err;
+
+	n = A->n;
+
+	if (B->n != n || C->n != n || D->n != n) {
+		return LIS_ERR_ILL_ARG;
+	}
+
+	err = lis_matrix_create(A->comm, Acoo);
+	if( err ) return err;
+	err = lis_matrix_create(B->comm, Bcoo);
+	if( err ) return err;
+	err = lis_matrix_create(C->comm, Ccoo);
+	if( err ) return err;
+	err = lis_matrix_create(D->comm, Dcoo);
+	if( err ) return err;
+
+	err = lis_matrix_set_type(Acoo, LIS_MATRIX_COO);
+	if( err ) return err;
+	err = lis_matrix_set_type(Bcoo, LIS_MATRIX_COO);
+	if( err ) return err;
+	err = lis_matrix_set_type(Ccoo, LIS_MATRIX_COO);
+	if( err ) return err;
+	err = lis_matrix_set_type(Dcoo, LIS_MATRIX_COO);
+	if( err ) return err;
+
+	err = lis_matrix_convert(A, Acoo);
+	if( err ) return err;
+	err = lis_matrix_convert(B, Bcoo);
+	if( err ) return err;
+	err = lis_matrix_convert(C, Ccoo);
+	if( err ) return err;
+	err = lis_matrix_convert(D, Dcoo);
+	if( err ) return err;
+
+	for (i = 0; i < B->nnz; i++) {
+		B->col[i] += n;
+	}
+	for (i = 0; i < C->nnz; i++) {
+		C->row[i] += n;
+	}
+	for (i = 0; i < D->nnz; i++) {
+		D->row[i] += n;
+		D->col[i] += n;
+	}
+
+	nnz = A->nnz + B->nnz + C->nnz + D->nnz;
+
+	err = lis_matrix_malloc_coo(nnz, &row, &col, &value);
+	if( err ) return err;
+
+	i = 0;
+	memcpy(&row[i], A->row, A->nnz*sizeof(LIS_INT));
+	memcpy(&col[i], A->col, A->nnz*sizeof(LIS_INT));
+	memcpy(&value[i], A->value, A->nnz*sizeof(LIS_SCALAR));
+
+	i += A->nnz;
+	memcpy(&row[i], B->row, B->nnz*sizeof(LIS_INT));
+	memcpy(&col[i], B->col, B->nnz*sizeof(LIS_INT));
+	memcpy(&value[i], B->value, B->nnz*sizeof(LIS_SCALAR));
+
+	i += B->nnz;
+	memcpy(&row[i], C->row, C->nnz*sizeof(LIS_INT));
+	memcpy(&col[i], C->col, C->nnz*sizeof(LIS_INT));
+	memcpy(&value[i], C->value, C->nnz*sizeof(LIS_SCALAR));
+
+	i += C->nnz;
+	memcpy(&row[i], D->row, D->nnz*sizeof(LIS_INT));
+	memcpy(&col[i], D->col, D->nnz*sizeof(LIS_INT));
+	memcpy(&value[i], D->value, D->nnz*sizeof(LIS_SCALAR));
+
+	err = lis_matrix_set_size(Y, 2*n, 2*n);
+	if( err ) return err;
+
+	err = lis_matrix_set_coo(nnz, row, col, value, Y);
+	if( err ) return err;
+
+	err = lis_matrix_destroy(Acoo);
+	if( err ) return err;
+	err = lis_matrix_destroy(Bcoo);
+	if( err ) return err;
+	err = lis_matrix_destroy(Ccoo);
+	if( err ) return err;
+	err = lis_matrix_destroy(Dcoo);
+	if( err ) return err;
+
+	LIS_DEBUG_FUNC_OUT;
+	return LIS_SUCCESS;
+}
+
