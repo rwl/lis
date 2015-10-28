@@ -18,6 +18,13 @@ class Matrix<S> {
     return m;
   }
 
+  factory Matrix.compose(
+      LIS lis, Matrix<S> A, Matrix<S> B, Matrix<S> C, Matrix<S> D) {
+    var Y = new Matrix(lis);
+    lis.matrixCompose(A._p_mat, B._p_mat, C._p_mat, D._p_mat, Y._p_mat);
+    return Y;
+  }
+
   factory Matrix.csr(
       LIS lis, int n, int nnz, List<int> ptr, List<int> index, List<S> value) {
     if (ptr.length != n + 1) {
@@ -55,7 +62,7 @@ class Matrix<S> {
 
   factory Matrix.dia(LIS lis, int n, int nnd, List<int> index, List<S> value) {
     if (index.length != nnd) {
-      throw new ArgumentError('index.length != nnz');
+      throw new ArgumentError('index.length != nnd');
     }
     if (value.length != n * nnd) {
       throw new ArgumentError('value.length != n*nnd');

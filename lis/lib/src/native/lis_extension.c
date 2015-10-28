@@ -1130,6 +1130,24 @@ void LIS_MatrixSortIndexes(Dart_NativeArguments arguments) {
 }
 
 
+void LIS_MatrixCompose(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_MATRIX A, B, C, D, Y;
+
+  Dart_EnterScope();
+  Dart_GetNativeMatrixArgument(arguments, 1, &A);
+  Dart_GetNativeMatrixArgument(arguments, 2, &B);
+  Dart_GetNativeMatrixArgument(arguments, 3, &C);
+  Dart_GetNativeMatrixArgument(arguments, 4, &D);
+  Dart_GetNativeMatrixArgument(arguments, 5, &Y);
+
+  err = lis_matrix_compose(A, B, C, D, Y); CHKERR(err);
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
+
 void LIS_MatrixSetCsr(Dart_NativeArguments arguments) {
   LIS_INT err;
   LIS_MATRIX A;
@@ -2242,6 +2260,7 @@ Dart_NativeFunction ResolveName(Dart_Handle name, int argc,
   if (strcmp("LIS_MatrixTranspose", cname) == 0) result = LIS_MatrixTranspose;
   if (strcmp("LIS_MatrixSumDuplicates", cname) == 0) result = LIS_MatrixSumDuplicates;
   if (strcmp("LIS_MatrixSortIndexes", cname) == 0) result = LIS_MatrixSortIndexes;
+  if (strcmp("LIS_MatrixCompose", cname) == 0) result = LIS_MatrixCompose;
 
   if (strcmp("LIS_MatrixSetCsr", cname) == 0) result = LIS_MatrixSetCsr;
   if (strcmp("LIS_MatrixSetCsc", cname) == 0) result = LIS_MatrixSetCsc;

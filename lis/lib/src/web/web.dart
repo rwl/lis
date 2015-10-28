@@ -390,6 +390,11 @@ abstract class WebLIS<S> implements lis.LIS<S> {
     CHKERR(err);
   }
 
+  void matrixCompose(int A, int B, int C, int D, int Y) {
+    int err = _lis.callFunc('lis_matrix_compose', [A, B, C, D, Y]);
+    CHKERR(err);
+  }
+
   void matrixSetCsr(
       int nnz, List<int> row, List<int> index, List<S> value, int A) {
     var p_ptr = _lis.heapInts(row);

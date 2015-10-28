@@ -411,4 +411,28 @@ matrixTest(LIS lis, rscal(), toScalar(int i)) {
       }
     });
   });
+
+  group('compose', () {
+    int n;
+    Matrix A, B, C, D;
+    setUp(() {
+      n = rint();
+      var value = new List.generate(n, (i) => toScalar(i + 1));
+      A = new Matrix.dia(lis, n, 1, [0], value);
+      B = new Matrix.dia(lis, n, 1, [0], value);
+      C = new Matrix.dia(lis, n, 1, [0], value);
+      D = new Matrix.dia(lis, n, 1, [0], value);
+    });
+    test('simple', () {
+      var Y = new Matrix.compose(lis, A, B, C, D);
+      expect(Y.size, equals(2 * n));
+      expect(Y.nnz, equals(4 * n));
+      var d = Y.diagonal().values();
+      for (var i = 0; i < 2; i++) {
+        for (var j = 0; j < n; j++) {
+          expect(d[i * n + j], equals(toScalar(j + 1)));
+        }
+      }
+    });
+  });
 }

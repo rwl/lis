@@ -981,13 +981,22 @@ LIS_INT lis_matrix_compose(LIS_MATRIX A, LIS_MATRIX B, LIS_MATRIX C, LIS_MATRIX 
 		return LIS_ERR_ILL_ARG;
 	}
 
-	err = lis_matrix_create(A->comm, Acoo);
+	err = lis_matrix_create(A->comm, &Acoo);
 	if( err ) return err;
-	err = lis_matrix_create(B->comm, Bcoo);
+	err = lis_matrix_create(B->comm, &Bcoo);
 	if( err ) return err;
-	err = lis_matrix_create(C->comm, Ccoo);
+	err = lis_matrix_create(C->comm, &Ccoo);
 	if( err ) return err;
-	err = lis_matrix_create(D->comm, Dcoo);
+	err = lis_matrix_create(D->comm, &Dcoo);
+	if( err ) return err;
+
+	err = lis_matrix_set_size(Acoo, n, n);
+	if( err ) return err;
+	err = lis_matrix_set_size(Bcoo, n, n);
+	if( err ) return err;
+	err = lis_matrix_set_size(Ccoo, n, n);
+	if( err ) return err;
+	err = lis_matrix_set_size(Dcoo, n, n);
 	if( err ) return err;
 
 	err = lis_matrix_set_type(Acoo, LIS_MATRIX_COO);
@@ -1008,41 +1017,44 @@ LIS_INT lis_matrix_compose(LIS_MATRIX A, LIS_MATRIX B, LIS_MATRIX C, LIS_MATRIX 
 	err = lis_matrix_convert(D, Dcoo);
 	if( err ) return err;
 
-	for (i = 0; i < B->nnz; i++) {
-		B->col[i] += n;
+	for (i = 0; i < Bcoo->nnz; i++) {
+		Bcoo->col[i] += n;
 	}
-	for (i = 0; i < C->nnz; i++) {
-		C->row[i] += n;
+	for (i = 0; i < Ccoo->nnz; i++) {
+		Ccoo->row[i] += n;
 	}
-	for (i = 0; i < D->nnz; i++) {
-		D->row[i] += n;
-		D->col[i] += n;
+	for (i = 0; i < Dcoo->nnz; i++) {
+		Dcoo->row[i] += n;
+		Dcoo->col[i] += n;
 	}
 
-	nnz = A->nnz + B->nnz + C->nnz + D->nnz;
+	nnz = Acoo->nnz + Bcoo->nnz + Ccoo->nnz + Dcoo->nnz;
 
 	err = lis_matrix_malloc_coo(nnz, &row, &col, &value);
 	if( err ) return err;
 
 	i = 0;
-	memcpy(&row[i], A->row, A->nnz*sizeof(LIS_INT));
-	memcpy(&col[i], A->col, A->nnz*sizeof(LIS_INT));
-	memcpy(&value[i], A->value, A->nnz*sizeof(LIS_SCALAR));
+	memcpy(&row[i], Acoo->row, Acoo->nnz*sizeof(LIS_INT));
+	memcpy(&col[i], Acoo->col, Acoo->nnz*sizeof(LIS_INT));
+	memcpy(&value[i], Acoo->value, Acoo->nnz*sizeof(LIS_SCALAR));
 
-	i += A->nnz;
-	memcpy(&row[i], B->row, B->nnz*sizeof(LIS_INT));
-	memcpy(&col[i], B->col, B->nnz*sizeof(LIS_INT));
-	memcpy(&value[i], B->value, B->nnz*sizeof(LIS_SCALAR));
+	i += Acoo->nnz;
+	memcpy(&row[i], Bcoo->row, Bcoo->nnz*sizeof(LIS_INT));
+	memcpy(&col[i], Bcoo->col, Bcoo->nnz*sizeof(LIS_INT));
+	memcpy(&value[i], Bcoo->value, Bcoo->nnz*sizeof(LIS_SCALAR));
 
-	i += B->nnz;
-	memcpy(&row[i], C->row, C->nnz*sizeof(LIS_INT));
-	memcpy(&col[i], C->col, C->nnz*sizeof(LIS_INT));
-	memcpy(&value[i], C->value, C->nnz*sizeof(LIS_SCALAR));
+	i += Bcoo->nnz;
+	memcpy(&row[i], Ccoo->row, Ccoo->nnz*sizeof(LIS_INT));
+	memcpy(&col[i], Ccoo->col, Ccoo->nnz*sizeof(LIS_INT));
+	memcpy(&value[i], Ccoo->value, Ccoo->nnz*sizeof(LIS_SCALAR));
 
-	i += C->nnz;
-	memcpy(&row[i], D->row, D->nnz*sizeof(LIS_INT));
-	memcpy(&col[i], D->col, D->nnz*sizeof(LIS_INT));
-	memcpy(&value[i], D->value, D->nnz*sizeof(LIS_SCALAR));
+	i += Ccoo->nnz;
+	memcpy(&row[i], Dcoo->row, Dcoo->nnz*sizeof(LIS_INT));
+	memcpy(&col[i], Dcoo->col, Dcoo->nnz*sizeof(LIS_INT));
+	memcpy(&value[i], Dcoo->value, Dcoo->nnz*sizeof(LIS_SCALAR));
+
+	err = lis_matrix_set_type(Y, LIS_MATRIX_COO);
+	if( err ) return err;
 
 	err = lis_matrix_set_size(Y, 2*n, 2*n);
 	if( err ) return err;
