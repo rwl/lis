@@ -186,7 +186,7 @@ matrixTest(LIS lis, rscal(), toScalar(int i)) {
       });
     }
   });
-  group('values', () {
+  group('csr', () {
     int n;
     Vector d0;
     setUp(() {
@@ -196,7 +196,11 @@ matrixTest(LIS lis, rscal(), toScalar(int i)) {
       m.size = n;
       m.type = MatrixType.CSR;
       d.convert(m);
+      m.assemble();
       d0 = m.diagonal();
+    });
+    tearDown(() {
+      d0.destroy();
     });
     test('real', () {
       m.real();
@@ -239,6 +243,15 @@ matrixTest(LIS lis, rscal(), toScalar(int i)) {
       var d = m.diagonal().values();
       for (var i = 0; i < n; i++) {
         expect(d[i], equals(alpha * d0[i]));
+      }
+    });
+    test('add', () {
+      var b = m.copy();
+      b.assemble();
+      var c = m.add(b);
+      var d = c.diagonal().values();
+      for (var i = 0; i < n; i++) {
+        expect(d[i], equals(d0[i] + d0[i]));
       }
     });
   });

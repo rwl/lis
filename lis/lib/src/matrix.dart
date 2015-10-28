@@ -212,6 +212,14 @@ class Matrix<S> {
 
   void scale(S alpha) => _lis.matrixScaleValues(_p_mat, alpha);
 
+  Matrix<S> add(Matrix<S> B, [Matrix<S> C]) {
+    if (C == null) {
+      C = duplicate();
+    }
+    _lis.matrixAdd(_p_mat, B._p_mat, C._p_mat);
+    return C;
+  }
+
   Matrix<S> matmat(Matrix<S> B, [Matrix<S> C]) {
     if (C == null) {
       C = duplicate();

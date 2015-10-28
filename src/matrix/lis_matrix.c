@@ -981,6 +981,7 @@ LIS_INT lis_matrix_compose(LIS_MATRIX A, LIS_MATRIX B, LIS_MATRIX C, LIS_MATRIX 
 		return LIS_ERR_ILL_ARG;
 	}
 
+	// Convert input matrices to coordinate format.
 	err = lis_matrix_create(A->comm, &Acoo);
 	if( err ) return err;
 	err = lis_matrix_create(B->comm, &Bcoo);
@@ -1017,6 +1018,7 @@ LIS_INT lis_matrix_compose(LIS_MATRIX A, LIS_MATRIX B, LIS_MATRIX C, LIS_MATRIX 
 	err = lis_matrix_convert(D, Dcoo);
 	if( err ) return err;
 
+	// Shift the indexes to the appropriate quadrant.
 	for (i = 0; i < Bcoo->nnz; i++) {
 		Bcoo->col[i] += n;
 	}
@@ -1028,6 +1030,8 @@ LIS_INT lis_matrix_compose(LIS_MATRIX A, LIS_MATRIX B, LIS_MATRIX C, LIS_MATRIX 
 		Dcoo->col[i] += n;
 	}
 
+
+	// Create a new coordinate matrix with non-zero values concatenated.
 	nnz = Acoo->nnz + Bcoo->nnz + Ccoo->nnz + Dcoo->nnz;
 
 	err = lis_matrix_malloc_coo(nnz, &row, &col, &value);
@@ -1061,6 +1065,7 @@ LIS_INT lis_matrix_compose(LIS_MATRIX A, LIS_MATRIX B, LIS_MATRIX C, LIS_MATRIX 
 
 	err = lis_matrix_set_coo(nnz, row, col, value, Y);
 	if( err ) return err;
+
 
 	err = lis_matrix_destroy(Acoo);
 	if( err ) return err;

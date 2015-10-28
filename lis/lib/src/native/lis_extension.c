@@ -1206,6 +1206,21 @@ void LIS_MatrixScaleValues(Dart_NativeArguments arguments) {
 }
 
 
+void LIS_MatrixAdd(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_MATRIX A, B, C;
+
+  Dart_EnterScope();
+  Dart_GetNativeMatrixArgument(arguments, 1, &A);
+  Dart_GetNativeMatrixArgument(arguments, 2, &B);
+  Dart_GetNativeMatrixArgument(arguments, 3, &C);
+
+  err = lis_matrix_add(A, B, C); CHKERR(err);
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
 
 void LIS_MatrixSetCsr(Dart_NativeArguments arguments) {
   LIS_INT err;
@@ -2324,6 +2339,7 @@ Dart_NativeFunction ResolveName(Dart_Handle name, int argc,
   if (strcmp("LIS_MatrixImaginary", cname) == 0) result = LIS_MatrixImaginary;
   if (strcmp("LIS_MatrixConjugate", cname) == 0) result = LIS_MatrixConjugate;
   if (strcmp("LIS_MatrixScaleValues", cname) == 0) result = LIS_MatrixScaleValues;
+  if (strcmp("LIS_MatrixAdd", cname) == 0) result = LIS_MatrixAdd;
 
   if (strcmp("LIS_MatrixSetCsr", cname) == 0) result = LIS_MatrixSetCsr;
   if (strcmp("LIS_MatrixSetCsc", cname) == 0) result = LIS_MatrixSetCsc;

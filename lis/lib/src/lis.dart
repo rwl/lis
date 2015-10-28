@@ -78,6 +78,7 @@ abstract class LIS<S> {
   void matrixImaginary(int A);
   void matrixConjugate(int A);
   void matrixScaleValues(int A, S alpha);
+  void matrixAdd(int A, int B, int C);
 
   void matrixSetCsr(
       int nnz, List<int> row, List<int> index, List<S> value, int A);

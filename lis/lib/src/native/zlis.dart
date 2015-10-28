@@ -82,6 +82,7 @@ class ZLIS implements lis.LIS<Complex> {
   void matrixImaginary(int A) native "LIS_MatrixImaginary";
   void matrixConjugate(int A) native "LIS_MatrixConjugate";
   void matrixScaleValues(int A, Complex alpha) native "LIS_MatrixScaleValues";
+  void matrixAdd(int A, int B, int C) native "LIS_MatrixAdd";
 
   void matrixSetCsr(
       int nnz, List<int> row, List<int> index, List<Complex> value, int A)
