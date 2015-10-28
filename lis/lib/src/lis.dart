@@ -74,6 +74,10 @@ abstract class LIS<S> {
   void matrixSumDuplicates(int A);
   void matrixSortIndexes(int A);
   void matrixCompose(int A, int B, int C, int D, int Y);
+  void matrixReal(int A);
+  void matrixImaginary(int A);
+  void matrixConjugate(int A);
+  void matrixScaleValues(int A, S alpha);
 
   void matrixSetCsr(
       int nnz, List<int> row, List<int> index, List<S> value, int A);

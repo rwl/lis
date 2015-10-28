@@ -1143,6 +1143,217 @@ LIS_INT lis_matrix_sort_indexes(LIS_MATRIX A)
 }
 
 
+#undef __FUNC__
+#define __FUNC__ "lis_matrix_real"
+LIS_INT lis_matrix_real(LIS_MATRIX A)
+{
+#if defined(_COMPLEX)
+	LIS_INT i,n;
+	LIS_SCALAR *x;
+#endif
+	LIS_DEBUG_FUNC_IN;
 
+#if defined(_COMPLEX)
+	x = A->value;
+
+	switch( A->matrix_type )
+	{
+	case LIS_MATRIX_BSR:
+		n = A->bnnz*A->bnr*A->bnc;
+		break;
+	case LIS_MATRIX_MSR:
+		n = A->nnz+A->ndz+1;
+		break;
+	case LIS_MATRIX_ELL:
+		n = A->n*A->maxnzr;
+		break;
+	case LIS_MATRIX_DIA:
+		n = A->n*A->nnd;
+		break;
+	case LIS_MATRIX_BSC:
+		n = A->bnnz*A->bnr*A->bnc;
+		break;
+	case LIS_MATRIX_DNS:
+		n = A->n*A->n;
+		break;
+	default:
+		n = A->nnz;
+	}
+
+
+	#ifdef USE_VEC_COMP
+    #pragma cdir nodep
+	#endif
+	#ifdef _OPENMP
+	#pragma omp parallel for private(i)
+	#endif
+	for(i=0; i<n; i++)
+	{
+		x[i] = creal(x[i]) + 0.0 * I;
+	}
+#endif
+	LIS_DEBUG_FUNC_OUT;
+	return LIS_SUCCESS;
+}
+
+
+#undef __FUNC__
+#define __FUNC__ "lis_matrix_imaginary"
+LIS_INT lis_matrix_imaginary(LIS_MATRIX A)
+{
+	LIS_INT i,n;
+	LIS_SCALAR *x;
+
+	LIS_DEBUG_FUNC_IN;
+
+	x = A->value;
+
+	switch( A->matrix_type )
+	{
+	case LIS_MATRIX_BSR:
+		n = A->bnnz*A->bnr*A->bnc;
+		break;
+	case LIS_MATRIX_MSR:
+		n = A->nnz+A->ndz+1;
+		break;
+	case LIS_MATRIX_ELL:
+		n = A->n*A->maxnzr;
+		break;
+	case LIS_MATRIX_DIA:
+		n = A->n*A->nnd;
+		break;
+	case LIS_MATRIX_BSC:
+		n = A->bnnz*A->bnr*A->bnc;
+		break;
+	case LIS_MATRIX_DNS:
+		n = A->n*A->n;
+		break;
+	default:
+		n = A->nnz;
+	}
+
+
+	#ifdef USE_VEC_COMP
+    #pragma cdir nodep
+	#endif
+	#ifdef _OPENMP
+	#pragma omp parallel for private(i)
+	#endif
+	for(i=0; i<n; i++)
+	{
+#if defined(_COMPLEX)
+		x[i] = cimag(x[i]) + 0.0 * I;
+#else
+		x[i] = 0.0;
+#endif
+	}
+	LIS_DEBUG_FUNC_OUT;
+	return LIS_SUCCESS;
+}
+
+
+#undef __FUNC__
+#define __FUNC__ "lis_matrix_conjugate"
+LIS_INT lis_matrix_conjugate(LIS_MATRIX A)
+{
+#if defined(_COMPLEX)
+	LIS_INT i,n;
+	LIS_SCALAR *x;
+#endif
+	LIS_DEBUG_FUNC_IN;
+
+#if defined(_COMPLEX)
+	x = A->value;
+
+	switch( A->matrix_type )
+	{
+	case LIS_MATRIX_BSR:
+		n = A->bnnz*A->bnr*A->bnc;
+		break;
+	case LIS_MATRIX_MSR:
+		n = A->nnz+A->ndz+1;
+		break;
+	case LIS_MATRIX_ELL:
+		n = A->n*A->maxnzr;
+		break;
+	case LIS_MATRIX_DIA:
+		n = A->n*A->nnd;
+		break;
+	case LIS_MATRIX_BSC:
+		n = A->bnnz*A->bnr*A->bnc;
+		break;
+	case LIS_MATRIX_DNS:
+		n = A->n*A->n;
+		break;
+	default:
+		n = A->nnz;
+	}
+
+
+	#ifdef USE_VEC_COMP
+    #pragma cdir nodep
+	#endif
+	#ifdef _OPENMP
+	#pragma omp parallel for private(i)
+	#endif
+	for(i=0; i<n; i++)
+	{
+		x[i] = conj(x[i]);
+	}
+#endif
+	LIS_DEBUG_FUNC_OUT;
+	return LIS_SUCCESS;
+}
+
+
+#undef __FUNC__
+#define __FUNC__ "lis_matrix_scale_values"
+LIS_INT lis_matrix_scale_values(LIS_MATRIX A, LIS_SCALAR alpha)
+{
+	LIS_INT i,n;
+	LIS_SCALAR *x;
+
+	LIS_DEBUG_FUNC_IN;
+
+	x = A->value;
+
+	switch( A->matrix_type )
+	{
+	case LIS_MATRIX_BSR:
+		n = A->bnnz*A->bnr*A->bnc;
+		break;
+	case LIS_MATRIX_MSR:
+		n = A->nnz+A->ndz+1;
+		break;
+	case LIS_MATRIX_ELL:
+		n = A->n*A->maxnzr;
+		break;
+	case LIS_MATRIX_DIA:
+		n = A->n*A->nnd;
+		break;
+	case LIS_MATRIX_BSC:
+		n = A->bnnz*A->bnr*A->bnc;
+		break;
+	case LIS_MATRIX_DNS:
+		n = A->n*A->n;
+		break;
+	default:
+		n = A->nnz;
+	}
+
+
+	#ifdef USE_VEC_COMP
+    #pragma cdir nodep
+	#endif
+	#ifdef _OPENMP
+	#pragma omp parallel for private(i)
+	#endif
+	for(i=0; i<n; i++)
+	{
+		x[i] = alpha * x[i];
+	}
+	LIS_DEBUG_FUNC_OUT;
+	return LIS_SUCCESS;
+}
 
 

@@ -395,6 +395,33 @@ abstract class WebLIS<S> implements lis.LIS<S> {
     CHKERR(err);
   }
 
+  void matrixReal(int A) {
+    int err = _lis.callFunc('lis_matrix_real', [A]);
+    CHKERR(err);
+  }
+
+  void matrixImaginary(int A) {
+    int err = _lis.callFunc('lis_matrix_imaginary', [A]);
+    CHKERR(err);
+  }
+
+  void matrixConjugate(int A) {
+    int err = _lis.callFunc('lis_matrix_conjugate', [A]);
+    CHKERR(err);
+  }
+
+  void matrixScaleValues(int A, S alpha) {
+    int err;
+    if (alpha is Complex) {
+      var calpha = alpha as Complex;
+      err = _lis.callFunc(
+          'zlis_matrix_scale_values', [A, calpha.real, calpha.imaginary]);
+    } else {
+      err = _lis.callFunc('lis_matrix_scale_values', [A, alpha]);
+    }
+    CHKERR(err);
+  }
+
   void matrixSetCsr(
       int nnz, List<int> row, List<int> index, List<S> value, int A) {
     var p_ptr = _lis.heapInts(row);

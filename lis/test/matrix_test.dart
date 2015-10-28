@@ -186,6 +186,62 @@ matrixTest(LIS lis, rscal(), toScalar(int i)) {
       });
     }
   });
+  group('values', () {
+    int n;
+    Vector d0;
+    setUp(() {
+      n = rint();
+      var value = new List.generate(n, (i) => rscal());
+      var d = new Matrix.dia(lis, n, 1, [0], value);
+      m.size = n;
+      m.type = MatrixType.CSR;
+      d.convert(m);
+      d0 = m.diagonal();
+    });
+    test('real', () {
+      m.real();
+      var d = m.diagonal().values();
+      for (var i = 0; i < n; i++) {
+        if (d[i] is Complex) {
+          expect(d[i].real, closeTo(d0[i].real, 1e-12));
+          expect(d[i].imaginary, equals(0.0));
+        } else {
+          expect(d[i], equals(d0[i]));
+        }
+      }
+    });
+    test('imag', () {
+      m.imag();
+      var d = m.diagonal().values();
+      for (var i = 0; i < n; i++) {
+        if (d[i] is Complex) {
+          expect(d[i].real, closeTo(d0[i].imaginary, 1e-12));
+          expect(d[i].imaginary, equals(0.0));
+        } else {
+          expect(d[i], equals(0.0));
+        }
+      }
+    });
+    test('conj', () {
+      m.conj();
+      var d = m.diagonal().values();
+      for (var i = 0; i < n; i++) {
+        if (d[i] is Complex) {
+          expect(d[i], equals(d0[i].conjugate()));
+        } else {
+          expect(d[i], equals(d0[i]));
+        }
+      }
+    });
+    test('scale', () {
+      var alpha = rscal();
+      m.scale(alpha);
+      var d = m.diagonal().values();
+      for (var i = 0; i < n; i++) {
+        expect(d[i], equals(alpha * d0[i]));
+      }
+    });
+  });
 
   group('factory', () {
     bool complex = rscal() is Complex;

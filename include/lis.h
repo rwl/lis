@@ -794,6 +794,10 @@ extern "C"
         extern LIS_INT lis_matrix_sum_duplicates(LIS_MATRIX A);
         extern LIS_INT lis_matrix_sort_indexes(LIS_MATRIX A);
         extern LIS_INT lis_matrix_compose(LIS_MATRIX A, LIS_MATRIX B, LIS_MATRIX C, LIS_MATRIX D, LIS_MATRIX Y);
+        extern LIS_INT lis_matrix_real(LIS_MATRIX A);
+        extern LIS_INT lis_matrix_imaginary(LIS_MATRIX A);
+        extern LIS_INT lis_matrix_conjugate(LIS_MATRIX A);
+        extern LIS_INT lis_matrix_scale_values(LIS_MATRIX A, LIS_SCALAR alpha);
 
 	extern LIS_INT lis_matrix_malloc_csr(LIS_INT n, LIS_INT nnz, LIS_INT **ptr, LIS_INT **index, LIS_SCALAR **value);
 	extern LIS_INT lis_matrix_set_csr(LIS_INT nnz, LIS_INT *row, LIS_INT *index, LIS_SCALAR *value, LIS_MATRIX A);

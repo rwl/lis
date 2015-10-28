@@ -1,7 +1,7 @@
 part of lis.internal;
 
 class LinearSolver<S> {
-  final LIS _lis;
+  final LIS<S> _lis;
   final int _p_solve;
 
   factory LinearSolver(LIS lis) {

@@ -1,7 +1,7 @@
 part of lis.internal;
 
 class Matrix<S> {
-  final LIS _lis;
+  final LIS<S> _lis;
   final int _p_mat;
 
   Matrix._(this._lis, this._p_mat);
@@ -203,6 +203,14 @@ class Matrix<S> {
   void sumDuplicates() => _lis.matrixSumDuplicates(_p_mat);
 
   void sortIndexes() => _lis.matrixSortIndexes(_p_mat);
+
+  void real() => _lis.matrixReal(_p_mat);
+
+  void imag() => _lis.matrixImaginary(_p_mat);
+
+  void conj() => _lis.matrixConjugate(_p_mat);
+
+  void scale(S alpha) => _lis.matrixScaleValues(_p_mat, alpha);
 
   Matrix<S> matmat(Matrix<S> B, [Matrix<S> C]) {
     if (C == null) {

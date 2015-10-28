@@ -1,7 +1,7 @@
 part of lis.internal;
 
 class Vector<S> {
-  final LIS _lis;
+  final LIS<S> _lis;
   final int _p_vec;
 
   factory Vector(LIS lis, [int size]) {
@@ -182,7 +182,7 @@ class Vector<S> {
 
   Vector<S> operator -(y) {
     if (y is Vector) {
-      return axpyz(y, -_lis.one);
+      return axpyz(y, -(_lis.one as dynamic));
     } else if (y is Complex) {
       return copy()..shift(-y as S);
     } else if (y is num) {
@@ -192,5 +192,5 @@ class Vector<S> {
     }
   }
 
-  Vector<S> operator -() => copy()..scale(-_lis.one);
+  Vector<S> operator -() => copy()..scale(-(_lis.one as dynamic));
 }

@@ -1148,6 +1148,65 @@ void LIS_MatrixCompose(Dart_NativeArguments arguments) {
 }
 
 
+void LIS_MatrixReal(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_MATRIX A;
+
+  Dart_EnterScope();
+  Dart_GetNativeMatrixArgument(arguments, 1, &A);
+
+  err = lis_matrix_real(A); CHKERR(err);
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
+
+void LIS_MatrixImaginary(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_MATRIX A;
+
+  Dart_EnterScope();
+  Dart_GetNativeMatrixArgument(arguments, 1, &A);
+
+  err = lis_matrix_imaginary(A); CHKERR(err);
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
+
+void LIS_MatrixConjugate(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_MATRIX A;
+
+  Dart_EnterScope();
+  Dart_GetNativeMatrixArgument(arguments, 1, &A);
+
+  err = lis_matrix_conjugate(A); CHKERR(err);
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
+
+void LIS_MatrixScaleValues(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_MATRIX A;
+  LIS_SCALAR alpha;
+
+  Dart_EnterScope();
+  Dart_GetNativeMatrixArgument(arguments, 1, &A);
+  Dart_GetNativeLisScalarArgument(arguments, 2, &alpha);
+
+  err = lis_matrix_scale_values(A, alpha); CHKERR(err);
+
+  Dart_SetReturnValue(arguments, HandleError(Dart_Null()));
+  Dart_ExitScope();
+}
+
+
+
 void LIS_MatrixSetCsr(Dart_NativeArguments arguments) {
   LIS_INT err;
   LIS_MATRIX A;
@@ -2261,6 +2320,10 @@ Dart_NativeFunction ResolveName(Dart_Handle name, int argc,
   if (strcmp("LIS_MatrixSumDuplicates", cname) == 0) result = LIS_MatrixSumDuplicates;
   if (strcmp("LIS_MatrixSortIndexes", cname) == 0) result = LIS_MatrixSortIndexes;
   if (strcmp("LIS_MatrixCompose", cname) == 0) result = LIS_MatrixCompose;
+  if (strcmp("LIS_MatrixReal", cname) == 0) result = LIS_MatrixReal;
+  if (strcmp("LIS_MatrixImaginary", cname) == 0) result = LIS_MatrixImaginary;
+  if (strcmp("LIS_MatrixConjugate", cname) == 0) result = LIS_MatrixConjugate;
+  if (strcmp("LIS_MatrixScaleValues", cname) == 0) result = LIS_MatrixScaleValues;
 
   if (strcmp("LIS_MatrixSetCsr", cname) == 0) result = LIS_MatrixSetCsr;
   if (strcmp("LIS_MatrixSetCsc", cname) == 0) result = LIS_MatrixSetCsc;
