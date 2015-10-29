@@ -30,6 +30,43 @@ class Vector<S> {
     return new Vector<S>(lis, vals.length)..setAll(0, vals);
   }
 
+  static Vector<Complex> createReal(LIS<Complex> lis, List<double> re) {
+    var n = re.length;
+    var l = new List.generate(n, (i) => new Complex(re[i]));
+    return new Vector(lis, n)..setAll(0, l);
+  }
+
+  static Vector<Complex> createImag(LIS<Complex> lis, List<double> im) {
+    var n = im.length;
+    var l = new List.generate(n, (i) => new Complex(0.0, im[i]));
+    return new Vector(lis, n)..setAll(0, l);
+  }
+
+  static Vector<Complex> createParts(
+      LIS<Complex> lis, List<double> re, List<double> im) {
+    if (re.length != im.length) {
+      throw new ArgumentError('re.length != im.length');
+    }
+    var n = re.length;
+    var l = new List<Complex>.generate(n, (i) => new Complex(re[i], im[i]));
+    return new Vector(lis, n)..setAll(0, l);
+  }
+
+  static Vector<Complex> createPolar(
+      LIS<Complex> lis, List<double> r, List<double> theta,
+      [bool radians = true]) {
+    if (r.length != theta.length) {
+      throw new ArgumentError('r.length != theta.length');
+    }
+    var n = r.length;
+    var vals = new List<Complex>(n);
+    enumerate(theta).forEach((iv) {
+      double th = radians ? iv.value : iv.value * (PI / 180.0);
+      vals[iv.index] = new Complex.polar(r[iv.index], th);
+    });
+    return new Vector<Complex>(lis, n)..setAll(0, vals);
+  }
+
   String output([Format fmt = Format.PLAIN]) {
     return _lis.outputVector(_p_vec, fmt.index);
   }

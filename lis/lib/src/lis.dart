@@ -1,5 +1,7 @@
 library lis.internal;
 
+import 'dart:math' show PI;
+import 'package:quiver/iterables.dart' show enumerate;
 import 'package:complex/complex.dart';
 
 part 'vector.dart';
