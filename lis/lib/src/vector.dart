@@ -156,10 +156,18 @@ class Vector<S> {
   void fill(S alpha) => _lis.vectorSetAll(alpha, _p_vec);
 
   /// Get the absolute values of the elements of vector x.
-  void abs() => _lis.vectorAbs(_p_vec);
+  Vector<S> abs() {
+    var v = copy();
+    _lis.vectorAbs(v._p_vec);
+    return v;
+  }
 
   /// Get the reciprocal values of the elements of vector x.
-  void reciprocal() => _lis.vectorReciprocal(_p_vec);
+  Vector<S> reciprocal() {
+    var v = copy();
+    _lis.vectorReciprocal(v._p_vec);
+    return v;
+  }
 
   void shift(S alpha) => _lis.vectorShift(alpha, _p_vec);
 
@@ -173,19 +181,42 @@ class Vector<S> {
 
   S sum() => _lis.vectorSum(_p_vec);
 
-  void real() => _lis.vectorReal(_p_vec);
+  Vector<S> real() {
+    var v = copy();
+    _lis.vectorReal(v._p_vec);
+    return v;
+  }
 
-  void imag() => _lis.vectorImaginary(_p_vec);
+  Vector<S> imag() {
+    var v = copy();
+    _lis.vectorImaginary(v._p_vec);
+    return v;
+  }
 
-  void arg() => _lis.vectorArgument(_p_vec);
+  Vector<S> arg() {
+    var v = copy();
+    _lis.vectorArgument(v._p_vec);
+    return v;
+  }
 
-  void conj() => _lis.vectorConjugate(_p_vec);
+  Vector<S> conj() {
+    var v = copy();
+    _lis.vectorConjugate(v._p_vec);
+    return v;
+  }
 
   Vector<S> operator *(y) {
     if (y is Vector) {
       return copy()..pmul(y);
-    } else if (y is Complex) {
-      return copy()..scale(y as S);
+    } else if (_lis.zero is Complex) {
+      if (y is num) {
+        y = new Complex(y);
+      }
+      if (y is Complex) {
+        return copy()..scale(y as S);
+      } else {
+        throw new ArgumentError('expected num or Complex type');
+      }
     } else if (y is num) {
       return copy()..scale(y.toDouble() as S);
     } else {
@@ -196,8 +227,15 @@ class Vector<S> {
   Vector<S> operator /(y) {
     if (y is Vector) {
       return copy()..pdiv(y);
-    } else if (y is Complex) {
-      return copy()..scale(y.reciprocal() as S);
+    } else if (_lis.zero is Complex) {
+      if (y is num) {
+        y = new Complex(y);
+      }
+      if (y is Complex) {
+        return copy()..scale(y.reciprocal() as S);
+      } else {
+        throw new ArgumentError('expected num or Complex type');
+      }
     } else if (y is num) {
       return copy()..scale(1 / y as S);
     } else {
@@ -208,8 +246,15 @@ class Vector<S> {
   Vector<S> operator +(y) {
     if (y is Vector) {
       return axpyz(y);
-    } else if (y is Complex) {
-      return copy()..shift(y as S);
+    } else if (_lis.zero is Complex) {
+      if (y is num) {
+        y = new Complex(y);
+      }
+      if (y is Complex) {
+        return copy()..shift(y as S);
+      } else {
+        throw new ArgumentError('expected num or Complex type');
+      }
     } else if (y is num) {
       return copy()..shift(y.toDouble() as S);
     } else {
@@ -220,10 +265,17 @@ class Vector<S> {
   Vector<S> operator -(y) {
     if (y is Vector) {
       return axpyz(y, -(_lis.one as dynamic));
-    } else if (y is Complex) {
-      return copy()..shift(-y as S);
+    } else if (_lis.zero is Complex) {
+      if (y is num) {
+        y = new Complex(y);
+      }
+      if (y is Complex) {
+        return copy()..shift(-y as S);
+      } else {
+        throw new ArgumentError('expected num or Complex type');
+      }
     } else if (y is num) {
-      return copy()..shift(-y as S);
+      return copy()..shift(-y.toDouble() as S);
     } else {
       throw new ArgumentError('expected Vector or S type');
     }

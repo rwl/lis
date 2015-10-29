@@ -207,31 +207,30 @@ vectorTest(LIS lis, rscal()) {
   });
   test('abs', () {
     rvec(v);
-    var v0 = v.copy();
     for (var i = 0; i < v.size; i++) {
       v[i] = -v[i];
     }
-    v.abs();
+    var v2 = v.abs();
     for (var i = 0; i < v.size; i++) {
       if (v[i] is Complex) {
-        expect(v[i].real, closeTo(v0[i].abs(), 1e-12));
+        expect(v2[i].real, closeTo(v[i].abs(), 1e-12));
       } else {
-        expect(v[i], equals(v0[i]));
+        expect(v2[i], equals(v[i].abs()));
       }
     }
+    v2.destroy();
   });
   test('reciprocal', () {
     rvec(v);
-    var v0 = v.copy();
-    v.reciprocal();
+    var v2 = v.reciprocal();
     for (var i = 0; i < v.size; i++) {
       if (v[i] is Complex) {
-        expect(v[i].abs(), closeTo(v0[i].reciprocal().abs(), 1e-12));
+        expect(v2[i].abs(), closeTo(v[i].reciprocal().abs(), 1e-12));
       } else {
-        expect(v[i], equals(1.0 / v0[i]));
+        expect(v2[i], equals(1.0 / v[i]));
       }
     }
-    v0.destroy();
+    v2.destroy();
   });
   test('shift', () {
     rvec(v);
@@ -274,27 +273,25 @@ vectorTest(LIS lis, rscal()) {
   });
   test('real', () {
     rvec(v);
-    var v0 = v.copy();
-    v.real();
+    var v2 = v.real();
     for (var i = 0; i < v.size; i++) {
       if (v[i] is Complex) {
-        expect(v[i].real, closeTo(v0[i].real, 1e-12));
-        expect(v[i].imaginary, equals(0.0));
+        expect(v2[i].real, closeTo(v[i].real, 1e-12));
+        expect(v2[i].imaginary, equals(0.0));
       } else {
-        expect(v[i], equals(v0[i]));
+        expect(v2[i], equals(v[i]));
       }
     }
   });
   test('imag', () {
     rvec(v);
-    var v0 = v.copy();
-    v.imag();
+    var v2 = v.imag();
     for (var i = 0; i < v.size; i++) {
       if (v[i] is Complex) {
-        expect(v[i].real, closeTo(v0[i].imaginary, 1e-12));
-        expect(v[i].imaginary, equals(0.0));
+        expect(v2[i].real, closeTo(v[i].imaginary, 1e-12));
+        expect(v2[i].imaginary, equals(0.0));
       } else {
-        expect(v[i], equals(0.0));
+        expect(v2[i], equals(0.0));
       }
     }
   });
@@ -305,14 +302,13 @@ vectorTest(LIS lis, rscal()) {
         v[i] = -v[i];
       }
     }
-    var v0 = v.copy();
-    v.arg();
+    var v2 = v.arg();
     for (var i = 0; i < v.size; i++) {
       if (v[i] is Complex) {
-        expect(v[i].real, closeTo(v0[i].argument(), 1e-12));
-        expect(v[i].imaginary, equals(0.0));
+        expect(v2[i].real, closeTo(v[i].argument(), 1e-12));
+        expect(v2[i].imaginary, equals(0.0));
       } else {
-        expect(v[i], equals(v0[i] >= 0 ? 0.0 : PI));
+        expect(v2[i], equals(v[i] >= 0 ? 0.0 : PI));
       }
     }
   });
@@ -325,13 +321,12 @@ vectorTest(LIS lis, rscal()) {
         }
       }
     }
-    var v0 = v.copy();
-    v.conj();
+    var v2 = v.conj();
     for (var i = 0; i < v.size; i++) {
       if (v[i] is Complex) {
-        expect(v[i], equals(v0[i].conjugate()));
+        expect(v2[i], equals(v[i].conjugate()));
       } else {
-        expect(v[i], equals(v0[i]));
+        expect(v2[i], equals(v[i]));
       }
     }
   });
