@@ -245,13 +245,22 @@ matrixTest(LIS lis, rscal(), toScalar(int i)) {
         expect(d[i], equals(alpha * d0[i]));
       }
     });
-    test('add', () {
+    test('+', () {
       var b = m.copy();
       b.assemble();
-      var c = m.add(b);
+      var c = m + b;
       var d = c.diagonal().values();
       for (var i = 0; i < n; i++) {
         expect(d[i], equals(d0[i] + d0[i]));
+      }
+    });
+    test('-', () {
+      var b = m.copy();
+      b.assemble();
+      var c = m - b;
+      var d = c.diagonal().values();
+      for (var i = 0; i < n; i++) {
+        expect(d[i], equals(d0[i] - d0[i]));
       }
     });
   });

@@ -237,6 +237,13 @@ class Matrix<S> {
       throw new ArgumentError('expected Vector or Matrix type');
     }
   }
+
+  Matrix<S> operator +(Matrix<S> B) => add(B);
+
+  Matrix<S> operator -(Matrix<S> B) {
+    var Bneg = B.copy()..scale(-(_lis.one as dynamic));
+    return add(Bneg);
+  }
 }
 
 class MatrixType {
