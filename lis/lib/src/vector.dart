@@ -1,6 +1,6 @@
 part of lis.internal;
 
-class Vector<S> {
+class Vector<S> extends ListBase<S> {
   final LIS<S> _lis;
   final int _p_vec;
 
@@ -8,7 +8,7 @@ class Vector<S> {
     var p_vec = lis.vectorCreate();
     var v = new Vector._(lis, p_vec);
     if (size != null) {
-      v.size = size;
+      v.length = size;
     }
     return v;
   }
@@ -28,6 +28,11 @@ class Vector<S> {
 
   factory Vector.from(LIS lis, List<S> vals) {
     return new Vector<S>(lis, vals.length)..setAll(0, vals);
+  }
+
+  factory Vector.concat(LIS lis, List<Vector> vecs) {
+    int p_vout = lis.vectorConcat(vecs.map((v) => v._p_vec).toList());
+    return new Vector._(lis, p_vout);
   }
 
   static Vector<Complex> createReal(LIS<Complex> lis, List<double> re) {
@@ -73,9 +78,9 @@ class Vector<S> {
 
   void destroy() => _lis.vectorDestroy(_p_vec);
 
-  void set size(int sz) => _lis.vectorSetSize(_p_vec, sz);
+  void set length(int sz) => _lis.vectorSetSize(_p_vec, sz);
 
-  int get size => _lis.vectorGetSize(_p_vec);
+  int get length => _lis.vectorGetSize(_p_vec);
 
   Vector<S> duplicate() {
     var p_vout = _lis.vectorDuplicate(_p_vec);
@@ -92,7 +97,7 @@ class Vector<S> {
 
   List<S> values([int start = 0, int count]) {
     if (count == null) {
-      count = size;
+      count = length;
     }
     return _lis.vectorGetValues(_p_vec, start, count);
   }

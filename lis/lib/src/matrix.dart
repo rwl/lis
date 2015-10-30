@@ -36,9 +36,10 @@ class Matrix<S> {
     if (value.length != nnz) {
       throw new ArgumentError('value.length != nnz');
     }
+    Vector<S> v = value is Vector ? value : new Vector<S>.from(lis, value);
 
     var m = new Matrix(lis, n);
-    lis.matrixSetCsr(nnz, ptr, index, value, m._p_mat);
+    lis.matrixSetCsr(nnz, ptr, index, v._p_vec, m._p_mat);
     m.assemble();
     return m;
   }
@@ -54,8 +55,10 @@ class Matrix<S> {
     if (value.length != nnz) {
       throw new ArgumentError('value.length != nnz');
     }
+    Vector<S> v = value is Vector ? value : new Vector<S>.from(lis, value);
+
     var m = new Matrix(lis, n);
-    lis.matrixSetCsc(nnz, ptr, index, value, m._p_mat);
+    lis.matrixSetCsc(nnz, ptr, index, v._p_vec, m._p_mat);
     m.assemble();
     return m;
   }
@@ -67,8 +70,10 @@ class Matrix<S> {
     if (value.length != n * nnd) {
       throw new ArgumentError('value.length != n*nnd');
     }
+    Vector<S> v = value is Vector ? value : new Vector<S>.from(lis, value);
+
     var m = new Matrix(lis, n);
-    lis.matrixSetDia(nnd, index, value, m._p_mat);
+    lis.matrixSetDia(nnd, index, v._p_vec, m._p_mat);
     m.assemble();
     return m;
   }
@@ -84,9 +89,10 @@ class Matrix<S> {
     if (value.length != nnz) {
       throw new ArgumentError('value.length != nnz');
     }
+    Vector<S> v = value is Vector ? value : new Vector<S>.from(lis, value);
 
     var m = new Matrix(lis, n);
-    lis.matrixSetCoo(nnz, row, col, value, m._p_mat);
+    lis.matrixSetCoo(nnz, row, col, v._p_vec, m._p_mat);
     m.assemble();
     return m;
   }
@@ -98,8 +104,10 @@ class Matrix<S> {
     if (value.length != n * np) {
       throw new ArgumentError('value.length != n * np');
     }
+    Vector<S> v = value is Vector ? value : new Vector<S>.from(lis, value);
+
     var m = new Matrix(lis, n);
-    lis.matrixSetDns(value, m._p_mat);
+    lis.matrixSetDns(v._p_vec, m._p_mat);
     m.assemble();
     return m;
   }

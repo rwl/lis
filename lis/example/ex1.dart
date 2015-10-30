@@ -6,7 +6,7 @@ import 'package:lis/native/dlis.dart';
 main() {
   final lis = new DLIS();
 
-  var b = new Vector(lis)..size = 5;
+  var b = new Vector(lis)..length = 5;
 
   b.fill(PI);
 

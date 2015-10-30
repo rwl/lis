@@ -52,6 +52,7 @@ class ZLIS implements lis.LIS<Complex> {
   void vectorImaginary(int vx) native "LIS_VectorImaginary";
   void vectorArgument(int vx) native "LIS_VectorArgument";
   void vectorConjugate(int vx) native "LIS_VectorConjugate";
+  int vectorConcat(List<int> vecs) native "LIS_VectorConcat";
 
   // Matrix Operations
   int matrixCreate() native "LIS_MatrixCreate";
@@ -84,25 +85,22 @@ class ZLIS implements lis.LIS<Complex> {
   void matrixScaleValues(int A, Complex alpha) native "LIS_MatrixScaleValues";
   void matrixAdd(int A, int B, int C) native "LIS_MatrixAdd";
 
-  void matrixSetCsr(
-      int nnz, List<int> row, List<int> index, List<Complex> value, int A)
+  void matrixSetCsr(int nnz, List<int> row, List<int> index, int value, int A)
       native "LIS_MatrixSetCsr";
-  void matrixSetCsc(
-      int nnz, List<int> row, List<int> index, List<Complex> value, int A)
+  void matrixSetCsc(int nnz, List<int> row, List<int> index, int value, int A)
       native "LIS_MatrixSetCsc";
   void matrixSetBsr(int bnr, int bnc, int bnnz, List<int> bptr,
-      List<int> bindex, List<Complex> value, int A) native "LIS_MatrixSetBsr";
-  void matrixSetMsr(
-      int nnz, int ndz, List<int> index, List<Complex> value, int A)
+      List<int> bindex, int value, int A) native "LIS_MatrixSetBsr";
+  void matrixSetMsr(int nnz, int ndz, List<int> index, int value, int A)
       native "LIS_MatrixSetMsr";
-  void matrixSetEll(int maxnzr, List<int> index, List<Complex> value, int A)
+  void matrixSetEll(int maxnzr, List<int> index, int value, int A)
       native "LIS_MatrixSetEll";
   void matrixSetJad(int nnz, int maxnzr, List<int> perm, List<int> ptr,
-      List<int> index, List<Complex> value, int A) native "LIS_MatrixSetJad";
-  void matrixSetDia(int nnd, List<int> index, List<Complex> value, int A)
+      List<int> index, int value, int A) native "LIS_MatrixSetJad";
+  void matrixSetDia(int nnd, List<int> index, int value, int A)
       native "LIS_MatrixSetDia";
   void matrixSetBsc(int bnr, int bnc, int bnnz, List<int> bptr,
-      List<int> bindex, List<Complex> value, int A) native "LIS_MatrixSetBsc";
+      List<int> bindex, int value, int A) native "LIS_MatrixSetBsc";
   void matrixSetVbr(
       int nnz,
       int nr,
@@ -113,12 +111,11 @@ class ZLIS implements lis.LIS<Complex> {
       List<int> ptr,
       List<int> bptr,
       List<int> bindex,
-      List<Complex> value,
+      int value,
       int A) native "LIS_MatrixSetVbr";
-  void matrixSetCoo(
-      int nnz, List<int> row, List<int> col, List<Complex> value, int A)
+  void matrixSetCoo(int nnz, List<int> row, List<int> col, int value, int A)
       native "LIS_MatrixSetCoo";
-  void matrixSetDns(List<Complex> value, int A) native "LIS_MatrixSetDns";
+  void matrixSetDns(int value, int A) native "LIS_MatrixSetDns";
 
   // Matrix-Vector Operations
   void matvec(int A, int x, int y) native "LIS_MatVec";

@@ -24,9 +24,9 @@ vectorTest(LIS lis, rscal()) {
       vdst = new Vector(lis);
     } else if (vdst.isNull()) {
       n = rint();
-      vdst.size = n;
+      vdst.length = n;
     } else {
-      n = vdst.size;
+      n = vdst.length;
     }
     for (var i = 0; i < n; i++) {
       vdst[i] = rscal();
@@ -41,21 +41,24 @@ vectorTest(LIS lis, rscal()) {
   tearDown(() {
     v.destroy();
   });
-  test('size', () {
+  test('list', () {
+    expect(v is List, isTrue);
+  });
+  test('length', () {
     int size = rint();
-    v.size = size;
-    expect(v.size, equals(size));
+    v.length = size;
+    expect(v.length, equals(size));
   });
   test('duplicate', () {
     int size = rint();
-    v.size = size;
+    v.length = size;
     var v2 = v.duplicate();
     expect(v2, isNotNull);
-    expect(v2.size, equals(size));
+    expect(v2.length, equals(size));
     v2.destroy();
   });
   test('[]', () {
-    v.size = rint();
+    v.length = rint();
     var val = rscal();
     v[0] = val;
     expect(v[0], equals(val));
@@ -63,7 +66,7 @@ vectorTest(LIS lis, rscal()) {
   test('values', () {
     var vals = rarry();
     var count = vals.length;
-    v.size = count;
+    v.length = count;
     for (var i = 0; i < count; i++) {
       v[i] = vals[i];
     }
@@ -73,7 +76,7 @@ vectorTest(LIS lis, rscal()) {
   test('setValues', () {
     var vals = rarry();
     var count = vals.length;
-    v.size = count;
+    v.length = count;
     var idxs = new Int32List(count);
     for (var i = 0; i < count; i++) {
       idxs[i] = count - i - 1;
@@ -86,8 +89,8 @@ vectorTest(LIS lis, rscal()) {
   test('setAll', () {
     var vals = rarry();
     var count = vals.length;
-    v.size = count;
-    v.setAll(0, vals);
+    v.length = count;
+    v.setAll(0, vals); // TODO: test nonzero start
     expect(v.values(), equals(vals));
   });
   test('print', () {
@@ -96,14 +99,14 @@ vectorTest(LIS lis, rscal()) {
   });
   test('isNull', () {
     expect(v.isNull(), isTrue);
-    v.size = rint();
+    v.length = rint();
     expect(v.isNull(), isFalse);
   });
   test('swap', () {
     rvec(v);
     var v0 = v.copy();
     var vdst = new Vector(lis);
-    vdst.size = v.size;
+    vdst.length = v.length;
     var vdst0 = vdst.copy();
     v.swap(vdst);
     expect(vdst.values(), equals(v0.values()));
@@ -128,7 +131,7 @@ vectorTest(LIS lis, rscal()) {
     var y0 = y.copy();
     var alpha = rscal();
     y.axpy(v, alpha);
-    for (var i = 0; i < v.size; i++) {
+    for (var i = 0; i < v.length; i++) {
       expect(y[i], equals(alpha * v[i] + y0[i]));
     }
     y.destroy();
@@ -141,7 +144,7 @@ vectorTest(LIS lis, rscal()) {
     var y0 = y.copy();
     var alpha = rscal();
     y.xpay(v, alpha);
-    for (var i = 0; i < v.size; i++) {
+    for (var i = 0; i < v.length; i++) {
       expect(y[i], equals(v[i] + alpha * y0[i]));
     }
     y.destroy();
@@ -153,7 +156,7 @@ vectorTest(LIS lis, rscal()) {
     rvec(y);
     var alpha = rscal();
     var z = y.axpyz(v, alpha);
-    for (var i = 0; i < v.size; i++) {
+    for (var i = 0; i < v.length; i++) {
       expect(z[i], equals(alpha * v[i] + y[i]));
     }
     y.destroy();
@@ -164,7 +167,7 @@ vectorTest(LIS lis, rscal()) {
     var v0 = v.copy();
     var alpha = rscal();
     v.scale(alpha);
-    for (var i = 0; i < v.size; i++) {
+    for (var i = 0; i < v.length; i++) {
       expect(v[i], equals(alpha * v0[i]));
     }
     v0.destroy();
@@ -175,7 +178,7 @@ vectorTest(LIS lis, rscal()) {
     var vy = v.copy();
     rvec(vy);
     v.pmul(vy);
-    for (var i = 0; i < v.size; i++) {
+    for (var i = 0; i < v.length; i++) {
       expect(v[i], equals(v0[i] * vy[i]));
     }
     v0.destroy();
@@ -187,7 +190,7 @@ vectorTest(LIS lis, rscal()) {
     var vy = v.copy();
     rvec(vy);
     v.pdiv(vy);
-    for (var i = 0; i < v.size; i++) {
+    for (var i = 0; i < v.length; i++) {
       if (v[i] is Complex) {
         expect(v[i].abs(), closeTo((v0[i] / vy[i]).abs(), 1e-12));
       } else {
@@ -201,17 +204,17 @@ vectorTest(LIS lis, rscal()) {
     rvec(v);
     var alpha = rscal();
     v.fill(alpha);
-    for (var i = 0; i < v.size; i++) {
+    for (var i = 0; i < v.length; i++) {
       expect(v[i], equals(alpha));
     }
   });
   test('abs', () {
     rvec(v);
-    for (var i = 0; i < v.size; i++) {
+    for (var i = 0; i < v.length; i++) {
       v[i] = -v[i];
     }
     var v2 = v.abs();
-    for (var i = 0; i < v.size; i++) {
+    for (var i = 0; i < v.length; i++) {
       if (v[i] is Complex) {
         expect(v2[i].real, closeTo(v[i].abs(), 1e-12));
       } else {
@@ -223,7 +226,7 @@ vectorTest(LIS lis, rscal()) {
   test('reciprocal', () {
     rvec(v);
     var v2 = v.reciprocal();
-    for (var i = 0; i < v.size; i++) {
+    for (var i = 0; i < v.length; i++) {
       if (v[i] is Complex) {
         expect(v2[i].abs(), closeTo(v[i].reciprocal().abs(), 1e-12));
       } else {
@@ -237,7 +240,7 @@ vectorTest(LIS lis, rscal()) {
     var v0 = v.copy();
     var alpha = rscal();
     v.shift(alpha);
-    for (var i = 0; i < v.size; i++) {
+    for (var i = 0; i < v.length; i++) {
       expect(v[i], equals(v0[i] + alpha));
     }
     v0.destroy();
@@ -247,7 +250,7 @@ vectorTest(LIS lis, rscal()) {
     var vx = v.copy();
     var val = v.dot(vx);
     var expected = lis.zero;
-    for (var i = 0; i < v.size; i++) {
+    for (var i = 0; i < v.length; i++) {
       expected += v[i] * vx[i];
     }
     expect(val, equals(expected));
@@ -257,7 +260,7 @@ vectorTest(LIS lis, rscal()) {
     rvec(v);
     var val = v.nrmi();
     var expected = 0.0;
-    for (var i = 0; i < v.size; i++) {
+    for (var i = 0; i < v.length; i++) {
       expected = max(expected, v[i].abs());
     }
     expect(val, closeTo(expected, 1e-12));
@@ -266,7 +269,7 @@ vectorTest(LIS lis, rscal()) {
     rvec(v);
     var val = v.sum();
     var expected = lis.zero;
-    for (var i = 0; i < v.size; i++) {
+    for (var i = 0; i < v.length; i++) {
       expected += v[i];
     }
     expect(val, equals(expected));
@@ -274,7 +277,7 @@ vectorTest(LIS lis, rscal()) {
   test('real', () {
     rvec(v);
     var v2 = v.real();
-    for (var i = 0; i < v.size; i++) {
+    for (var i = 0; i < v.length; i++) {
       if (v[i] is Complex) {
         expect(v2[i].real, closeTo(v[i].real, 1e-12));
         expect(v2[i].imaginary, equals(0.0));
@@ -286,7 +289,7 @@ vectorTest(LIS lis, rscal()) {
   test('imag', () {
     rvec(v);
     var v2 = v.imag();
-    for (var i = 0; i < v.size; i++) {
+    for (var i = 0; i < v.length; i++) {
       if (v[i] is Complex) {
         expect(v2[i].real, closeTo(v[i].imaginary, 1e-12));
         expect(v2[i].imaginary, equals(0.0));
@@ -297,13 +300,13 @@ vectorTest(LIS lis, rscal()) {
   });
   test('arg', () {
     rvec(v);
-    for (var i = 0; i < v.size; i++) {
+    for (var i = 0; i < v.length; i++) {
       if (rint() % 2 == 0) {
         v[i] = -v[i];
       }
     }
     var v2 = v.arg();
-    for (var i = 0; i < v.size; i++) {
+    for (var i = 0; i < v.length; i++) {
       if (v[i] is Complex) {
         expect(v2[i].real, closeTo(v[i].argument(), 1e-12));
         expect(v2[i].imaginary, equals(0.0));
@@ -314,7 +317,7 @@ vectorTest(LIS lis, rscal()) {
   });
   test('conj', () {
     rvec(v);
-    for (var i = 0; i < v.size; i++) {
+    for (var i = 0; i < v.length; i++) {
       if (rint() % 2 == 0) {
         if (v[i] is Complex) {
           v[i] = v[i].conjugate();
@@ -322,13 +325,31 @@ vectorTest(LIS lis, rscal()) {
       }
     }
     var v2 = v.conj();
-    for (var i = 0; i < v.size; i++) {
+    for (var i = 0; i < v.length; i++) {
       if (v[i] is Complex) {
         expect(v2[i], equals(v[i].conjugate()));
       } else {
         expect(v2[i], equals(v[i]));
       }
     }
+  });
+  test('concat', () {
+    var nvec = rint();
+    var vecs = new List<Vector>(nvec);
+    int totlen = 0;
+    for (var i = 0; i < nvec; i++) {
+      var l = rint();
+      vecs[i] = new Vector(lis, l);
+      rvec(vecs[i]);
+      totlen += l;
+    }
+    var vcat = new Vector.concat(lis, vecs);
+    expect(vcat.length, equals(totlen));
+    var start = 0;
+    vecs.forEach((vec) {
+      expect(vcat.values(start, vec.length), equals(vec.values()));
+      start += vec.length;
+    });
   });
   group('operator', () {
     group('*', () {
@@ -338,10 +359,10 @@ vectorTest(LIS lis, rscal()) {
         var v2 = v.copy();
         rvec(v2);
         var v3 = v * v2;
-        for (var i = 0; i < v.size; i++) {
+        for (var i = 0; i < v.length; i++) {
           expect(v[i], equals(v0[i]));
         }
-        for (var i = 0; i < v.size; i++) {
+        for (var i = 0; i < v.length; i++) {
           expect(v3[i], equals(v[i] * v2[i]));
         }
       });
@@ -350,10 +371,10 @@ vectorTest(LIS lis, rscal()) {
         var v0 = v.copy();
         var alpha = rscal();
         var v2 = v * alpha;
-        for (var i = 0; i < v.size; i++) {
+        for (var i = 0; i < v.length; i++) {
           expect(v[i], equals(v0[i]));
         }
-        for (var i = 0; i < v.size; i++) {
+        for (var i = 0; i < v.length; i++) {
           expect(v2[i], equals(alpha * v0[i]));
         }
         v0.destroy();
@@ -370,10 +391,10 @@ vectorTest(LIS lis, rscal()) {
         var v2 = v.copy();
         rvec(v2);
         var v3 = v / v2;
-        for (var i = 0; i < v.size; i++) {
+        for (var i = 0; i < v.length; i++) {
           expect(v[i], equals(v0[i]));
         }
-        for (var i = 0; i < v.size; i++) {
+        for (var i = 0; i < v.length; i++) {
           if (v[i] is Complex) {
             expect(v3[i].abs(), closeTo((v[i] / v2[i]).abs(), 1e-12));
           } else {
@@ -386,10 +407,10 @@ vectorTest(LIS lis, rscal()) {
         var v0 = v.copy();
         var alpha = rscal();
         var v2 = v / alpha;
-        for (var i = 0; i < v.size; i++) {
+        for (var i = 0; i < v.length; i++) {
           expect(v[i], equals(v0[i]));
         }
-        for (var i = 0; i < v.size; i++) {
+        for (var i = 0; i < v.length; i++) {
           if (v[i] is Complex) {
             expect(v2[i].abs(), closeTo((v0[i] / alpha).abs(), 1e-12));
           } else {
@@ -410,10 +431,10 @@ vectorTest(LIS lis, rscal()) {
         var v2 = v.copy();
         rvec(v2);
         var v3 = v + v2;
-        for (var i = 0; i < v.size; i++) {
+        for (var i = 0; i < v.length; i++) {
           expect(v[i], equals(v0[i]));
         }
-        for (var i = 0; i < v.size; i++) {
+        for (var i = 0; i < v.length; i++) {
           expect(v3[i], equals(v[i] + v2[i]));
         }
       });
@@ -422,10 +443,10 @@ vectorTest(LIS lis, rscal()) {
         var v0 = v.copy();
         var alpha = rscal();
         var v2 = v + alpha;
-        for (var i = 0; i < v.size; i++) {
+        for (var i = 0; i < v.length; i++) {
           expect(v[i], equals(v0[i]));
         }
-        for (var i = 0; i < v.size; i++) {
+        for (var i = 0; i < v.length; i++) {
           expect(v2[i], equals(v0[i] + alpha));
         }
         v0.destroy();
@@ -442,10 +463,10 @@ vectorTest(LIS lis, rscal()) {
         var v2 = v.copy();
         rvec(v2);
         var v3 = v - v2;
-        for (var i = 0; i < v.size; i++) {
+        for (var i = 0; i < v.length; i++) {
           expect(v[i], equals(v0[i]));
         }
-        for (var i = 0; i < v.size; i++) {
+        for (var i = 0; i < v.length; i++) {
           expect(v3[i], equals(v[i] - v2[i]));
         }
       });
@@ -454,10 +475,10 @@ vectorTest(LIS lis, rscal()) {
         var v0 = v.copy();
         var alpha = rscal();
         var v2 = v - alpha;
-        for (var i = 0; i < v.size; i++) {
+        for (var i = 0; i < v.length; i++) {
           expect(v[i], equals(v0[i]));
         }
-        for (var i = 0; i < v.size; i++) {
+        for (var i = 0; i < v.length; i++) {
           expect(v2[i], equals(v0[i] - alpha));
         }
         v0.destroy();

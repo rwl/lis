@@ -33,7 +33,7 @@ class EigenSolver<S> {
 
   Vector rhistory([Vector v]) {
     if (v == null) {
-      v = new Vector(_lis)..size = iter() + 1;
+      v = new Vector(_lis)..length = iter() + 1;
     }
     _lis.esolverGetRHistory(_p_solve, v._p_vec);
     return v;
@@ -41,7 +41,7 @@ class EigenSolver<S> {
 
   Vector evalues([Vector v]) {
     if (v == null) {
-      v = new Vector(_lis)..size = iter() + 1;
+      v = new Vector(_lis)..length = iter() + 1;
     }
     _lis.esolverGetEvalues(_p_solve, v._p_vec);
     return v;
@@ -57,7 +57,7 @@ class EigenSolver<S> {
 
   Vector residualnorms([Vector v]) {
     if (v == null) {
-      v = new Vector(_lis)..size = iter() + 1;
+      v = new Vector(_lis)..length = iter() + 1;
     }
     _lis.esolverGetResidualNorms(_p_solve, v._p_vec);
     return v;
@@ -65,7 +65,7 @@ class EigenSolver<S> {
 
   Vector iters([Vector v]) {
     if (v == null) {
-      v = new Vector(_lis)..size = iter() + 1;
+      v = new Vector(_lis)..length = iter() + 1;
     }
     _lis.esolverGetIters(_p_solve, v._p_vec);
     return v;

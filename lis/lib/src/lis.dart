@@ -1,6 +1,8 @@
 library lis.internal;
 
 import 'dart:math' show PI;
+import 'dart:collection';
+
 import 'package:quiver/iterables.dart' show enumerate;
 import 'package:complex/complex.dart';
 
@@ -54,6 +56,7 @@ abstract class LIS<S> {
   void vectorImaginary(int vx);
   void vectorArgument(int vx);
   void vectorConjugate(int vx);
+  int vectorConcat(List<int> vecs);
 
   // Matrix Operations
   int matrixCreate();
@@ -82,19 +85,17 @@ abstract class LIS<S> {
   void matrixScaleValues(int A, S alpha);
   void matrixAdd(int A, int B, int C);
 
-  void matrixSetCsr(
-      int nnz, List<int> row, List<int> index, List<S> value, int A);
-  void matrixSetCsc(
-      int nnz, List<int> row, List<int> index, List<S> value, int A);
+  void matrixSetCsr(int nnz, List<int> row, List<int> index, int value, int A);
+  void matrixSetCsc(int nnz, List<int> row, List<int> index, int value, int A);
   void matrixSetBsr(int bnr, int bnc, int bnnz, List<int> bptr,
-      List<int> bindex, List<S> value, int A);
-  void matrixSetMsr(int nnz, int ndz, List<int> index, List<S> value, int A);
-  void matrixSetEll(int maxnzr, List<int> index, List<S> value, int A);
+      List<int> bindex, int value, int A);
+  void matrixSetMsr(int nnz, int ndz, List<int> index, int value, int A);
+  void matrixSetEll(int maxnzr, List<int> index, int value, int A);
   void matrixSetJad(int nnz, int maxnzr, List<int> perm, List<int> ptr,
-      List<int> index, List<S> value, int A);
-  void matrixSetDia(int nnd, List<int> index, List<S> value, int A);
+      List<int> index, int value, int A);
+  void matrixSetDia(int nnd, List<int> index, int value, int A);
   void matrixSetBsc(int bnr, int bnc, int bnnz, List<int> bptr,
-      List<int> bindex, List<S> value, int A);
+      List<int> bindex, int value, int A);
   void matrixSetVbr(
       int nnz,
       int nr,
@@ -105,11 +106,10 @@ abstract class LIS<S> {
       List<int> ptr,
       List<int> bptr,
       List<int> bindex,
-      List<S> value,
+      int value,
       int A);
-  void matrixSetCoo(
-      int nnz, List<int> row, List<int> col, List<S> value, int A);
-  void matrixSetDns(List<S> value, int A);
+  void matrixSetCoo(int nnz, List<int> row, List<int> col, int value, int A);
+  void matrixSetDns(int value, int A);
 
   // Matrix-Vector Operations
   void matvec(int A, int x, int y);

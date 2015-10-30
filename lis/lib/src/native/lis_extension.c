@@ -848,6 +848,77 @@ void LIS_VectorConjugate(Dart_NativeArguments arguments) {
 }
 
 
+void LIS_VectorConcat(Dart_NativeArguments arguments) {
+  LIS_INT err;
+  LIS_VECTOR vec;
+  Dart_Handle obj, val;
+  intptr_t i, len;
+  bool fits;
+  uint64_t p_vec;
+  LIS_INT loc_n, glob_n, n, start, j;
+  LIS_SCALAR *value;
+
+  Dart_EnterScope();
+  obj = HandleError(Dart_GetNativeArgument(arguments, 1));
+
+  if (!Dart_IsList(obj)) {
+    HandleError(Dart_NewApiError("expected List"));
+    return;
+  }
+
+  HandleError(Dart_ListLength(obj, &len));
+
+  LIS_VECTOR vecs[len];
+
+  for (i = 0; i < len; i++) {
+    val = HandleError(Dart_ListGetAt(obj, i));
+    if (Dart_IsInteger(val)) {
+      HandleError(Dart_IntegerFitsIntoUint64(val, &fits));
+      if (fits) {
+        HandleError(Dart_IntegerToUint64(val, &p_vec));
+        vecs[i] = (LIS_VECTOR) p_vec;
+      } else {
+        HandleError(Dart_NewApiError("expected uint64_t"));
+      }
+    } else {
+      HandleError(Dart_NewApiError("expected integer"));
+    }
+  }
+
+  n = 0;
+  for (i = 0; i < len; i++) {
+    err = lis_vector_get_size(vecs[i], &loc_n, &glob_n); CHKERR(err);
+    n += loc_n;
+  }
+
+  err = lis_vector_create(LIS_COMM_WORLD, &vec); CHKERR(err);
+  err = lis_vector_set_size(vec, n, n); CHKERR(err);
+
+  start = 0;
+  for (i = 0; i < len; i++) {
+    err = lis_vector_get_size(vecs[i], &loc_n, &glob_n); CHKERR(err);
+
+//    for (j = 0; j < loc_n; j++) {
+//      err = lis_vector_get_value(vin, i, &value); CHKERR(err);
+//    }
+
+    LIS_INT index[loc_n];
+    for (j = 0; j < loc_n; j++) {
+      index[j] = start+j;
+    }
+    value = vecs[i]->value;
+
+    err = lis_vector_set_values(LIS_INS_VALUE, loc_n, index, value, vec);
+    CHKERR(err);
+
+    start += loc_n;
+  }
+
+  Dart_SetUint64ReturnValue(arguments, (uint64_t) vec);
+  Dart_ExitScope();
+}
+
+
 void LIS_MatrixCreate(Dart_NativeArguments arguments) {
   LIS_INT err;
   LIS_MATRIX mat;
@@ -1226,14 +1297,22 @@ void LIS_MatrixSetCsr(Dart_NativeArguments arguments) {
   LIS_INT err;
   LIS_MATRIX A;
   LIS_INT nnz, *ptr, *index;
+  LIS_VECTOR vec;
   LIS_SCALAR *value;
 
   Dart_EnterScope();
   Dart_GetNativeLisIntArgument(arguments, 1, &nnz);
   Dart_GetNativeLisIntArrayArgument(arguments, 2, &ptr);
   Dart_GetNativeLisIntArrayArgument(arguments, 3, &index);
-  Dart_GetNativeLisScalarArrayArgument(arguments, 4, &value);
+  Dart_GetNativeVectorArgument(arguments, 4, &vec);
   Dart_GetNativeMatrixArgument(arguments, 5, &A);
+
+  value = (LIS_SCALAR *)lis_malloc( vec->n*sizeof(LIS_SCALAR),"lis_matrix_set_csr::value" );
+  if( value==NULL ) {
+    lis_free(value);
+    HandleError(Dart_NewApiError("out of memory"));
+  }
+  memcpy(value, vec->value, vec->n*sizeof(LIS_SCALAR));
 
   err = lis_matrix_set_csr(nnz, ptr, index, value, A); CHKERR(err);
 
@@ -1246,14 +1325,22 @@ void LIS_MatrixSetCsc(Dart_NativeArguments arguments) {
   LIS_INT err;
   LIS_MATRIX A;
   LIS_INT nnz, *ptr, *index;
+  LIS_VECTOR vec;
   LIS_SCALAR *value;
 
   Dart_EnterScope();
   Dart_GetNativeLisIntArgument(arguments, 1, &nnz);
   Dart_GetNativeLisIntArrayArgument(arguments, 2, &ptr);
   Dart_GetNativeLisIntArrayArgument(arguments, 3, &index);
-  Dart_GetNativeLisScalarArrayArgument(arguments, 4, &value);
+  Dart_GetNativeVectorArgument(arguments, 4, &vec);
   Dart_GetNativeMatrixArgument(arguments, 5, &A);
+
+  value = (LIS_SCALAR *)lis_malloc( vec->n*sizeof(LIS_SCALAR),"lis_matrix_set_csr::value" );
+  if( value==NULL ) {
+    lis_free(value);
+    HandleError(Dart_NewApiError("out of memory"));
+  }
+  memcpy(value, vec->value, vec->n*sizeof(LIS_SCALAR));
 
   err = lis_matrix_set_csc(nnz, ptr, index, value, A); CHKERR(err);
 
@@ -1265,8 +1352,9 @@ void LIS_MatrixSetCsc(Dart_NativeArguments arguments) {
 void LIS_MatrixSetBsr(Dart_NativeArguments arguments) {
   LIS_INT err;
   LIS_INT bnr, bnc, bnnz, *bptr, *bindex;
-  LIS_SCALAR *value;
+  LIS_VECTOR vec;
   LIS_MATRIX A;
+  LIS_SCALAR *value;
 
   Dart_EnterScope();
   Dart_GetNativeLisIntArgument(arguments, 1, &bnr);
@@ -1274,8 +1362,15 @@ void LIS_MatrixSetBsr(Dart_NativeArguments arguments) {
   Dart_GetNativeLisIntArgument(arguments, 3, &bnnz);
   Dart_GetNativeLisIntArrayArgument(arguments, 4, &bptr);
   Dart_GetNativeLisIntArrayArgument(arguments, 5, &bindex);
-  Dart_GetNativeLisScalarArrayArgument(arguments, 6, &value);
+  Dart_GetNativeVectorArgument(arguments, 6, &vec);
   Dart_GetNativeMatrixArgument(arguments, 7, &A);
+
+  value = (LIS_SCALAR *)lis_malloc( vec->n*sizeof(LIS_SCALAR),"lis_matrix_set_csr::value" );
+  if( value==NULL ) {
+    lis_free(value);
+    HandleError(Dart_NewApiError("out of memory"));
+  }
+  memcpy(value, vec->value, vec->n*sizeof(LIS_SCALAR));
 
   err = lis_matrix_set_bsr(bnr, bnc, bnnz, bptr, bindex, value, A);
   CHKERR(err);
@@ -1288,15 +1383,23 @@ void LIS_MatrixSetBsr(Dart_NativeArguments arguments) {
 void LIS_MatrixSetMsr(Dart_NativeArguments arguments) {
   LIS_INT err;
   LIS_INT nnz, ndz, *index;
-  LIS_SCALAR *value;
+  LIS_VECTOR vec;
   LIS_MATRIX A;
+  LIS_SCALAR *value;
 
   Dart_EnterScope();
   Dart_GetNativeLisIntArgument(arguments, 1, &nnz);
   Dart_GetNativeLisIntArgument(arguments, 2, &ndz);
   Dart_GetNativeLisIntArrayArgument(arguments, 3, &index);
-  Dart_GetNativeLisScalarArrayArgument(arguments, 4, &value);
+  Dart_GetNativeVectorArgument(arguments, 4, &vec);
   Dart_GetNativeMatrixArgument(arguments, 5, &A);
+
+  value = (LIS_SCALAR *)lis_malloc( vec->n*sizeof(LIS_SCALAR),"lis_matrix_set_csr::value" );
+  if( value==NULL ) {
+    lis_free(value);
+    HandleError(Dart_NewApiError("out of memory"));
+  }
+  memcpy(value, vec->value, vec->n*sizeof(LIS_SCALAR));
 
   err = lis_matrix_set_msr(nnz, ndz, index, value, A); CHKERR(err);
 
@@ -1308,14 +1411,22 @@ void LIS_MatrixSetMsr(Dart_NativeArguments arguments) {
 void LIS_MatrixSetEll(Dart_NativeArguments arguments) {
   LIS_INT err;
   LIS_INT maxnzr, *index;
-  LIS_SCALAR *value;
+  LIS_VECTOR vec;
   LIS_MATRIX A;
+  LIS_SCALAR *value;
 
   Dart_EnterScope();
   Dart_GetNativeLisIntArgument(arguments, 1, &maxnzr);
   Dart_GetNativeLisIntArrayArgument(arguments, 3, &index);
-  Dart_GetNativeLisScalarArrayArgument(arguments, 4, &value);
+  Dart_GetNativeVectorArgument(arguments, 4, &vec);
   Dart_GetNativeMatrixArgument(arguments, 1, &A);
+
+  value = (LIS_SCALAR *)lis_malloc( vec->n*sizeof(LIS_SCALAR),"lis_matrix_set_csr::value" );
+  if( value==NULL ) {
+    lis_free(value);
+    HandleError(Dart_NewApiError("out of memory"));
+  }
+  memcpy(value, vec->value, vec->n*sizeof(LIS_SCALAR));
 
   err = lis_matrix_set_ell(maxnzr, index, value, A); CHKERR(err);
 
@@ -1327,8 +1438,9 @@ void LIS_MatrixSetEll(Dart_NativeArguments arguments) {
 void LIS_MatrixSetJad(Dart_NativeArguments arguments) {
   LIS_INT err;
   LIS_INT nnz, maxnzr, *perm, *ptr, *index;
-  LIS_SCALAR *value;
+  LIS_VECTOR vec;
   LIS_MATRIX A;
+  LIS_SCALAR *value;
 
   Dart_EnterScope();
   Dart_GetNativeLisIntArgument(arguments, 1, &nnz);
@@ -1336,8 +1448,15 @@ void LIS_MatrixSetJad(Dart_NativeArguments arguments) {
   Dart_GetNativeLisIntArrayArgument(arguments, 3, &perm);
   Dart_GetNativeLisIntArrayArgument(arguments, 4, &ptr);
   Dart_GetNativeLisIntArrayArgument(arguments, 5, &index);
-  Dart_GetNativeLisScalarArrayArgument(arguments, 6, &value);
+  Dart_GetNativeVectorArgument(arguments, 6, &vec);
   Dart_GetNativeMatrixArgument(arguments, 7, &A);
+
+  value = (LIS_SCALAR *)lis_malloc( vec->n*sizeof(LIS_SCALAR),"lis_matrix_set_csr::value" );
+  if( value==NULL ) {
+    lis_free(value);
+    HandleError(Dart_NewApiError("out of memory"));
+  }
+  memcpy(value, vec->value, vec->n*sizeof(LIS_SCALAR));
 
   err = lis_matrix_set_jad(nnz, maxnzr, perm, ptr, index, value, A);
   CHKERR(err);
@@ -1350,14 +1469,22 @@ void LIS_MatrixSetJad(Dart_NativeArguments arguments) {
 void LIS_MatrixSetDia(Dart_NativeArguments arguments) {
   LIS_INT err;
   LIS_INT nnd, *index;
-  LIS_SCALAR *value;
+  LIS_VECTOR vec;
   LIS_MATRIX A;
+  LIS_SCALAR *value;
 
   Dart_EnterScope();
   Dart_GetNativeLisIntArgument(arguments, 1, &nnd);
   Dart_GetNativeLisIntArrayArgument(arguments, 2, &index);
-  Dart_GetNativeLisScalarArrayArgument(arguments, 3, &value);
+  Dart_GetNativeVectorArgument(arguments, 3, &vec);
   Dart_GetNativeMatrixArgument(arguments, 4, &A);
+
+  value = (LIS_SCALAR *)lis_malloc( vec->n*sizeof(LIS_SCALAR),"lis_matrix_set_csr::value" );
+  if( value==NULL ) {
+    lis_free(value);
+    HandleError(Dart_NewApiError("out of memory"));
+  }
+  memcpy(value, vec->value, vec->n*sizeof(LIS_SCALAR));
 
   err = lis_matrix_set_dia(nnd, index, value, A); CHKERR(err);
 
@@ -1369,8 +1496,9 @@ void LIS_MatrixSetDia(Dart_NativeArguments arguments) {
 void LIS_MatrixSetBsc(Dart_NativeArguments arguments) {
   LIS_INT err;
   LIS_INT bnr, bnc, bnnz, *bptr, *bindex;
-  LIS_SCALAR *value;
+  LIS_VECTOR vec;
   LIS_MATRIX A;
+  LIS_SCALAR *value;
 
   Dart_EnterScope();
   Dart_GetNativeLisIntArgument(arguments, 1, &bnr);
@@ -1378,8 +1506,15 @@ void LIS_MatrixSetBsc(Dart_NativeArguments arguments) {
   Dart_GetNativeLisIntArgument(arguments, 3, &bnnz);
   Dart_GetNativeLisIntArrayArgument(arguments, 4, &bptr);
   Dart_GetNativeLisIntArrayArgument(arguments, 5, &bindex);
-  Dart_GetNativeLisScalarArrayArgument(arguments, 6, &value);
+  Dart_GetNativeVectorArgument(arguments, 6, &vec);
   Dart_GetNativeMatrixArgument(arguments, 7, &A);
+
+  value = (LIS_SCALAR *)lis_malloc( vec->n*sizeof(LIS_SCALAR),"lis_matrix_set_csr::value" );
+  if( value==NULL ) {
+    lis_free(value);
+    HandleError(Dart_NewApiError("out of memory"));
+  }
+  memcpy(value, vec->value, vec->n*sizeof(LIS_SCALAR));
 
   err = lis_matrix_set_bsc(bnr, bnc, bnnz, bptr, bindex, value, A);
   CHKERR(err);
@@ -1392,8 +1527,9 @@ void LIS_MatrixSetBsc(Dart_NativeArguments arguments) {
 void LIS_MatrixSetVbr(Dart_NativeArguments arguments) {
   LIS_INT err;
   LIS_INT nnz, nr, nc, bnnz, *row, *col, *ptr, *bptr, *bindex;
-  LIS_SCALAR *value;
+  LIS_VECTOR vec;
   LIS_MATRIX A;
+  LIS_SCALAR *value;
 
   Dart_EnterScope();
   Dart_GetNativeLisIntArgument(arguments, 1, &nnz);
@@ -1405,8 +1541,15 @@ void LIS_MatrixSetVbr(Dart_NativeArguments arguments) {
   Dart_GetNativeLisIntArrayArgument(arguments, 7, &ptr);
   Dart_GetNativeLisIntArrayArgument(arguments, 8, &bptr);
   Dart_GetNativeLisIntArrayArgument(arguments, 9, &bindex);
-  Dart_GetNativeLisScalarArrayArgument(arguments, 10, &value);
+  Dart_GetNativeVectorArgument(arguments, 10, &vec);
   Dart_GetNativeMatrixArgument(arguments, 11, &A);
+
+  value = (LIS_SCALAR *)lis_malloc( vec->n*sizeof(LIS_SCALAR),"lis_matrix_set_csr::value" );
+  if( value==NULL ) {
+    lis_free(value);
+    HandleError(Dart_NewApiError("out of memory"));
+  }
+  memcpy(value, vec->value, vec->n*sizeof(LIS_SCALAR));
 
   err = lis_matrix_set_vbr(nnz, nr, nc, bnnz, row, col, ptr, bptr,
       bindex, value, A);
@@ -1420,15 +1563,23 @@ void LIS_MatrixSetVbr(Dart_NativeArguments arguments) {
 void LIS_MatrixSetCoo(Dart_NativeArguments arguments) {
   LIS_INT err;
   LIS_INT nnz, *row, *col;
-  LIS_SCALAR *value;
+  LIS_VECTOR vec;
   LIS_MATRIX A;
+  LIS_SCALAR *value;
 
   Dart_EnterScope();
   Dart_GetNativeLisIntArgument(arguments, 1, &nnz);
   Dart_GetNativeLisIntArrayArgument(arguments, 2, &row);
   Dart_GetNativeLisIntArrayArgument(arguments, 3, &col);
-  Dart_GetNativeLisScalarArrayArgument(arguments, 4, &value);
+  Dart_GetNativeVectorArgument(arguments, 4, &vec);
   Dart_GetNativeMatrixArgument(arguments, 5, &A);
+
+  value = (LIS_SCALAR *)lis_malloc( vec->n*sizeof(LIS_SCALAR),"lis_matrix_set_csr::value" );
+  if( value==NULL ) {
+    lis_free(value);
+    HandleError(Dart_NewApiError("out of memory"));
+  }
+  memcpy(value, vec->value, vec->n*sizeof(LIS_SCALAR));
 
   err = lis_matrix_set_coo(nnz, row, col, value, A); CHKERR(err);
 
@@ -1439,12 +1590,20 @@ void LIS_MatrixSetCoo(Dart_NativeArguments arguments) {
 
 void LIS_MatrixSetDns(Dart_NativeArguments arguments) {
   LIS_INT err;
-  LIS_SCALAR *value;
+  LIS_VECTOR vec;
   LIS_MATRIX A;
+  LIS_SCALAR *value;
 
   Dart_EnterScope();
-  Dart_GetNativeLisScalarArrayArgument(arguments, 1, &value);
+  Dart_GetNativeVectorArgument(arguments, 1, &vec);
   Dart_GetNativeMatrixArgument(arguments, 2, &A);
+
+  value = (LIS_SCALAR *)lis_malloc( vec->n*sizeof(LIS_SCALAR),"lis_matrix_set_csr::value" );
+  if( value==NULL ) {
+    lis_free(value);
+    HandleError(Dart_NewApiError("out of memory"));
+  }
+  memcpy(value, vec->value, vec->n*sizeof(LIS_SCALAR));
 
   err = lis_matrix_set_dns(value, A); CHKERR(err);
 
@@ -2314,6 +2473,7 @@ Dart_NativeFunction ResolveName(Dart_Handle name, int argc,
   if (strcmp("LIS_VectorImaginary", cname) == 0) result = LIS_VectorImaginary;
   if (strcmp("LIS_VectorArgument", cname) == 0) result = LIS_VectorArgument;
   if (strcmp("LIS_VectorConjugate", cname) == 0) result = LIS_VectorConjugate;
+  if (strcmp("LIS_VectorConcat", cname) == 0) result = LIS_VectorConcat;
 
   if (strcmp("LIS_MatrixCreate", cname) == 0) result = LIS_MatrixCreate;
   if (strcmp("LIS_MatrixDestroy", cname) == 0) result = LIS_MatrixDestroy;

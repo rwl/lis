@@ -37,7 +37,7 @@ class LinearSolver<S> {
 
   Vector rhistory([Vector v]) {
     if (v == null) {
-      v = new Vector(_lis)..size = iter() + 1;
+      v = new Vector(_lis)..length = iter() + 1;
     }
     _lis.solverGetRHistory(_p_solve, v._p_vec);
     return v;

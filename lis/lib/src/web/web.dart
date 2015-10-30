@@ -427,45 +427,71 @@ abstract class WebLIS<S> implements lis.LIS<S> {
     CHKERR(err);
   }
 
-  void matrixSetCsr(
-      int nnz, List<int> row, List<int> index, List<S> value, int A) {
+  void matrixSetCsr(int nnz, List<int> row, List<int> index, int v, int A) {
     var p_ptr = _lis.heapInts(row);
     var p_index = _lis.heapInts(index);
-    var p_value = _lis.heapScalars(value);
-    int err =
+
+    var count = vectorGetSize(v);
+    var vals = new List.generate(count, (_) => zero);
+    int p_value = _lis.heapScalars(vals); // TODO: heapNScalars
+    int err = _lis.callFunc('lis_vector_get_values', [v, 0, count, p_value]);
+    CHKERR(err);
+
+    err =
         _lis.callFunc('lis_matrix_set_csr', [nnz, p_ptr, p_index, p_value, A]);
     CHKERR(err);
   }
 
-  void matrixSetCsc(
-      int nnz, List<int> row, List<int> index, List<S> value, int A) {
+  void matrixSetCsc(int nnz, List<int> row, List<int> index, int v, int A) {
     var p_ptr = _lis.heapInts(row);
     var p_index = _lis.heapInts(index);
-    var p_value = _lis.heapScalars(value);
-    int err =
+
+    var count = vectorGetSize(v);
+    var vals = new List.generate(count, (_) => zero);
+    int p_value = _lis.heapScalars(vals);
+    int err = _lis.callFunc('lis_vector_get_values', [v, 0, count, p_value]);
+    CHKERR(err);
+
+    err =
         _lis.callFunc('lis_matrix_set_csc', [nnz, p_ptr, p_index, p_value, A]);
     CHKERR(err);
   }
 
   void matrixSetBsr(int bnr, int bnc, int bnnz, List<int> bptr,
-      List<int> bindex, List<S> value, int A) {}
+      List<int> bindex, int value, int A) {
+    throw new UnimplementedError();
+  }
 
-  void matrixSetMsr(int nnz, int ndz, List<int> index, List<S> value, int A) {}
+  void matrixSetMsr(int nnz, int ndz, List<int> index, int value, int A) {
+    throw new UnimplementedError();
+  }
 
-  void matrixSetEll(int maxnzr, List<int> index, List<S> value, int A) {}
+  void matrixSetEll(int maxnzr, List<int> index, int value, int A) {
+    throw new UnimplementedError();
+  }
 
   void matrixSetJad(int nnz, int maxnzr, List<int> perm, List<int> ptr,
-      List<int> index, List<S> value, int A) {}
+      List<int> index, int value, int A) {
+    throw new UnimplementedError();
+  }
 
-  void matrixSetDia(int nnd, List<int> index, List<S> value, int A) {
+  void matrixSetDia(int nnd, List<int> index, int v, int A) {
     var p_index = _lis.heapInts(index);
-    var p_value = _lis.heapScalars(value);
-    int err = _lis.callFunc('lis_matrix_set_dia', [nnd, p_index, p_value, A]);
+
+    var count = vectorGetSize(v);
+    var vals = new List.generate(count, (_) => zero);
+    int p_value = _lis.heapScalars(vals);
+    int err = _lis.callFunc('lis_vector_get_values', [v, 0, count, p_value]);
+    CHKERR(err);
+
+    err = _lis.callFunc('lis_matrix_set_dia', [nnd, p_index, p_value, A]);
     CHKERR(err);
   }
 
   void matrixSetBsc(int bnr, int bnc, int bnnz, List<int> bptr,
-      List<int> bindex, List<S> value, int A) {}
+      List<int> bindex, int value, int A) {
+    throw new UnimplementedError();
+  }
 
   void matrixSetVbr(
       int nnz,
@@ -477,22 +503,33 @@ abstract class WebLIS<S> implements lis.LIS<S> {
       List<int> ptr,
       List<int> bptr,
       List<int> bindex,
-      List<S> value,
-      int A) {}
+      int value,
+      int A) {
+    throw new UnimplementedError();
+  }
 
-  void matrixSetCoo(
-      int nnz, List<int> row, List<int> col, List<S> value, int A) {
+  void matrixSetCoo(int nnz, List<int> row, List<int> col, int v, int A) {
     var p_row = _lis.heapInts(row);
     var p_col = _lis.heapInts(col);
-    var p_value = _lis.heapScalars(value);
-    int err =
-        _lis.callFunc('lis_matrix_set_coo', [nnz, p_row, p_col, p_value, A]);
+
+    var count = vectorGetSize(v);
+    var vals = new List.generate(count, (_) => zero);
+    int p_value = _lis.heapScalars(vals);
+    int err = _lis.callFunc('lis_vector_get_values', [v, 0, count, p_value]);
+    CHKERR(err);
+
+    err = _lis.callFunc('lis_matrix_set_coo', [nnz, p_row, p_col, p_value, A]);
     CHKERR(err);
   }
 
-  void matrixSetDns(List<S> value, int A) {
-    var p_value = _lis.heapScalars(value);
-    int err = _lis.callFunc('lis_matrix_set_dns', [p_value, A]);
+  void matrixSetDns(int v, int A) {
+    var count = vectorGetSize(v);
+    var vals = new List.generate(count, (_) => zero);
+    int p_value = _lis.heapScalars(vals);
+    int err = _lis.callFunc('lis_vector_get_values', [v, 0, count, p_value]);
+    CHKERR(err);
+
+    err = _lis.callFunc('lis_matrix_set_dns', [p_value, A]);
     CHKERR(err);
   }
 
