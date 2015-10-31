@@ -213,5 +213,5 @@ cleanweb:
 	( cd $(WEBDIR) ; $(RM) *lis*.js* )
 
 cleannative:
-	@( cd $(NSRCDIR) ; $(RM) *.o )
-	@( cd $(NSRCDIR) ; $(RM) *.so )
+	@( cd $(LIBDIR)/src/native ; $(RM) *.o  )
+	@( cd $(LIBDIR)/native     ; $(RM) *.so )

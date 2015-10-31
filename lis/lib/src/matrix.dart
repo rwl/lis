@@ -25,8 +25,8 @@ class Matrix<S> {
     return Y;
   }
 
-  factory Matrix.csr(
-      LIS lis, int n, int nnz, List<int> ptr, List<int> index, List<S> value) {
+  factory Matrix.csr(LIS lis, int n, int nnz, Iterable<int> ptr,
+      Iterable<int> index, Iterable<S> value) {
     if (ptr.length != n + 1) {
       throw new ArgumentError('ptr.length != n + 1');
     }
@@ -39,13 +39,14 @@ class Matrix<S> {
     Vector<S> v = value is Vector ? value : new Vector<S>.from(lis, value);
 
     var m = new Matrix(lis, n);
-    lis.matrixSetCsr(nnz, ptr, index, v._p_vec, m._p_mat);
+    lis.matrixSetCsr(nnz, ptr.toList(growable: true),
+        index.toList(growable: true), v._p_vec, m._p_mat);
     m.assemble();
     return m;
   }
 
-  factory Matrix.csc(
-      LIS lis, int n, int nnz, List<int> ptr, List<int> index, List<S> value) {
+  factory Matrix.csc(LIS lis, int n, int nnz, Iterable<int> ptr,
+      Iterable<int> index, Iterable<S> value) {
     if (ptr.length != n + 1) {
       throw new ArgumentError('ptr.length != n + 1');
     }
@@ -58,12 +59,14 @@ class Matrix<S> {
     Vector<S> v = value is Vector ? value : new Vector<S>.from(lis, value);
 
     var m = new Matrix(lis, n);
-    lis.matrixSetCsc(nnz, ptr, index, v._p_vec, m._p_mat);
+    lis.matrixSetCsc(nnz, ptr.toList(growable: false),
+        index.toList(growable: false), v._p_vec, m._p_mat);
     m.assemble();
     return m;
   }
 
-  factory Matrix.dia(LIS lis, int n, int nnd, List<int> index, List<S> value) {
+  factory Matrix.dia(
+      LIS lis, int n, int nnd, Iterable<int> index, Iterable<S> value) {
     if (index.length != nnd) {
       throw new ArgumentError('index.length != nnd');
     }
@@ -73,13 +76,13 @@ class Matrix<S> {
     Vector<S> v = value is Vector ? value : new Vector<S>.from(lis, value);
 
     var m = new Matrix(lis, n);
-    lis.matrixSetDia(nnd, index, v._p_vec, m._p_mat);
+    lis.matrixSetDia(nnd, index.toList(growable: false), v._p_vec, m._p_mat);
     m.assemble();
     return m;
   }
 
-  factory Matrix.coo(
-      LIS lis, int n, int nnz, List<int> row, List<int> col, List<S> value) {
+  factory Matrix.coo(LIS lis, int n, int nnz, Iterable<int> row,
+      Iterable<int> col, Iterable<S> value) {
     if (row.length != nnz) {
       throw new ArgumentError('row.length != nnz');
     }
@@ -92,12 +95,13 @@ class Matrix<S> {
     Vector<S> v = value is Vector ? value : new Vector<S>.from(lis, value);
 
     var m = new Matrix(lis, n);
-    lis.matrixSetCoo(nnz, row, col, v._p_vec, m._p_mat);
+    lis.matrixSetCoo(nnz, row.toList(growable: false),
+        col.toList(growable: false), v._p_vec, m._p_mat);
     m.assemble();
     return m;
   }
 
-  factory Matrix.dense(LIS lis, int n, List<S> value, [int np]) {
+  factory Matrix.dense(LIS lis, int n, Iterable<S> value, [int np]) {
     if (np == null) {
       np = n;
     }
@@ -154,20 +158,21 @@ class Matrix<S> {
     _lis.matrixSetValue(flag.index, i, j, value, _p_mat);
   }
 
-  void setValues(List<S> values, [Flag flag = Flag.INSERT]) {
+  void setValues(Iterable<S> values, [Flag flag = Flag.INSERT]) {
     int n = size; //sqrt(values.length).toInt();
     if (values.length != n * n) {
       throw new ArgumentError.value(values);
     }
-    _lis.matrixSetValues(flag.index, n, values, _p_mat);
+    _lis.matrixSetValues(flag.index, n, values.toList(growable: false), _p_mat);
   }
 
   /// Either [nnz_row] or [nnz] must be provided.
-  void malloc({int nnz_row, List<int> nnz}) {
+  void malloc({int nnz_row, Iterable<int> nnz}) {
     if (nnz_row == null && nnz == null) {
       throw new ArgumentError("Either `nnz_row` or `nnz` must be provided");
     } else if (nnz_row == null) {
       nnz_row = 0;
+      nnz = nnz.toList(growable: false);
     }
     _lis.matrixMalloc(_p_mat, nnz_row, nnz);
   }

@@ -26,50 +26,47 @@ class Vector<S> extends ListBase<S> {
     return v;
   }
 
-  factory Vector.from(LIS lis, List<S> vals) {
+  factory Vector.from(LIS lis, Iterable<S> vals) {
     return new Vector<S>(lis, vals.length)..setAll(0, vals);
   }
 
-  factory Vector.concat(LIS lis, List<Vector> vecs) {
-    int p_vout = lis.vectorConcat(vecs.map((v) => v._p_vec).toList());
+  factory Vector.concat(LIS lis, Iterable<Vector> vecs) {
+    int p_vout =
+        lis.vectorConcat(vecs.map((v) => v._p_vec).toList(growable: true));
     return new Vector._(lis, p_vout);
   }
 
-  static Vector<Complex> createReal(LIS<Complex> lis, List<double> re) {
+  static Vector<Complex> createReal(LIS<Complex> lis, Iterable<double> re) {
     var n = re.length;
-    var l = new List.generate(n, (i) => new Complex(re[i]));
+    var l = re.map((d) => new Complex(d));
     return new Vector(lis, n)..setAll(0, l);
   }
 
-  static Vector<Complex> createImag(LIS<Complex> lis, List<double> im) {
+  static Vector<Complex> createImag(LIS<Complex> lis, Iterable<double> im) {
     var n = im.length;
-    var l = new List.generate(n, (i) => new Complex(0.0, im[i]));
+    var l = im.map((d) => new Complex(0.0, d));
     return new Vector(lis, n)..setAll(0, l);
   }
 
   static Vector<Complex> createParts(
-      LIS<Complex> lis, List<double> re, List<double> im) {
+      LIS<Complex> lis, Iterable<double> re, Iterable<double> im) {
     if (re.length != im.length) {
       throw new ArgumentError('re.length != im.length');
     }
     var n = re.length;
-    var l = new List<Complex>.generate(n, (i) => new Complex(re[i], im[i]));
+    var l = zip([re, im]).map((parts) => new Complex(parts[0], parts[1]));
     return new Vector(lis, n)..setAll(0, l);
   }
 
   static Vector<Complex> createPolar(
-      LIS<Complex> lis, List<double> r, List<double> theta,
+      LIS<Complex> lis, Iterable<double> r, Iterable<double> theta,
       [bool radians = true]) {
     if (r.length != theta.length) {
       throw new ArgumentError('r.length != theta.length');
     }
-    var n = r.length;
-    var vals = new List<Complex>(n);
-    enumerate(theta).forEach((iv) {
-      double th = radians ? iv.value : iv.value * (PI / 180.0);
-      vals[iv.index] = new Complex.polar(r[iv.index], th);
-    });
-    return new Vector<Complex>(lis, n)..setAll(0, vals);
+    var l = zip([r, theta])
+        .map((args) => new Complex.polar(args[0], args[1], radians));
+    return new Vector<Complex>(lis, l.length)..setAll(0, l);
   }
 
   String output([Format fmt = Format.PLAIN]) {
@@ -102,14 +99,15 @@ class Vector<S> extends ListBase<S> {
     return _lis.vectorGetValues(_p_vec, start, count);
   }
 
-  void setValues(List<int> index, List<S> value, [Flag flag = Flag.INSERT]) {
-    int count = index.length;
-    _lis.vectorSetValues(flag.index, count, index, value, _p_vec);
+  void setValues(Iterable<int> index, Iterable<S> value,
+      [Flag flag = Flag.INSERT]) {
+    _lis.vectorSetValues(flag.index, index.length,
+        index.toList(growable: false), value.toList(growable: false), _p_vec);
   }
 
   void setAll(int start, Iterable<S> value) {
-    int count = value.length;
-    _lis.vectorSetValues2(Flag.INSERT.index, start, count, value, _p_vec);
+    _lis.vectorSetValues2(Flag.INSERT.index, start, value.length,
+        value.toList(growable: false), _p_vec);
   }
 
   void print() => _lis.vectorPrint(_p_vec);
@@ -220,7 +218,7 @@ class Vector<S> extends ListBase<S> {
       if (y is Complex) {
         return copy()..scale(y as S);
       } else {
-        throw new ArgumentError('expected num or Complex type');
+        throw new ArgumentError('expected Vector or S type');
       }
     } else if (y is num) {
       return copy()..scale(y.toDouble() as S);
@@ -239,7 +237,7 @@ class Vector<S> extends ListBase<S> {
       if (y is Complex) {
         return copy()..scale(y.reciprocal() as S);
       } else {
-        throw new ArgumentError('expected num or Complex type');
+        throw new ArgumentError('expected Vector or S type');
       }
     } else if (y is num) {
       return copy()..scale(1 / y as S);
@@ -258,7 +256,7 @@ class Vector<S> extends ListBase<S> {
       if (y is Complex) {
         return copy()..shift(y as S);
       } else {
-        throw new ArgumentError('expected num or Complex type');
+        throw new ArgumentError('expected Vector or S type');
       }
     } else if (y is num) {
       return copy()..shift(y.toDouble() as S);
@@ -277,7 +275,7 @@ class Vector<S> extends ListBase<S> {
       if (y is Complex) {
         return copy()..shift(-y as S);
       } else {
-        throw new ArgumentError('expected num or Complex type');
+        throw new ArgumentError('expected Vector or S type');
       }
     } else if (y is num) {
       return copy()..shift(-y.toDouble() as S);

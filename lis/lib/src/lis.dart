@@ -3,7 +3,7 @@ library lis.internal;
 import 'dart:math' show PI;
 import 'dart:collection';
 
-import 'package:quiver/iterables.dart' show enumerate;
+import 'package:quiver/iterables.dart' show enumerate, zip;
 import 'package:complex/complex.dart';
 
 part 'vector.dart';
