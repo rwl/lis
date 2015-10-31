@@ -248,7 +248,7 @@ LIS_INT lis_input_mm_vec(LIS_MATRIX A, LIS_VECTOR b, LIS_VECTOR x, FILE *file, L
 
 #undef __FUNC__
 #define __FUNC__ "lis_input_mm_banner"
-LIS_INT lis_input_mm_banner(FILE *file, LIS_INT *mmtype)
+LIS_INT lis_input_mm_banner(FILE *file, LIS_INT *mmtype, LIS_INT *stype)
 {
 	char buf[BUFSIZE];
 	char banner[64], mtx[64], fmt[64], dtype[64], dstruct[64];
@@ -279,9 +279,17 @@ LIS_INT lis_input_mm_banner(FILE *file, LIS_INT *mmtype)
 		LIS_SETERR(LIS_ERR_FILE_IO,"Not Coodinate format\n");
 		return LIS_ERR_FILE_IO;
 	}
-	if( strncmp(dtype, MM_TYPE_REAL, strlen(MM_TYPE_REAL))!=0 )
+	if( strncmp(dtype, MM_TYPE_REAL, strlen(MM_TYPE_REAL))==0 )
 	{
-		LIS_SETERR(LIS_ERR_FILE_IO,"Not real\n");
+		*stype = MM_REAL;
+	}
+	else if( strncmp(dtype, MM_TYPE_COMPLEX, strlen(MM_TYPE_COMPLEX))==0 )
+	{
+		*stype = MM_COMPLEX;
+	}
+	else
+	{
+		LIS_SETERR(LIS_ERR_FILE_IO,"Not real or complex\n");
 		return LIS_ERR_FILE_IO;
 	}
 	if( strncmp(dstruct, MM_TYPE_GENERAL, strlen(MM_TYPE_GENERAL))==0 )
@@ -350,14 +358,17 @@ LIS_INT lis_input_mm_csr(LIS_MATRIX A, LIS_VECTOR b, LIS_VECTOR x, FILE *file)
 	LIS_INT	nr,nc,nnz;
 	LIS_INT	i,j,my_rank;
 	LIS_INT	err;
-	LIS_INT	mmtype,mode;
+	LIS_INT	mmtype,mode,stype;
 	LIS_INT	n,is,ie;
 	LIS_INT	ridx,cidx;
 	LIS_INT	*ptr, *index;
 	LIS_INT	*work;
 	LIS_INT	isb,isx,isbin;
 	LIS_SCALAR val;
-	LIS_REAL t;
+#if defined(_COMPLEX)
+	LIS_INT	ns;
+	LIS_REAL re, im;
+#endif
 	LIS_SCALAR *value;
 	LIS_MM_MATFMT matfmt;
 
@@ -370,7 +381,7 @@ LIS_INT lis_input_mm_csr(LIS_MATRIX A, LIS_VECTOR b, LIS_VECTOR x, FILE *file)
 	#endif
 	
 	/* check banner */
-	err = lis_input_mm_banner(file,&mmtype);
+	err = lis_input_mm_banner(file,&mmtype,&stype);
 	if( err ) return err;
 
 	/* check size */		
@@ -456,6 +467,22 @@ LIS_INT lis_input_mm_csr(LIS_MATRIX A, LIS_VECTOR b, LIS_VECTOR x, FILE *file)
 				lis_free2(4,ptr,index,value,work);
 				return LIS_ERR_FILE_IO;
 			}
+#if defined(_COMPLEX)
+			if( stype==MM_COMPLEX )
+			{
+				ns = sscanf(buf, "%d %d %lg %lg", &ridx, &cidx, &re, &im);
+			} else {
+				ns = sscanf(buf, "%d %d %lg", &ridx, &cidx, &re);
+				im = 0.0;
+			}
+			val = re + im * I;
+			if(( stype==MM_REAL && ns != 3 ) || ( stype==MM_COMPLEX && ns != 4 ))
+			{
+				LIS_SETERR_FIO;
+				lis_free2(4,ptr,index,value,work);
+				return LIS_ERR_FILE_IO;
+			}
+#else
 #ifdef _LONGLONG
 #ifdef _LONG__DOUBLE
 			if( sscanf(buf, "%lld %lld %Lg", &ridx, &cidx, &val) != 3 )
@@ -466,7 +493,7 @@ LIS_INT lis_input_mm_csr(LIS_MATRIX A, LIS_VECTOR b, LIS_VECTOR x, FILE *file)
 #ifdef _LONG__DOUBLE
 			if( sscanf(buf, "%d %d %Lg", &ridx, &cidx, &val) != 3 )
 #else
-			if( sscanf(buf, "%d %d %lg", &ridx, &cidx, &t) != 3 )
+			if( sscanf(buf, "%d %d %lg", &ridx, &cidx, &val) != 3 )
 #endif
 #endif
 			{
@@ -474,7 +501,7 @@ LIS_INT lis_input_mm_csr(LIS_MATRIX A, LIS_VECTOR b, LIS_VECTOR x, FILE *file)
 				lis_free2(4,ptr,index,value,work);
 				return LIS_ERR_FILE_IO;
 			}
-			val = t;
+#endif
 		}
 /*		if( val!=0.0 )*/
 		{
@@ -575,6 +602,22 @@ LIS_INT lis_input_mm_csr(LIS_MATRIX A, LIS_VECTOR b, LIS_VECTOR x, FILE *file)
 				lis_free2(4,ptr,index,value,work);
 				return LIS_ERR_FILE_IO;
 			}
+#if defined(_COMPLEX)
+			if( stype==MM_COMPLEX )
+			{
+				ns = sscanf(buf, "%d %d %lg %lg", &ridx, &cidx, &re, &im);
+			} else {
+				ns = sscanf(buf, "%d %d %lg", &ridx, &cidx, &re);
+				im = 0.0;
+			}
+			val = re + im * I;
+			if(( stype==MM_REAL && ns != 3 ) || ( stype==MM_COMPLEX && ns != 4 ))
+			{
+				LIS_SETERR_FIO;
+				lis_free2(4,ptr,index,value,work);
+				return LIS_ERR_FILE_IO;
+			}
+#else
 #ifdef _LONGLONG
 #ifdef _LONG__DOUBLE
 			if( sscanf(buf, "%lld %lld %Lg", &ridx, &cidx, &val) != 3 )
@@ -585,7 +628,7 @@ LIS_INT lis_input_mm_csr(LIS_MATRIX A, LIS_VECTOR b, LIS_VECTOR x, FILE *file)
 #ifdef _LONG__DOUBLE
 			if( sscanf(buf, "%d %d %Lg", &ridx, &cidx, &val) != 3 )
 #else
-			if( sscanf(buf, "%d %d %lg", &ridx, &cidx, &t) != 3 )
+			if( sscanf(buf, "%d %d %lg", &ridx, &cidx, &val) != 3 )
 #endif
 #endif
 			{
@@ -593,7 +636,7 @@ LIS_INT lis_input_mm_csr(LIS_MATRIX A, LIS_VECTOR b, LIS_VECTOR x, FILE *file)
 				lis_free2(4,ptr,index,value,work);
 				return LIS_ERR_FILE_IO;
 			}
-			val = t;
+#endif
 		}
 		ridx--;
 		cidx--;
