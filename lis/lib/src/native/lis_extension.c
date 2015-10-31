@@ -898,10 +898,6 @@ void LIS_VectorConcat(Dart_NativeArguments arguments) {
   for (i = 0; i < len; i++) {
     err = lis_vector_get_size(vecs[i], &loc_n, &glob_n); CHKERR(err);
 
-//    for (j = 0; j < loc_n; j++) {
-//      err = lis_vector_get_value(vin, i, &value); CHKERR(err);
-//    }
-
     LIS_INT index[loc_n];
     for (j = 0; j < loc_n; j++) {
       index[j] = start+j;

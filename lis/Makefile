@@ -178,7 +178,7 @@ ZINC  = -I$(WEBDIR)/zlis/include
 DDEFS = -Wall -Werror -DHAVE_CONFIG_H -D_GNU_SOURCE
 ZDEFS = -Wall -Werror -DHAVE_CONFIG_H -D_GNU_SOURCE -D_COMPLEX
 
-#all: web native
+all: web native
 
 web: cleanweb $(WEBDIR)/dlis.js $(WEBDIR)/zlis.js
 
@@ -191,25 +191,21 @@ $(WEBDIR)/zlis.js: $(ZLIBS) Makefile $(ZEXT) $(ZLIS) $(EMPOST)
 
 DNATDIR = $(LIBDIR)/native/dlis
 ZNATDIR = $(LIBDIR)/native/zlis
-NSRCDIR = $(LIBDIR)/src/native
 
-native: cleannative $(NSRCDIR)/libdlis_extension.so $(NSRCDIR)/libzlis_extension.so
+native: cleannative $(LIBDIR)/native/libdlis_extension.so $(LIBDIR)/native/libzlis_extension.so
 
-$(NSRCDIR)/dlis_extension.o: $(NSRCDIR)/lis_extension.c
+$(LIBDIR)/src/native/dlis_extension.o: $(LIBDIR)/src/native/lis_extension.c
 	$(CC) -fPIC -std=c99 $(DDEFS) -I/usr/lib/dart/include -I$(DNATDIR)/include -DDART_SHARED_LIB -o $@ -c $<
 
-$(NSRCDIR)/libdlis_extension.so: $(NSRCDIR)/dlis_extension.o
-	$(CC) -L$(DNATDIR)/lib $(DDEFS) -shared -Wl,-rpath=$(DNATDIR)/lib,-soname,libdlis_extension.so -o $@ $< -llis
+$(LIBDIR)/native/libdlis_extension.so: $(LIBDIR)/src/native/dlis_extension.o
+	$(CC) -L$(DNATDIR)/lib $(DDEFS) -shared -Wl,-soname,libdlis_extension.so -o $@ $< -llis
 
 
-$(NSRCDIR)/zlis_extension.o: $(NSRCDIR)/lis_extension.c
+$(LIBDIR)/src/native/zlis_extension.o: $(LIBDIR)/src/native/lis_extension.c
 	$(CC) -fPIC -std=c99 $(ZDEFS) -I/usr/lib/dart/include -I$(ZNATDIR)/include -DDART_SHARED_LIB -o $@ -c $<
 
-$(NSRCDIR)/libzlis_extension.so: $(NSRCDIR)/zlis_extension.o
-	$(CC) -L$(ZNATDIR)/lib $(ZDEFS) -shared -Wl,-rpath=$(ZNATDIR)/lib,-soname,libzlis_extension.so -o $@ $< -llis
-
-#$(DLIBS):
-#	( cd .. ; $(MAKE) all )
+$(LIBDIR)/native/libzlis_extension.so: $(LIBDIR)/src/native/zlis_extension.o
+	$(CC) -L$(ZNATDIR)/lib $(ZDEFS) -shared -Wl,-soname,libzlis_extension.so -o $@ $< -llis
 
 clean: cleanweb cleannative
 
