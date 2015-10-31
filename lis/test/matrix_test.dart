@@ -125,10 +125,7 @@ matrixTest(LIS lis, rscal(), toScalar(int i)) {
     }
     m.assemble();
 
-    var m2 = new Matrix(lis);
-    m2.size = size;
-    m2.type = MatrixType.CSC;
-    m.convert(m2);
+    var m2 = new Matrix.convert(lis, m, MatrixType.CSC);
     expect(m2.diagonal().values(), equals(m.diagonal().values()));
     m2.destroy();
   });
@@ -172,8 +169,7 @@ matrixTest(LIS lis, rscal(), toScalar(int i)) {
     });
     for (var matrixType in [MatrixType.CSR, MatrixType.CSC]) {
       test(matrixType.toString(), () {
-        var AA = new Matrix(lis, A.size, matrixType);
-        A.convert(AA);
+        var AA = new Matrix.convert(lis, A, matrixType);
         var At = AA.transpose();
 
         expect(At.type, equals(matrixType));
@@ -189,22 +185,22 @@ matrixTest(LIS lis, rscal(), toScalar(int i)) {
   group('csr', () {
     int n;
     Vector d0;
+    Matrix A;
     setUp(() {
       n = rint();
       var value = new List.generate(n, (i) => rscal());
       var d = new Matrix.dia(lis, n, 1, [0], value);
-      m.size = n;
-      m.type = MatrixType.CSR;
-      d.convert(m);
-      m.assemble();
-      d0 = m.diagonal();
+      A = new Matrix.convert(lis, d, MatrixType.CSR);
+      A.assemble();
+      d0 = A.diagonal();
     });
     tearDown(() {
       d0.destroy();
+      A.destroy();
     });
     test('real', () {
-      m.real();
-      var d = m.diagonal().values();
+      var re = A.real();
+      var d = re.diagonal().values();
       for (var i = 0; i < n; i++) {
         if (d[i] is Complex) {
           expect(d[i].real, closeTo(d0[i].real, 1e-12));
@@ -213,10 +209,11 @@ matrixTest(LIS lis, rscal(), toScalar(int i)) {
           expect(d[i], equals(d0[i]));
         }
       }
+      re.destroy();
     });
     test('imag', () {
-      m.imag();
-      var d = m.diagonal().values();
+      var im = A.imag();
+      var d = im.diagonal().values();
       for (var i = 0; i < n; i++) {
         if (d[i] is Complex) {
           expect(d[i].real, closeTo(d0[i].imaginary, 1e-12));
@@ -225,10 +222,11 @@ matrixTest(LIS lis, rscal(), toScalar(int i)) {
           expect(d[i], equals(0.0));
         }
       }
+      im.destroy();
     });
     test('conj', () {
-      m.conj();
-      var d = m.diagonal().values();
+      var c = A.conj();
+      var d = c.diagonal().values();
       for (var i = 0; i < n; i++) {
         if (d[i] is Complex) {
           expect(d[i], equals(d0[i].conjugate()));
@@ -236,28 +234,38 @@ matrixTest(LIS lis, rscal(), toScalar(int i)) {
           expect(d[i], equals(d0[i]));
         }
       }
+      c.destroy();
     });
     test('scale', () {
       var alpha = rscal();
-      m.scale(alpha);
-      var d = m.diagonal().values();
+      A.scale(alpha);
+      var d = A.diagonal().values();
       for (var i = 0; i < n; i++) {
         expect(d[i], equals(alpha * d0[i]));
       }
     });
+    test('*', () {
+      var alpha = rscal();
+      var Aout = A * alpha;
+      var d = Aout.diagonal().values();
+      for (var i = 0; i < n; i++) {
+        expect(d[i], equals(alpha * d0[i]));
+      }
+      Aout.destroy();
+    });
     test('+', () {
-      var b = m.copy();
+      var b = A.copy();
       b.assemble();
-      var c = m + b;
+      var c = A + b;
       var d = c.diagonal().values();
       for (var i = 0; i < n; i++) {
         expect(d[i], equals(d0[i] + d0[i]));
       }
     });
     test('-', () {
-      var b = m.copy();
+      var b = A.copy();
       b.assemble();
-      var c = m - b;
+      var c = A - b;
       var d = c.diagonal().values();
       for (var i = 0; i < n; i++) {
         expect(d[i], equals(d0[i] - d0[i]));
@@ -310,6 +318,7 @@ matrixTest(LIS lis, rscal(), toScalar(int i)) {
       if (complex) {
         cmplxify(value);
       }
+      value = new Vector.from(lis, value);
 
       var A = new Matrix.csr(lis, n, nnz, ptr, index, value);
       expect(A.diagonal().values(), equals(diagonal));
@@ -345,6 +354,7 @@ matrixTest(LIS lis, rscal(), toScalar(int i)) {
       if (complex) {
         cmplxify(value);
       }
+      value = new Vector.from(lis, value);
 
       var A = new Matrix.csc(lis, n, nnz, ptr, index, value);
       expect(A.diagonal().values(), equals(diagonal));
@@ -373,6 +383,7 @@ matrixTest(LIS lis, rscal(), toScalar(int i)) {
       if (complex) {
         cmplxify(value);
       }
+      value = new Vector.from(lis, value);
 
       var A = new Matrix.dia(lis, n, nnd, index, value);
       expect(A.diagonal().values(), equals(diagonal));
@@ -411,6 +422,7 @@ matrixTest(LIS lis, rscal(), toScalar(int i)) {
       if (complex) {
         cmplxify(value);
       }
+      value = new Vector.from(lis, value);
 
       var A = new Matrix.coo(lis, n, nnz, row, col, value);
       expect(A.diagonal().values(), equals(diagonal));
@@ -440,6 +452,7 @@ matrixTest(LIS lis, rscal(), toScalar(int i)) {
       if (complex) {
         cmplxify(value);
       }
+      value = new Vector.from(lis, value);
 
       var A = new Matrix.dense(lis, n, value);
       expect(A.diagonal().values(), equals(diagonal));
@@ -448,7 +461,7 @@ matrixTest(LIS lis, rscal(), toScalar(int i)) {
 
   group('mult', () {
     int n;
-    Matrix m;
+    Matrix A;
     Vector v;
     setUp(() {
       n = rint();
@@ -466,23 +479,22 @@ matrixTest(LIS lis, rscal(), toScalar(int i)) {
       value.add(toScalar(j) / 2);
 
       var d = new Matrix.coo(lis, n, nnz, index, index, value);
-      m = new Matrix(lis, n, MatrixType.CSR);
-      d.convert(m);
+      A = new Matrix.convert(lis, d, MatrixType.CSR);
       d.destroy();
 
-      m.sortIndexes();
-      m.sumDuplicates();
+      A.sortIndexes();
+      A.sumDuplicates();
 
-      m.assemble();
+      A.assemble();
     });
     test('matvec', () {
-      var vout = m.matvec(v);
+      var vout = A.matvec(v);
       for (int i = 0; i < n; i++) {
         expect(vout[i], equals(toScalar(i) * toScalar(i)));
       }
     });
     test('matmat', () {
-      var Aout = m.matmat(m);
+      var Aout = A.matmat(A);
       var d = Aout.diagonal();
       for (int i = 0; i < n; i++) {
         expect(d[i], equals(toScalar(i) * toScalar(i)));

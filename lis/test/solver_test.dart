@@ -56,9 +56,7 @@ solverTest(LIS lis, rscal()) {
     Matrix A = lp.A;
     Vector b = lp.b; //, x = lp.x;
 
-    var A0 = A.duplicate();
-    A0.type = MatrixType.CSR;
-    A.convert(A0);
+    var A0 = new Matrix.convert(lis, A, MatrixType.CSR);
     A.destroy();
     A = A0;
 

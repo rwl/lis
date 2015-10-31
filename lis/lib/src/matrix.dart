@@ -112,6 +112,12 @@ class Matrix<S> {
     return m;
   }
 
+  factory Matrix.convert(LIS lis, Matrix<S> Ain, MatrixType matrixType) {
+    var Aout = new Matrix<S>(lis, Ain.size, matrixType);
+    lis.matrixConvert(Ain._p_mat, Aout._p_mat);
+    return Aout;
+  }
+
   factory Matrix.input(LIS lis, String data) {
     var A = new Matrix(lis);
     lis.inputMatrix(A._p_mat, data);
@@ -174,8 +180,6 @@ class Matrix<S> {
     return d;
   }
 
-  void convert(Matrix<S> Aout) => _lis.matrixConvert(_p_mat, Aout._p_mat);
-
   Matrix<S> copy([Matrix<S> Aout]) {
     if (Aout == null) {
       Aout = duplicate();
@@ -212,11 +216,23 @@ class Matrix<S> {
 
   void sortIndexes() => _lis.matrixSortIndexes(_p_mat);
 
-  void real() => _lis.matrixReal(_p_mat);
+  Matrix<S> real() {
+    var re = copy();
+    _lis.matrixReal(re._p_mat);
+    return re;
+  }
 
-  void imag() => _lis.matrixImaginary(_p_mat);
+  Matrix<S> imag() {
+    var im = copy();
+    _lis.matrixImaginary(im._p_mat);
+    return im;
+  }
 
-  void conj() => _lis.matrixConjugate(_p_mat);
+  Matrix<S> conj() {
+    var c = copy();
+    _lis.matrixConjugate(c._p_mat);
+    return c;
+  }
 
   void scale(S alpha) => _lis.matrixScaleValues(_p_mat, alpha);
 
@@ -241,8 +257,19 @@ class Matrix<S> {
       return matvec(x);
     } else if (x is Matrix) {
       return matmat(x);
+    } else if (_lis.zero is Complex) {
+      if (x is num) {
+        x = new Complex(x);
+      }
+      if (x is Complex) {
+        return copy()..scale(x as S);
+      } else {
+        throw new ArgumentError('expected Vector, Matrix or S type');
+      }
+    } else if (x is num) {
+      return copy()..scale(x.toDouble() as S);
     } else {
-      throw new ArgumentError('expected Vector or Matrix type');
+      throw new ArgumentError('expected Vector, Matrix or S type');
     }
   }
 
@@ -252,6 +279,48 @@ class Matrix<S> {
     var Bneg = B.copy()..scale(-(_lis.one as dynamic));
     return add(Bneg);
   }
+
+  Matrix<S> get T {
+    var A = copy();
+    _lis.matrixConjugate(A._p_mat);
+    transpose(A);
+    return A;
+  }
+
+  Matrix<S> get H => copy()
+    ..conj()
+    ..transpose();
+
+  Matrix<S> toCsr([bool sortIndexes = true, bool sumDuplicates = true]) {
+    var csr = new Matrix<S>.convert(_lis, this, MatrixType.CSR);
+    if (sortIndexes) {
+      csr.sortIndexes();
+    }
+    if (sumDuplicates) {
+      csr.sumDuplicates();
+    }
+    return csr;
+  }
+
+  Matrix<S> toCsc() => new Matrix<S>.convert(_lis, this, MatrixType.CSC);
+
+  Matrix<S> toMsr() => new Matrix<S>.convert(_lis, this, MatrixType.MSR);
+
+  Matrix<S> toDia() => new Matrix<S>.convert(_lis, this, MatrixType.DIA);
+
+  Matrix<S> toEll() => new Matrix<S>.convert(_lis, this, MatrixType.ELL);
+
+  Matrix<S> toJad() => new Matrix<S>.convert(_lis, this, MatrixType.JAD);
+
+  Matrix<S> toBsr() => new Matrix<S>.convert(_lis, this, MatrixType.BSR);
+
+  Matrix<S> toBsc() => new Matrix<S>.convert(_lis, this, MatrixType.BSC);
+
+  Matrix<S> toVbr() => new Matrix<S>.convert(_lis, this, MatrixType.VBR);
+
+  Matrix<S> toCoo() => new Matrix<S>.convert(_lis, this, MatrixType.COO);
+
+  Matrix<S> toDense() => new Matrix<S>.convert(_lis, this, MatrixType.DENSE);
 }
 
 class MatrixType {
@@ -284,6 +353,7 @@ class MatrixType {
 
   /// Coordinate
   static const COO = const MatrixType._('COO', 10);
+
   static const DENSE = const MatrixType._('DENSE', 11);
 
   static final List<MatrixType> values = [

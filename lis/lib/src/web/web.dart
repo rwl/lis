@@ -270,6 +270,10 @@ abstract class WebLIS<S> implements lis.LIS<S> {
     CHKERR(err);
   }
 
+  int vectorConcat(List<int> vecs) {
+    throw new UnimplementedError();
+  }
+
   // Matrix Operations
   int matrixCreate() {
     int pp_mat = _lis.heapInt();
