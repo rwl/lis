@@ -1818,3 +1818,325 @@ LIS_INT lis_matrix_sort_indexes_csr(LIS_MATRIX A)
 	LIS_DEBUG_FUNC_OUT;
 	return LIS_SUCCESS;
 }
+
+
+/*
+ * Compute C = A (binary_op) B for CSR matrices that are not
+ * necessarily canonical CSR format.  Specifically, this method
+ * works even when the input matrices have duplicate and/or
+ * unsorted column indices within a given row.
+ *
+ * Refer to csr_binop_csr() for additional information
+ *
+ * Note:
+ *   Output arrays Cp, Cj, and Cx must be preallocated
+ *   If nnz(C) is not known a priori, a conservative bound is:
+ *          nnz(C) <= nnz(A) + nnz(B)
+ *
+ * Note:
+ *   Input:  A and B column indices are not assumed to be in sorted order
+ *   Output: C column indices are not generally in sorted order
+ *           C will not contain any duplicate entries or explicit zeros.
+ *
+ */
+LIS_INT lis_matrix_csr_binop_csr_general(LIS_INT n,
+                           LIS_INT Ap[], LIS_INT Aj[], LIS_SCALAR Ax[],
+                           LIS_INT Bp[], LIS_INT Bj[], LIS_SCALAR Bx[],
+                                 LIS_INT Cp[],       LIS_INT Cj[],       LIS_SCALAR Cx[],
+                           LIS_SCALAR (*op)(LIS_SCALAR, LIS_SCALAR))
+{
+	LIS_INT i, j, jj, nnz;
+	LIS_INT head, length, i_start, i_end, temp;
+	LIS_SCALAR result;
+
+	// Method that works for duplicate and/or unsorted indices.
+	LIS_DEBUG_FUNC_IN;
+
+	LIS_INT next[n];
+	LIS_SCALAR A_row[n];
+	LIS_SCALAR B_row[n];
+	for (i = 0; i < n; i++) {
+		next[i] = -1;
+		A_row[i] = 0;
+		B_row[i] = 0;
+	}
+
+	nnz = 0;
+	Cp[0] = 0;
+
+	for(i = 0; i < n; i++){
+		head   = -2;
+		length =  0;
+
+		//add a row of A to A_row
+		i_start = Ap[i];
+		i_end   = Ap[i+1];
+		for(jj = i_start; jj < i_end; jj++){
+			j = Aj[jj];
+
+			A_row[j] += Ax[jj];
+
+			if(next[j] == -1){
+				next[j] = head;
+				head = j;
+				length++;
+			}
+		}
+
+		//add a row of B to B_row
+		i_start = Bp[i];
+		i_end   = Bp[i+1];
+		for(jj = i_start; jj < i_end; jj++){
+			j = Bj[jj];
+
+			B_row[j] += Bx[jj];
+
+			if(next[j] == -1){
+				next[j] = head;
+				head = j;
+				length++;
+			}
+		}
+
+
+		// scan through columns where A or B has
+		// contributed a non-zero entry
+		for(jj = 0; jj < length; jj++){
+			result = op(A_row[head], B_row[head]);
+
+			if(result != 0){
+				Cj[nnz] = head;
+				Cx[nnz] = result;
+				nnz++;
+			}
+
+			temp = head;
+			head = next[head];
+
+			next[temp]  = -1;
+			A_row[temp] =  0;
+			B_row[temp] =  0;
+		}
+
+		Cp[i + 1] = nnz;
+	}
+
+	LIS_DEBUG_FUNC_OUT;
+	return LIS_SUCCESS;
+}
+
+
+/*
+ * Compute C = A (binary_op) B for CSR matrices that are in the
+ * canonical CSR format.  Specifically, this method requires that
+ * the rows of the input matrices are free of duplicate column indices
+ * and that the column indices are in sorted order.
+ *
+ * Refer to csr_binop_csr() for additional information
+ *
+ * Note:
+ *   Input:  A and B column indices are assumed to be in sorted order
+ *   Output: C column indices will be in sorted order
+ *           Cx will not contain any zero entries
+ *
+ */
+#undef __FUNC__
+#define __FUNC__ "lis_matrix_csr_binop_csr_canonical"
+LIS_INT lis_matrix_csr_binop_csr_canonical(LIS_INT n,
+		LIS_INT Ap[], LIS_INT Aj[], LIS_SCALAR Ax[],
+		LIS_INT Bp[], LIS_INT Bj[], LIS_SCALAR Bx[],
+		LIS_INT Cp[],       LIS_INT Cj[],       LIS_SCALAR Cx[],
+		LIS_SCALAR (*op)(LIS_SCALAR, LIS_SCALAR))
+{
+	LIS_INT i, nnz;
+	LIS_INT A_pos, B_pos, A_end, B_end, A_j, B_j;
+	LIS_SCALAR result;
+
+	// Method that works for canonical CSR matrices.
+	LIS_DEBUG_FUNC_IN;
+
+	Cp[0] = 0;
+	nnz = 0;
+
+	for(i = 0; i < n; i++){
+		A_pos = Ap[i];
+		B_pos = Bp[i];
+		A_end = Ap[i+1];
+		B_end = Bp[i+1];
+
+		//while not finished with either row
+		while(A_pos < A_end && B_pos < B_end){
+			A_j = Aj[A_pos];
+			B_j = Bj[B_pos];
+
+			if(A_j == B_j){
+				result = op(Ax[A_pos],Bx[B_pos]);
+				if(result != 0){
+					Cj[nnz] = A_j;
+					Cx[nnz] = result;
+					nnz++;
+				}
+				A_pos++;
+				B_pos++;
+			} else if (A_j < B_j) {
+				result = op(Ax[A_pos],0);
+				if (result != 0){
+					Cj[nnz] = A_j;
+					Cx[nnz] = result;
+					nnz++;
+				}
+				A_pos++;
+			} else {
+				//B_j < A_j
+				result = op(0,Bx[B_pos]);
+				if (result != 0){
+					Cj[nnz] = B_j;
+					Cx[nnz] = result;
+					nnz++;
+				}
+				B_pos++;
+			}
+		}
+
+		//tail
+		while(A_pos < A_end){
+			result = op(Ax[A_pos],0);
+			if (result != 0){
+				Cj[nnz] = Aj[A_pos];
+				Cx[nnz] = result;
+				nnz++;
+			}
+			A_pos++;
+		}
+		while(B_pos < B_end){
+			result = op(0,Bx[B_pos]);
+			if (result != 0){
+				Cj[nnz] = Bj[B_pos];
+				Cx[nnz] = result;
+				nnz++;
+			}
+			B_pos++;
+		}
+
+		Cp[i+1] = nnz;
+	}
+
+	LIS_DEBUG_FUNC_OUT;
+	return LIS_SUCCESS;
+}
+
+
+/*
+ * Determine whether the matrix structure is canonical CSR.
+ * Canonical CSR implies that column indices within each row
+ * are (1) sorted and (2) unique.  Matrices that meet these
+ * conditions facilitate faster matrix computations.
+ *
+ * Input Arguments:
+ *   I  n_row           - number of rows in A
+ *   I  Ap[n_row+1]     - row pointer
+ *   I  Aj[nnz(A)]      - column indices
+ *
+ */
+LIS_INT lis_matrix_csr_has_canonical_format(LIS_INT n,
+		LIS_INT Ap[], LIS_INT Aj[])
+{
+	LIS_INT i, jj;
+
+	for(i = 0; i < n; i++){
+		if (Ap[i] > Ap[i+1]) {
+			return 0;
+		}
+		for(jj = Ap[i] + 1; jj < Ap[i+1]; jj++){
+			if( !(Aj[jj-1] < Aj[jj]) ){
+				return 0;
+			}
+		}
+	}
+	return 1;
+}
+
+
+#undef __FUNC__
+#define __FUNC__ "lis_matrix_binop_csr"
+LIS_INT lis_matrix_binop_csr(LIS_MATRIX A, LIS_MATRIX B, LIS_MATRIX C,
+		LIS_SCALAR (*op)(LIS_SCALAR, LIS_SCALAR))
+{
+	LIS_INT err, n, nnz;
+	LIS_INT *ptr, *index;
+	LIS_SCALAR *value;
+
+	LIS_DEBUG_FUNC_IN;
+
+	err = lis_matrix_check(A,LIS_MATRIX_CHECK_SIZE);
+	if( err ) return err;
+	err = lis_matrix_check(B,LIS_MATRIX_CHECK_SIZE);
+	if( err ) return err;
+	err = lis_matrix_check(C,LIS_MATRIX_CHECK_NULL);
+	if( err ) return err;
+
+	if( B->matrix_type != A->matrix_type )
+	{
+		return LIS_ERR_ILL_ARG;
+	}
+	if( A->n != B->n )
+	{
+		return LIS_ERR_ILL_ARG;
+	}
+
+	n = A->n;
+	nnz = A->nnz + B->nnz;
+
+	err = lis_matrix_malloc_csr(n, nnz, &ptr, &index, &value);
+	if( err ) return err;
+
+	if( lis_matrix_csr_has_canonical_format(n,A->ptr,A->index)
+			&& lis_matrix_csr_has_canonical_format(n,B->ptr,B->index) )
+	{
+		err = lis_matrix_csr_binop_csr_canonical(n,
+			A->ptr, A->index, A->value,
+			B->ptr, B->index, B->value,
+			ptr, index, value, op);
+	}
+	else
+	{
+		err = lis_matrix_csr_binop_csr_general(n,
+			A->ptr, A->index, A->value,
+			B->ptr, B->index, B->value,
+			ptr, index, value, op);
+	}
+	if( err ) return err;
+
+	err = lis_matrix_set_size(C, n, n);
+	if( err ) return err;
+	err = lis_matrix_set_csr(nnz, ptr, index, value, C);
+	if( err ) return err;
+
+	LIS_DEBUG_FUNC_OUT;
+	return LIS_SUCCESS;
+}
+
+
+LIS_SCALAR lis_scalar_add(LIS_SCALAR x, LIS_SCALAR y) {
+	return x + y;
+}
+
+LIS_SCALAR lis_scalar_subtract(LIS_SCALAR x, LIS_SCALAR y) {
+	return x - y;
+}
+
+#undef __FUNC__
+#define __FUNC__ "lis_matrix_add_csr"
+LIS_INT lis_matrix_add_csr(LIS_MATRIX A, LIS_MATRIX B, LIS_MATRIX C)
+{
+	return lis_matrix_binop_csr(A, B, C, lis_scalar_add);
+}
+
+
+#undef __FUNC__
+#define __FUNC__ "lis_matrix_subtract_csr"
+LIS_INT lis_matrix_subtract_csr(LIS_MATRIX A, LIS_MATRIX B, LIS_MATRIX C)
+{
+	return lis_matrix_binop_csr(A, B, C, lis_scalar_subtract);
+}
+

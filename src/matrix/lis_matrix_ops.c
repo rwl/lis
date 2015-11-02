@@ -1361,100 +1361,62 @@ LIS_INT lis_matrix_scale_values(LIS_MATRIX A, LIS_SCALAR alpha)
 #define __FUNC__ "lis_matrix_add"
 LIS_INT lis_matrix_add(LIS_MATRIX A, LIS_MATRIX B, LIS_MATRIX C)
 {
-	LIS_INT err, n, i, nnz;
-	LIS_MATRIX Acoo, Bcoo, Ccoo;
-	LIS_INT *row, *col;
-	LIS_SCALAR *value;
-
 	LIS_DEBUG_FUNC_IN;
 
-	err = lis_matrix_check(A,LIS_MATRIX_CHECK_SIZE);
-	if( err ) return err;
-	err = lis_matrix_check(B,LIS_MATRIX_CHECK_SIZE);
-	if( err ) return err;
-
-	err = lis_matrix_check(C,LIS_MATRIX_CHECK_NULL);
-	if( err ) return err;
-
-	if (A->n != B->n) {
-		return LIS_ERR_ILL_ARG;
+	if( A->precision==LIS_PRECISION_DEFAULT )
+	{
+		switch( A->matrix_type )
+		{
+		case LIS_MATRIX_CSR:
+			lis_matrix_add_csr(A, B, C);
+			break;
+		default:
+			LIS_SETERR_IMP;
+			return LIS_ERR_NOT_IMPLEMENTED;
+			break;
+		}
 	}
+#ifdef USE_QUAD_PRECISION
+	else
+	{
 
-	n = A->n;
+		LIS_SETERR_IMP;
+		return LIS_ERR_NOT_IMPLEMENTED;
+	}
+#endif
 
-	// Convert input matrices to coordinate format.
-	err = lis_matrix_create(A->comm, &Acoo);
-	if( err ) return err;
-	err = lis_matrix_create(B->comm, &Bcoo);
-	if( err ) return err;
-
-	err = lis_matrix_set_size(Acoo, n, n);
-	if( err ) return err;
-	err = lis_matrix_set_size(Bcoo, n, n);
-	if( err ) return err;
-
-	err = lis_matrix_set_type(Acoo, LIS_MATRIX_COO);
-	if( err ) return err;
-	err = lis_matrix_set_type(Bcoo, LIS_MATRIX_COO);
-	if( err ) return err;
-
-	err = lis_matrix_convert(A, Acoo);
-	if( err ) return err;
-	err = lis_matrix_convert(B, Bcoo);
-	if( err ) return err;
+	LIS_DEBUG_FUNC_OUT;
+	return LIS_SUCCESS;
+}
 
 
-	// Create a new coordinate matrix with non-zero values concatenated.
-	nnz = Acoo->nnz + Bcoo->nnz;
+#undef __FUNC__
+#define __FUNC__ "lis_matrix_subtract"
+LIS_INT lis_matrix_subtract(LIS_MATRIX A, LIS_MATRIX B, LIS_MATRIX C)
+{
+	LIS_DEBUG_FUNC_IN;
 
-	err = lis_matrix_malloc_coo(nnz, &row, &col, &value);
-	if( err ) return err;
+	if( A->precision==LIS_PRECISION_DEFAULT )
+	{
+		switch( A->matrix_type )
+		{
+		case LIS_MATRIX_CSR:
+			lis_matrix_subtract_csr(A, B, C);
+			break;
+		default:
+			LIS_SETERR_IMP;
+			return LIS_ERR_NOT_IMPLEMENTED;
+			break;
+		}
+	}
+#ifdef USE_QUAD_PRECISION
+	else
+	{
 
-	i = 0;
-	memcpy(&row[i], Acoo->row, Acoo->nnz*sizeof(LIS_INT));
-	memcpy(&col[i], Acoo->col, Acoo->nnz*sizeof(LIS_INT));
-	memcpy(&value[i], Acoo->value, Acoo->nnz*sizeof(LIS_SCALAR));
-
-	i += Acoo->nnz;
-	memcpy(&row[i], Bcoo->row, Bcoo->nnz*sizeof(LIS_INT));
-	memcpy(&col[i], Bcoo->col, Bcoo->nnz*sizeof(LIS_INT));
-	memcpy(&value[i], Bcoo->value, Bcoo->nnz*sizeof(LIS_SCALAR));
-
-
-	err = lis_matrix_create(A->comm, &Ccoo);
-	if( err ) return err;
-	err = lis_matrix_set_type(Ccoo, LIS_MATRIX_COO);
-	if( err ) return err;
-	err = lis_matrix_set_size(Ccoo, n, n);
-	if( err ) return err;
-	err = lis_matrix_set_coo(nnz, row, col, value, Ccoo);
-	if( err ) return err;
-	err = lis_matrix_assemble(Ccoo);
-	if( err ) return err;
-
-
-	// Convert the coordinate matrix to CSR format.
-	err = lis_matrix_set_type(C, LIS_MATRIX_CSR);
-	if( err ) return err;
-	err = lis_matrix_set_size(C, n, n);
-	if( err ) return err;
-	err = lis_matrix_convert(Ccoo, C);
-	if( err ) return err;
-
-
-	// Sort the indexes and sum duplicate values.
-	err = lis_matrix_sort_indexes(C);
-	if( err ) return err;
-	err = lis_matrix_sum_duplicates(C);
-	if( err ) return err;
-
-
-	err = lis_matrix_destroy(Acoo);
-	if( err ) return err;
-	err = lis_matrix_destroy(Bcoo);
-	if( err ) return err;
-	err = lis_matrix_destroy(Ccoo);
-	if( err ) return err;
+		LIS_SETERR_IMP;
+		return LIS_ERR_NOT_IMPLEMENTED;
+	}
+#endif
 
 	LIS_DEBUG_FUNC_OUT;
 	return LIS_SUCCESS;

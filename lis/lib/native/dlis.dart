@@ -82,6 +82,7 @@ class DLIS implements lis.LIS<double> {
   void matrixConjugate(int A) native "LIS_MatrixConjugate";
   void matrixScaleValues(int A, double alpha) native "LIS_MatrixScaleValues";
   void matrixAdd(int A, int B, int C) native "LIS_MatrixAdd";
+  void matrixSubtract(int A, int B, int C) native "LIS_MatrixSubtract";
 
   void matrixSetCsr(int nnz, List<int> row, List<int> index, int value, int A)
       native "LIS_MatrixSetCsr";

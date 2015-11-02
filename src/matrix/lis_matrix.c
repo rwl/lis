@@ -1066,6 +1066,8 @@ LIS_INT lis_matrix_compose(LIS_MATRIX A, LIS_MATRIX B, LIS_MATRIX C, LIS_MATRIX 
 	err = lis_matrix_set_coo(nnz, row, col, value, Y);
 	if( err ) return err;
 
+	err = lis_matrix_assemble(Y);
+	if( err ) return err;
 
 	err = lis_matrix_destroy(Acoo);
 	if( err ) return err;

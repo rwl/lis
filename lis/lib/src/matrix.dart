@@ -25,6 +25,16 @@ class Matrix<S> {
     return Y;
   }
 
+  factory Matrix.diag(LIS lis, Iterable<S> value) {
+    var n = value.length;
+    var ptr = new List<int>.generate(n + 1, (i) => i);
+    var index = new List<int>.generate(n, (i) => i);
+    Vector<S> v = value is Vector ? value : new Vector<S>.from(lis, value);
+    var csr = new Matrix<S>.csr(lis, n, n, ptr, index, value);
+    csr.assemble();
+    return csr;
+  }
+
   factory Matrix.csr(LIS lis, int n, int nnz, Iterable<int> ptr,
       Iterable<int> index, Iterable<S> value) {
     if (ptr.length != n + 1) {
@@ -224,37 +234,51 @@ class Matrix<S> {
   Matrix<S> real() {
     var re = copy();
     _lis.matrixReal(re._p_mat);
+    re.assemble();
     return re;
   }
 
   Matrix<S> imag() {
     var im = copy();
     _lis.matrixImaginary(im._p_mat);
+    im.assemble();
     return im;
   }
 
   Matrix<S> conj() {
     var c = copy();
     _lis.matrixConjugate(c._p_mat);
+    c.assemble();
     return c;
   }
 
   void scale(S alpha) => _lis.matrixScaleValues(_p_mat, alpha);
 
   Matrix<S> add(Matrix<S> B, [Matrix<S> C]) {
+    Matrix c = (C == null) ? duplicate() : C;
+    _lis.matrixAdd(_p_mat, B._p_mat, c._p_mat);
     if (C == null) {
-      C = duplicate();
+      c.assemble();
     }
-    _lis.matrixAdd(_p_mat, B._p_mat, C._p_mat);
-    return C;
+    return c;
+  }
+
+  Matrix<S> subtract(Matrix<S> B, [Matrix<S> C]) {
+    Matrix c = (C == null) ? duplicate() : C;
+    _lis.matrixSubtract(_p_mat, B._p_mat, c._p_mat);
+    if (C == null) {
+      c.assemble();
+    }
+    return c;
   }
 
   Matrix<S> matmat(Matrix<S> B, [Matrix<S> C]) {
+    var c = C == null ? duplicate() : C;
+    _lis.matmat(_p_mat, B._p_mat, c._p_mat);
     if (C == null) {
-      C = duplicate();
+      c.assemble();
     }
-    _lis.matmat(_p_mat, B._p_mat, C._p_mat);
-    return C;
+    return c;
   }
 
   operator *(x) {
@@ -280,21 +304,11 @@ class Matrix<S> {
 
   Matrix<S> operator +(Matrix<S> B) => add(B);
 
-  Matrix<S> operator -(Matrix<S> B) {
-    var Bneg = B.copy()..scale(-(_lis.one as dynamic));
-    return add(Bneg);
-  }
+  Matrix<S> operator -(Matrix<S> B) => subtract(B);
 
-  Matrix<S> get T {
-    var A = copy();
-    _lis.matrixConjugate(A._p_mat);
-    transpose(A);
-    return A;
-  }
+  Matrix<S> get T => transpose();
 
-  Matrix<S> get H => copy()
-    ..conj()
-    ..transpose();
+  Matrix<S> get H => transpose(conj());
 
   Matrix<S> toCsr([bool sortIndexes = true, bool sumDuplicates = true]) {
     var csr = new Matrix<S>.convert(_lis, this, MatrixType.CSR);

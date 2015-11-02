@@ -431,6 +431,11 @@ abstract class WebLIS<S> implements lis.LIS<S> {
     CHKERR(err);
   }
 
+  void matrixSubtract(int A, int B, int C) {
+    int err = _lis.callFunc('lis_matrix_subtract', [A, B, C]);
+    CHKERR(err);
+  }
+
   void matrixSetCsr(int nnz, List<int> row, List<int> index, int v, int A) {
     var p_ptr = _lis.heapInts(row);
     var p_index = _lis.heapInts(index);
