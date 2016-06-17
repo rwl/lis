@@ -301,7 +301,7 @@ LIS_INT lis_output_vector_plain(LIS_VECTOR v, FILE *file)
 			{
 			  if (v->intvalue) 
 			    {
-#ifdef _LONGLONG
+#ifdef _LONG__LONG
 			      fprintf(file, "%28lld\n", (long long int)v->value[i]);
 #else
 			      fprintf(file, "%28d\n", (int)v->value[i]);
@@ -333,7 +333,7 @@ LIS_INT lis_output_vector_plain(LIS_VECTOR v, FILE *file)
 	{
 	  if (v->intvalue)
 	    {
-#ifdef _LONGLONG
+#ifdef _LONG__LONG
 	      fprintf(file, "%28lld\n", (long long int)v->value[i]);
 #else
 	      fprintf(file, "%28d\n", (int)v->value[i]);
@@ -393,7 +393,7 @@ LIS_INT lis_output_vector_mm(LIS_VECTOR v, FILE *file)
 		  {
 		    fprintf(file, "%%%%MatrixMarket vector coordinate real general\n");
 		  }
-#ifdef _LONGLONG
+#ifdef _LONG__LONG
 		fprintf(file, "%lld\n", v->gn);
 #else
 		fprintf(file, "%d\n", v->gn);
@@ -423,7 +423,7 @@ LIS_INT lis_output_vector_mm(LIS_VECTOR v, FILE *file)
 				{
 				  if (v->intvalue)
 				    {
-#ifdef _LONGLONG
+#ifdef _LONG__LONG
 				      fprintf(file, "%lld %28lld\n", i+is+1, (long long int)v->value[i]); 
 #else
 				      fprintf(file, "%d %28d\n", i+is+1, (int)v->value[i]); 
@@ -431,7 +431,7 @@ LIS_INT lis_output_vector_mm(LIS_VECTOR v, FILE *file)
 				    }
 				  else
 				    {
-#ifdef _LONGLONG
+#ifdef _LONG__LONG
 #ifdef _LONG__DOUBLE
 					fprintf(file, "%lld %28.20Le\n", i+is+1, v->value[i]); 
 #else
@@ -469,7 +469,7 @@ LIS_INT lis_output_vector_mm(LIS_VECTOR v, FILE *file)
 	  {
 	    fprintf(file, "%%%%MatrixMarket vector coordinate real general\n");
 	  }
-#ifdef _LONGLONG
+#ifdef _LONG__LONG
 	fprintf(file, "%lld\n", v->gn);
 #else
 	fprintf(file, "%d\n", v->gn);
@@ -479,7 +479,7 @@ LIS_INT lis_output_vector_mm(LIS_VECTOR v, FILE *file)
 	{
 	  if (v->intvalue)
 	    {
-#ifdef _LONGLONG
+#ifdef _LONG__LONG
 	      fprintf(file, "%lld %28lld\n", i+is+1, (long long int)v->value[i]);
 #else
 	      fprintf(file, "%d %28d\n", i+is+1, (int)v->value[i]);
@@ -487,7 +487,7 @@ LIS_INT lis_output_vector_mm(LIS_VECTOR v, FILE *file)
 	    }
           else
 	    {
-#ifdef _LONGLONG
+#ifdef _LONG__LONG
 #ifdef _LONG__DOUBLE
 	  fprintf(file, "%lld %28.20Le\n", i+is+1, v->value[i]);
 #else
@@ -541,7 +541,7 @@ LIS_INT lis_output_vector_lis_ascii(LIS_VECTOR v, FILE *file)
 		}
 
 		fprintf(file, "#LIS A vec\n");
-#ifdef _LONGLONG
+#ifdef _LONG__LONG
 		fprintf(file, "%lld\n", nprocs);
 #else
 		fprintf(file, "%d\n", nprocs);
@@ -567,7 +567,7 @@ LIS_INT lis_output_vector_lis_ascii(LIS_VECTOR v, FILE *file)
 			}
 			else
 			{
-#ifdef _LONGLONG
+#ifdef _LONG__LONG
 				fprintf(file, "# %lld %lld\n", pe, v->n);
 #else
 				fprintf(file, "# %d %d\n", pe, v->n);
@@ -576,7 +576,7 @@ LIS_INT lis_output_vector_lis_ascii(LIS_VECTOR v, FILE *file)
 				{
 				  if (v->intvalue) 
 				    {
-#ifdef _LONGLONG
+#ifdef _LONG__LONG
 				      fprintf(file, "%28lld ",(long long int)v->value[i]);
 #else
 				      fprintf(file, "%28d ",(int)v->value[i]);
@@ -610,7 +610,7 @@ LIS_INT lis_output_vector_lis_ascii(LIS_VECTOR v, FILE *file)
 	fprintf(file, "#LIS A vec\n");
 	fprintf(file, "1\n");
 
-#ifdef _LONGLONG
+#ifdef _LONG__LONG
 	fprintf(file, "# 0 %lld\n", v->n);
 #else
 	fprintf(file, "# 0 %d\n", v->n);
@@ -619,7 +619,7 @@ LIS_INT lis_output_vector_lis_ascii(LIS_VECTOR v, FILE *file)
 	{
 	  if (v->intvalue)
 	    {
-#ifdef _LONGLONG
+#ifdef _LONG__LONG
 	      fprintf(file, "%28lld ",(long long int)v->value[i]);
 #else
 	      fprintf(file, "%28d ",(int)v->value[i]);

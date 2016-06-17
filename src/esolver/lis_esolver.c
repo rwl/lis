@@ -39,6 +39,7 @@
 #endif
 #include <string.h>
 #include <stdarg.h>
+#include <math.h>
 #include <ctype.h>
 #ifdef _OPENMP
 	#include <omp.h>
@@ -525,7 +526,7 @@ LIS_INT lis_esolve(LIS_MATRIX A, LIS_VECTOR x, LIS_SCALAR *evalue0, LIS_ESOLVER 
 #else
 	    if ( output ) printf("precision             : %s\n", lis_eprecisionname[eprecision]);
 #endif
-#ifdef _LONGLONG
+#ifdef _LONG__LONG
 	    if ( output ) printf("eigensolver           : %s\n", lis_esolvername[nesolver]);
 #else
 	    if ( output ) printf("eigensolver           : %s\n", lis_esolvername[nesolver]);
@@ -549,7 +550,7 @@ LIS_INT lis_esolve(LIS_MATRIX A, LIS_VECTOR x, LIS_SCALAR *evalue0, LIS_ESOLVER 
 	  {
 	    if( A->matrix_type==LIS_MATRIX_BSR || A->matrix_type==LIS_MATRIX_BSC )
 	      {
-#ifdef _LONGLONG
+#ifdef _LONG__LONG
 		if ( output ) printf("matrix storage format : %s(%lld x %lld)\n", lis_estoragename[A->matrix_type-1],eblock,eblock);
 #else
 		if ( output ) printf("matrix storage format : %s(%d x %d)\n", lis_estoragename[A->matrix_type-1],eblock,eblock); 
@@ -613,7 +614,7 @@ LIS_INT lis_esolve(LIS_MATRIX A, LIS_VECTOR x, LIS_SCALAR *evalue0, LIS_ESOLVER 
         {
                 if( err )
                 {
-#ifdef _LONGLONG
+#ifdef _LONG__LONG
                   if ( output ) printf("eigensolver status    : %s(code=%lld)\n\n",lis_ereturncode[err],err);
 #else
                   if ( output ) printf("eigensolver status    : %s(code=%d)\n\n",lis_ereturncode[err],err);
@@ -717,7 +718,7 @@ LIS_INT lis_esolver_set_option2(char* arg1, char *arg2, LIS_ESOLVER esolver)
 			default:
 			  if( LIS_ESOLVER_OPTACT[i] < LIS_EOPTIONS_LEN )
 			    {
-#ifdef _LONGLONG
+#ifdef _LONG__LONG
 			      sscanf(arg2, "%lld", &esolver->options[LIS_ESOLVER_OPTACT[i]]);
 #else
 			      sscanf(arg2, "%d", &esolver->options[LIS_ESOLVER_OPTACT[i]]);
@@ -750,7 +751,7 @@ LIS_INT lis_esolver_set_option_esolver(char *argv, LIS_ESOLVER esolver)
 
 	if( argv[0]>='0' && argv[0]<='9' )
 	{
-#ifdef _LONGLONG
+#ifdef _LONG__LONG
 		sscanf(argv, "%lld", &esolver->options[LIS_EOPTIONS_ESOLVER]);
 #else
 		sscanf(argv, "%d", &esolver->options[LIS_EOPTIONS_ESOLVER]);
@@ -781,7 +782,7 @@ LIS_INT lis_esolver_set_option_iesolver(char *argv, LIS_ESOLVER esolver)
 
 	if( argv[0]>='0' && argv[0]<='9' )
 	{
-#ifdef _LONGLONG
+#ifdef _LONG__LONG
 		sscanf(argv, "%lld", &esolver->options[LIS_EOPTIONS_INNER_ESOLVER]);
 #else
 		sscanf(argv, "%d", &esolver->options[LIS_EOPTIONS_INNER_ESOLVER]);
@@ -812,7 +813,7 @@ LIS_INT lis_esolver_set_option_print(char *argv, LIS_ESOLVER esolver)
 
 	if( argv[0]>='0' && argv[0]<='3' )
 	{
-#ifdef _LONGLONG
+#ifdef _LONG__LONG
 		sscanf(argv, "%lld", &esolver->options[LIS_EOPTIONS_OUTPUT]);
 #else
 		sscanf(argv, "%d", &esolver->options[LIS_EOPTIONS_OUTPUT]);
@@ -843,7 +844,7 @@ LIS_INT lis_esolver_set_option_truefalse(char *argv, LIS_INT opt, LIS_ESOLVER es
 
         if( argv[0]>='0' && argv[0]<='1' )
         {
-#ifdef _LONGLONG
+#ifdef _LONG__LONG
                 sscanf(argv, "%lld", &esolver->options[opt]);
 #else
                 sscanf(argv, "%d", &esolver->options[opt]);
@@ -874,7 +875,7 @@ LIS_INT lis_esolver_set_option_eprecision(char *argv, LIS_INT opt, LIS_ESOLVER e
 
 	if( argv[0]>='0' && argv[0]<='1' )
 	{
-#ifdef _LONGLONG
+#ifdef _LONG__LONG
 		sscanf(argv, "%lld", &esolver->options[opt]);
 #else
 		sscanf(argv, "%d", &esolver->options[opt]);
@@ -905,7 +906,7 @@ LIS_INT lis_esolver_set_option_storage(char *argv, LIS_ESOLVER esolver)
 
 	if( argv[0]>='0' && argv[0]<='9' )
 	{
-#ifdef _LONGLONG
+#ifdef _LONG__LONG
 		sscanf(argv, "%lld", &esolver->options[LIS_EOPTIONS_STORAGE]);
 #else
 		sscanf(argv, "%d", &esolver->options[LIS_EOPTIONS_STORAGE]);

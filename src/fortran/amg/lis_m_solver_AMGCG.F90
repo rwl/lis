@@ -27,7 +27,7 @@
 #define ZERO_ORIGIN 0
 #endif
 
-#ifdef LONGLONG
+#ifdef LONG__LONG
 #define LIS_MPI_INTEGER MPI_INTEGER8
 #else
 #define LIS_MPI_INTEGER MPI_INTEGER
@@ -105,7 +105,7 @@ CONTAINS
 
   subroutine clear_matrix_ssi_amg(LEVEL_NUM)
     IMPLICIT NONE
-#ifdef LONGLONG
+#ifdef LONG__LONG
     include 'precision_longlong.inc'
 #else
     include 'precision.inc'
@@ -120,7 +120,7 @@ CONTAINS
   SUBROUTINE v_cycle_ssi_amg(B, X, TEMP, LEVEL_NUM, SOLVER_COMM, WS, WR, NP, WSIZE)
     IMPLICIT NONE
     include 'mpif.h'
-#ifdef LONGLONG
+#ifdef LONG__LONG
     include 'precision_longlong.inc'
 #else
     include 'precision.inc'
@@ -134,7 +134,7 @@ CONTAINS
     CALL MPI_COMM_RANK (SOLVER_COMM, my_rank, ierr) 
 
     X(1:NP) = 0.0d0
-    call v_cycle(B(1:NP), X(1:NP), LEVEL_NUM, SOLVER_COMM, my_rank, WS(1:WSIZE), WR(1:WSIZE), Temp(1:NP), NPROCS, WSIZE, NP)
+    call v_cycle(B, X, LEVEL_NUM, SOLVER_COMM, my_rank, WS, WR, Temp, NPROCS, WSIZE, NP)
     
   END SUBROUTINE v_cycle_ssi_amg
 
@@ -273,7 +273,7 @@ CONTAINS
 
 
        CALL sgs(N,NP,NPL,NPU,D(1:NP),AL(1:NPL),INL(0:N),IAL(1:NPL),AU(1:NPU),INU(0:N),IAU(1:NPU),B(1:NP),&
-            & X(1:NP),1,nth_lev,SOLVER_COMM,my_rank,WS(1:dim),WR(1:dim),dim, nth_lev)
+            & X(1:NP),1,nth_lev,SOLVER_COMM,my_rank,WS,WR,dim, nth_lev)
 
        CALL count_time(2,SOLVER_COMM,my_rank,8)
        !C barrier in ssor ##############
@@ -341,7 +341,7 @@ CONTAINS
             & HIERARCHICAL_DATA(nth_lev+1) % INT_LVL_TABLE % STACK_EXPORT(0:iNEIBPETOT),  &
             & HIERARCHICAL_DATA(nth_lev+1) % INT_LVL_TABLE % NOD_EXPORT                   &
             & (1:HIERARCHICAL_DATA(nth_lev+1) % INT_LVL_TABLE % STACK_EXPORT(iNEIBPETOT)),&
-            & WS(1:dim), WR(1:dim), coarser_B(1:coarser_NP), SOLVER_COMM, my_rank, 1)
+            & WS, WR, coarser_B(1:coarser_NP), SOLVER_COMM, my_rank, 1)
 
 
 
@@ -385,7 +385,7 @@ CONTAINS
 
 
     CALL sgs(N,NP,NPL,NPU,D(1:NP),AL(1:NPL),INL(0:N),IAL(1:NPL),AU(1:NPU),INU(0:N),IAU(1:NPU),B(1:NP),&
-         & X(1:NP),30,LEVEL_NUM,SOLVER_COMM,my_rank,WS(1:dim),WR(1:dim),dim, LEVEL_NUM)
+         & X(1:NP),30,LEVEL_NUM,SOLVER_COMM,my_rank,WS,WR,dim, LEVEL_NUM)
 
     CALL count_time(2,SOLVER_COMM,my_rank,8)
 
@@ -560,7 +560,7 @@ CONTAINS
        CALL count_time(1,SOLVER_COMM,my_rank,8)
 
        CALL sgs(N,NP,NPL,NPU,D(1:NP),AL(1:NPL),INL(0:N),IAL(1:NPL),AU(1:NPU),INU(0:N),&
-            & IAU(1:NPU),B(1:NP),X(1:NP),1,nth_lev,SOLVER_COMM,my_rank,WS(1:dim),WR(1:dim),dim, nth_lev)
+            & IAU(1:NPU),B(1:NP),X(1:NP),1,nth_lev,SOLVER_COMM,my_rank,WS,WR,dim, nth_lev)
        
        CALL count_time(2,SOLVER_COMM,my_rank,8)
        
@@ -607,7 +607,7 @@ CONTAINS
 
   SUBROUTINE ll_slv(lower_mat, b, N)
     IMPLICIT NONE
-#ifdef LONGLONG
+#ifdef LONG__LONG
     include 'precision_longlong.inc'
 #else
     include 'precision.inc'
@@ -840,7 +840,7 @@ CONTAINS
   SUBROUTINE matrix_arrange (N,NP,D,AL,INL,IAL,AU,INU,IAU)
 
     IMPLICIT NONE
-#ifdef LONGLONG
+#ifdef LONG__LONG
     include 'precision_longlong.inc'
 #else
     include 'precision.inc'

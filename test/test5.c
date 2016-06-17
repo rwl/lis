@@ -95,7 +95,7 @@ LIS_INT main(LIS_INT argc, char* argv[])
 	gamma  = atof(argv[2]);
 	if( gn<=0 )
 	{
-#ifdef _LONGLONG
+#ifdef _LONG__LONG
 		if( my_rank==0 ) printf("n=%lld <=0 \n",gn);
 #else
 		if( my_rank==0 ) printf("n=%d <=0 \n",gn);
@@ -106,7 +106,7 @@ LIS_INT main(LIS_INT argc, char* argv[])
 	if( my_rank==0 )
 	  {
 	    printf("\n");
-#ifdef _LONGLONG
+#ifdef _LONG__LONG
 	    printf("number of processes = %lld\n",nprocs);
 #else
 	    printf("number of processes = %d\n",nprocs);
@@ -116,7 +116,7 @@ LIS_INT main(LIS_INT argc, char* argv[])
 #ifdef _OPENMP
 	if( my_rank==0 )
 	  {
-#ifdef _LONGLONG
+#ifdef _LONG__LONG
 	    printf("max number of threads = %lld\n",omp_get_num_procs());
 	    printf("number of threads = %lld\n",omp_get_max_threads());
 #else
@@ -128,7 +128,7 @@ LIS_INT main(LIS_INT argc, char* argv[])
 		
 	if(my_rank==0) 
 	  {
-#ifdef _LONGLONG
+#ifdef _LONG__LONG
 	    printf("n = %lld, gamma = %f\n\n",gn,gamma);
 #else
 #if defined(_COMPLEX)
@@ -177,7 +177,7 @@ LIS_INT main(LIS_INT argc, char* argv[])
 	lis_solver_get_solvername(nsol,solvername);
 	if( my_rank==0 )
 	{
-#ifdef _LONGLONG
+#ifdef _LONG__LONG
 #ifdef _LONG__DOUBLE
 		printf("%s: number of iterations = %lld \n",solvername, iter);
 #else

@@ -4,7 +4,7 @@
 
 # General Configurations
 
-AC_INIT(lis, 1.5.57, devel@ssisc.org)
+AC_INIT(lis, 1.5.66, devel@ssisc.org)
 AC_CONFIG_SRCDIR([src/fortran/lisf_matrix.c])
 AC_CONFIG_AUX_DIR(config)
 AC_CONFIG_MACRO_DIR([m4])
@@ -374,8 +374,8 @@ if test "$TARGET" = ""; then
 	AC_MSG_RESULT($[ax_cv_]_AC_LANG_ABBREV[_compiler_vendor])
 	  case $ax_cv_c_compiler_vendor in
 	    dec) CFLAGS="-newc -w0 -O5 -ansi_alias -ansi_args -fp_reorder -tune host $CFLAGS" ;;
-	    gnu) CFLAGS="-O0 -Wall -Werror -fomit-frame-pointer $CFLAGS" ;;
-	    intel) CFLAGS="-O3 -ansi_alias $CFLAGS" ;;
+	    gnu) CFLAGS="-O3 -fomit-frame-pointer $CFLAGS" ;;
+	    intel) CFLAGS="-ansi_alias $CFLAGS" ;;	    
 	    portland) CFLAGS="-O3 -B -fastsse $CFLAGS" ;;
 	    pathscale) CFLAGS="-O3 $CFLAGS" ;;
 	    ibm) CFLAGS="-O3 -qansialias -w -qarch=auto -qtune=auto $CFLAGS"
@@ -585,8 +585,8 @@ if test "$TARGET" = ""; then
   case $ax_cv_f77_compiler_vendor in
     gnu) FFLAGS="-O3 -fomit-frame-pointer $FFLAGS" 
          FCFLAGS="-O3 -fomit-frame-pointer $FCFLAGS" ;;
-    intel) FFLAGS="-O3 -fpp $FFLAGS" 
-         FCFLAGS="-O3 -fpp $FCFLAGS" 
+    intel) FFLAGS="-fpp $FFLAGS"
+         FCFLAGS="-fpp $FCFLAGS"
          LDFLAGS="-Vaxlib"
          FCLDFLAGS="-nofor_main" ;;
     portland) FFLAGS="-O3 -fastsse -Mpreprocess $FFLAGS" 
@@ -994,23 +994,23 @@ if test "$enable_longlong" = "yes"; then
              LDFLAGS="$LDFLAGS -q64"
              ;;
   esac
-  CFLAGS="$CFLAGS -D_LONGLONG"
+  CFLAGS="$CFLAGS -D_LONG__LONG"
 
   case $ax_cv_f77_compiler_vendor in
-    intel) FFLAGS="$FFLAGS -DLONGLONG -integer-size 64"
-         FCFLAGS="$FCFLAGS -DLONGLONG -integer-size 64"
+    intel) FFLAGS="$FFLAGS -DLONG__LONG -integer-size 64"
+         FCFLAGS="$FCFLAGS -DLONG__LONG -integer-size 64"
 	 ;;
-    ibm) FFLAGS="$FFLAGS -WF,-DLONGLONG -qintsize=8"
-         FCFLAGS="$FCFLAGS -WF,-DLONGLONG -qintsize=8"
+    ibm) FFLAGS="$FFLAGS -WF,-DLONG__LONG -qintsize=8"
+         FCFLAGS="$FCFLAGS -WF,-DLONG__LONG -qintsize=8"
 	 ;;
-    fujitsu) FFLAGS="$FFLAGS -DLONGLONG -CcdII8"
-         FCFLAGS="$FCFLAGS -DLONGLONG -CcdII8"
+    fujitsu) FFLAGS="$FFLAGS -DLONG__LONG -CcdII8"
+         FCFLAGS="$FCFLAGS -DLONG__LONG -CcdII8"
          ;;
-    gnu) FFLAGS="$FFLAGS -Wp,-DLONGLONG -fdefault-integer-8"
-         FCFLAGS="$FCFLAGS -Wp,-DLONGLONG -fdefault-integer-8"
+    gnu) FFLAGS="$FFLAGS -Wp,-DLONG__LONG -fdefault-integer-8"
+         FCFLAGS="$FCFLAGS -Wp,-DLONG__LONG -fdefault-integer-8"
          ;;
-    *)   FFLAGS="$FFLAGS -DLONGLONG" 
-	 FCFLAGS="$FCFLAGS -DLONGLONG" 
+    *)   FFLAGS="$FFLAGS -DLONG__LONG" 
+	 FCFLAGS="$FCFLAGS -DLONG__LONG" 
 	 ;;
   esac
 else
@@ -1163,10 +1163,9 @@ AC_CONFIG_FILES([Makefile
                  src/vector/Makefile
                  src/matrix/Makefile
                  src/matvec/Makefile
-                 src/matmat/Makefile
                  src/array/Makefile
                  src/solver/Makefile
-                 src/esolver/Makefile
+		 src/esolver/Makefile
                  src/precon/Makefile
                  src/system/Makefile
                  src/precision/Makefile
