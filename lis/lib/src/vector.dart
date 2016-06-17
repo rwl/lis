@@ -36,6 +36,10 @@ class Vector<S> extends ListBase<S> {
     return new Vector._(lis, p_vout);
   }
 
+  factory Vector.ones(LIS lis, int n) {
+    return new Vector(lis, n)..fill(lis.one);
+  }
+
   static Vector<Complex> createReal(LIS<Complex> lis, Iterable<double> re) {
     var n = re.length;
     var l = re.map((d) => new Complex(d));
@@ -159,18 +163,10 @@ class Vector<S> extends ListBase<S> {
   void fill(S alpha) => _lis.vectorSetAll(alpha, _p_vec);
 
   /// Get the absolute values of the elements of vector x.
-  Vector<S> abs() {
-    var v = copy();
-    _lis.vectorAbs(v._p_vec);
-    return v;
-  }
+  void abs() => _lis.vectorAbs(_p_vec);
 
   /// Get the reciprocal values of the elements of vector x.
-  Vector<S> reciprocal() {
-    var v = copy();
-    _lis.vectorReciprocal(v._p_vec);
-    return v;
-  }
+  void reciprocal() => _lis.vectorReciprocal(_p_vec);
 
   void shift(S alpha) => _lis.vectorShift(alpha, _p_vec);
 
@@ -184,30 +180,14 @@ class Vector<S> extends ListBase<S> {
 
   S sum() => _lis.vectorSum(_p_vec);
 
-  Vector<S> real() {
-    var v = copy();
-    _lis.vectorReal(v._p_vec);
-    return v;
-  }
+  void real() => _lis.vectorReal(_p_vec);
 
-  Vector<S> imag() {
-    var v = copy();
-    _lis.vectorImaginary(v._p_vec);
-    return v;
-  }
+  void imag() => _lis.vectorImaginary(_p_vec);
 
-  Vector<S> arg() {
-    var v = copy();
-    _lis.vectorArgument(v._p_vec);
-    return v;
-  }
+  void arg() => _lis.vectorArgument(_p_vec);
 
-  Vector<S> conj() {
-    var v = copy();
-    _lis.vectorConjugate(v._p_vec);
-    return v;
-  }
-
+  void conj() => _lis.vectorConjugate(_p_vec);
+/*
   Vector<S> operator *(y) {
     if (y is Vector) {
       return copy()..pmul(y);
@@ -284,5 +264,5 @@ class Vector<S> extends ListBase<S> {
     }
   }
 
-  Vector<S> operator -() => copy()..scale(-(_lis.one as dynamic));
+  Vector<S> operator -() => copy()..scale(-(_lis.one as dynamic));*/
 }

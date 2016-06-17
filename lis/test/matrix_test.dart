@@ -4,7 +4,6 @@ import 'dart:typed_data';
 import 'package:test/test.dart';
 import 'package:lis/lis.dart';
 import 'package:complex/complex.dart';
-import 'package:quiver/iterables.dart';
 
 import 'random.dart' hide rand;
 
@@ -199,34 +198,32 @@ matrixTest(LIS lis, rscal(), toScalar(int i)) {
       A.destroy();
     });
     test('real', () {
-      var re = A.real();
-      var d = re.diagonal().values();
+      A.real();
+      var d = A.diagonal().values();
       for (var i = 0; i < n; i++) {
         if (d[i] is Complex) {
-          expect(d[i].real, closeTo(d0[i].real, 1e-12));
+          expect(d[i].re, closeTo(d0[i].re, 1e-12));
           expect(d[i].imaginary, equals(0.0));
         } else {
           expect(d[i], equals(d0[i]));
         }
       }
-      re.destroy();
     });
     test('imag', () {
-      var im = A.imag();
-      var d = im.diagonal().values();
+      A.imag();
+      var d = A.diagonal().values();
       for (var i = 0; i < n; i++) {
         if (d[i] is Complex) {
-          expect(d[i].real, closeTo(d0[i].imaginary, 1e-12));
+          expect(d[i].re, closeTo(d0[i].imaginary, 1e-12));
           expect(d[i].imaginary, equals(0.0));
         } else {
           expect(d[i], equals(0.0));
         }
       }
-      im.destroy();
     });
     test('conj', () {
-      var c = A.conj();
-      var d = c.diagonal().values();
+      A.conj();
+      var d = A.diagonal().values();
       for (var i = 0; i < n; i++) {
         if (d[i] is Complex) {
           expect(d[i], equals(d0[i].conjugate()));
@@ -234,7 +231,6 @@ matrixTest(LIS lis, rscal(), toScalar(int i)) {
           expect(d[i], equals(d0[i]));
         }
       }
-      c.destroy();
     });
     test('scale', () {
       var alpha = rscal();
@@ -465,7 +461,7 @@ matrixTest(LIS lis, rscal(), toScalar(int i)) {
     Vector v;
     setUp(() {
       n = rint();
-      var index = range(n).toList();
+      var index = new List<int>.generate(n, (i) => i);
       var value = new List.generate(n, (i) => toScalar(i));
 
       v = new Vector.from(lis, value);

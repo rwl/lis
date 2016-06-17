@@ -246,6 +246,15 @@ LIS_INT lis_matmat_csr(LIS_MATRIX A, LIS_MATRIX B, LIS_MATRIX C)
 
 	LIS_DEBUG_FUNC_IN;
 
+	if( B->matrix_type != A->matrix_type )
+	{
+		return LIS_ERR_ILL_ARG;
+	}
+	if( A->n != B->n )
+	{
+		return LIS_ERR_ILL_ARG;
+	}
+
 	if (A->is_splited)
 	{
 		LIS_SETERR_IMP;

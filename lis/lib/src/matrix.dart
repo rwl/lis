@@ -29,7 +29,6 @@ class Matrix<S> {
     var n = value.length;
     var ptr = new List<int>.generate(n + 1, (i) => i);
     var index = new List<int>.generate(n, (i) => i);
-    Vector<S> v = value is Vector ? value : new Vector<S>.from(lis, value);
     var csr = new Matrix<S>.csr(lis, n, n, ptr, index, value);
     csr.assemble();
     return csr;
@@ -52,6 +51,9 @@ class Matrix<S> {
     lis.matrixSetCsr(nnz, ptr.toList(growable: true),
         index.toList(growable: true), v._p_vec, m._p_mat);
     m.assemble();
+    if (value is! Vector) {
+      v.destroy();
+    }
     return m;
   }
 
@@ -72,6 +74,9 @@ class Matrix<S> {
     lis.matrixSetCsc(nnz, ptr.toList(growable: false),
         index.toList(growable: false), v._p_vec, m._p_mat);
     m.assemble();
+    if (value is! Vector) {
+      v.destroy();
+    }
     return m;
   }
 
@@ -88,6 +93,10 @@ class Matrix<S> {
     var m = new Matrix(lis, n);
     lis.matrixSetDia(nnd, index.toList(growable: false), v._p_vec, m._p_mat);
     m.assemble();
+
+    if (value is! Vector) {
+      v.destroy();
+    }
     return m;
   }
 
@@ -108,6 +117,10 @@ class Matrix<S> {
     lis.matrixSetCoo(nnz, row.toList(growable: false),
         col.toList(growable: false), v._p_vec, m._p_mat);
     m.assemble();
+
+    if (value is! Vector) {
+      v.destroy();
+    }
     return m;
   }
 
@@ -123,6 +136,10 @@ class Matrix<S> {
     var m = new Matrix(lis, n);
     lis.matrixSetDns(v._p_vec, m._p_mat);
     m.assemble();
+
+    if (value is! Vector) {
+      v.destroy();
+    }
     return m;
   }
 
@@ -231,26 +248,11 @@ class Matrix<S> {
 
   void sortIndexes() => _lis.matrixSortIndexes(_p_mat);
 
-  Matrix<S> real() {
-    var re = copy();
-    _lis.matrixReal(re._p_mat);
-    re.assemble();
-    return re;
-  }
+  void real() => _lis.matrixReal(_p_mat);
 
-  Matrix<S> imag() {
-    var im = copy();
-    _lis.matrixImaginary(im._p_mat);
-    im.assemble();
-    return im;
-  }
+  void imag() => _lis.matrixImaginary(_p_mat);
 
-  Matrix<S> conj() {
-    var c = copy();
-    _lis.matrixConjugate(c._p_mat);
-    c.assemble();
-    return c;
-  }
+  void conj() => _lis.matrixConjugate(_p_mat);
 
   void scale(S alpha) => _lis.matrixScaleValues(_p_mat, alpha);
 
@@ -281,6 +283,7 @@ class Matrix<S> {
     return c;
   }
 
+/*
   operator *(x) {
     if (x is Vector) {
       return matvec(x);
@@ -301,14 +304,14 @@ class Matrix<S> {
       throw new ArgumentError('expected Vector, Matrix or S type');
     }
   }
-
+*/
   Matrix<S> operator +(Matrix<S> B) => add(B);
 
   Matrix<S> operator -(Matrix<S> B) => subtract(B);
 
   Matrix<S> get T => transpose();
 
-  Matrix<S> get H => transpose(conj());
+  Matrix<S> get H => transpose(copy()..conj());
 
   Matrix<S> toCsr([bool sortIndexes = true, bool sumDuplicates = true]) {
     var csr = new Matrix<S>.convert(_lis, this, MatrixType.CSR);

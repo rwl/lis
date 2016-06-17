@@ -58,6 +58,11 @@ LIS_INT lis_matvec(LIS_MATRIX A, LIS_VECTOR X, LIS_VECTOR Y)
 
 	LIS_DEBUG_FUNC_IN;
 
+	if( A->n != X->n )
+	{
+		return LIS_ERR_ILL_ARG;
+	}
+
 	if( X->precision==LIS_PRECISION_DEFAULT )
 	{
 		x = X->value;

@@ -213,10 +213,10 @@ vectorTest(LIS lis, rscal()) {
     for (var i = 0; i < v.length; i++) {
       v[i] = -v[i];
     }
-    var v2 = v.abs();
+    var v2 = v.copy()..abs();
     for (var i = 0; i < v.length; i++) {
       if (v[i] is Complex) {
-        expect(v2[i].real, closeTo(v[i].abs(), 1e-12));
+        expect(v2[i].re, closeTo(v[i].abs(), 1e-12));
       } else {
         expect(v2[i], equals(v[i].abs()));
       }
@@ -225,7 +225,7 @@ vectorTest(LIS lis, rscal()) {
   });
   test('reciprocal', () {
     rvec(v);
-    var v2 = v.reciprocal();
+    var v2 = v.copy()..reciprocal();
     for (var i = 0; i < v.length; i++) {
       if (v[i] is Complex) {
         expect(v2[i].abs(), closeTo(v[i].reciprocal().abs(), 1e-12));
@@ -276,10 +276,10 @@ vectorTest(LIS lis, rscal()) {
   });
   test('real', () {
     rvec(v);
-    var v2 = v.real();
+    var v2 = v.copy()..real();
     for (var i = 0; i < v.length; i++) {
       if (v[i] is Complex) {
-        expect(v2[i].real, closeTo(v[i].real, 1e-12));
+        expect(v2[i].re, closeTo(v[i].re, 1e-12));
         expect(v2[i].imaginary, equals(0.0));
       } else {
         expect(v2[i], equals(v[i]));
@@ -288,10 +288,10 @@ vectorTest(LIS lis, rscal()) {
   });
   test('imag', () {
     rvec(v);
-    var v2 = v.imag();
+    var v2 = v.copy()..imag();
     for (var i = 0; i < v.length; i++) {
       if (v[i] is Complex) {
-        expect(v2[i].real, closeTo(v[i].imaginary, 1e-12));
+        expect(v2[i].re, closeTo(v[i].imaginary, 1e-12));
         expect(v2[i].imaginary, equals(0.0));
       } else {
         expect(v2[i], equals(0.0));
@@ -305,10 +305,10 @@ vectorTest(LIS lis, rscal()) {
         v[i] = -v[i];
       }
     }
-    var v2 = v.arg();
+    var v2 = v.copy()..arg();
     for (var i = 0; i < v.length; i++) {
       if (v[i] is Complex) {
-        expect(v2[i].real, closeTo(v[i].argument(), 1e-12));
+        expect(v2[i].re, closeTo(v[i].argument(), 1e-12));
         expect(v2[i].imaginary, equals(0.0));
       } else {
         expect(v2[i], equals(v[i] >= 0 ? 0.0 : PI));
@@ -324,7 +324,7 @@ vectorTest(LIS lis, rscal()) {
         }
       }
     }
-    var v2 = v.conj();
+    var v2 = v.copy()..conj();
     for (var i = 0; i < v.length; i++) {
       if (v[i] is Complex) {
         expect(v2[i], equals(v[i].conjugate()));
